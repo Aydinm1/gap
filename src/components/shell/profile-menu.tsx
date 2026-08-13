@@ -7,9 +7,11 @@ import type { ProgramUser } from "@/lib/program/types";
 export function ProfileMenu({
   user,
   links,
+  cohortLabel,
 }: {
   user: ProgramUser;
   links: readonly { label: string; href: string }[];
+  cohortLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -62,6 +64,11 @@ export function ProfileMenu({
           <div className="border-b border-border px-3 py-2.5">
             <p className="truncate text-sm font-bold text-ink">{user.fullName}</p>
             <p className="mt-0.5 truncate text-xs text-ink-soft">{user.email}</p>
+            {cohortLabel ? (
+              <p className="mt-2 text-xs font-bold text-action">
+                {cohortLabel}
+              </p>
+            ) : null}
           </div>
           <div className="pt-2">
             {links.map((link) => (

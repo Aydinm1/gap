@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-13
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -18,6 +18,11 @@
 ## Enums
 
 - `app_role`: `member | admin`
+- `program_quarter`: `fall | winter | spring`
+- `cohort_state`: `draft | active | archived`
+- `participation_status`: `enrolled | completed | withdrew`
+- `advancement_status`: `pending | promoted | not_promoted`
+- `promotion_response`: `pending | joined | declined`
 - `submission_type`: `file | link`
 - `submission_status`: `submitted | reviewed | needs_revision`
 
@@ -26,9 +31,21 @@ submission state.
 
 ## Tables
 
+### `people`
+
+- `id uuid primary key`
+- `email text unique not null`
+- `full_name text not null`
+- `created_at timestamptz not null`
+- `updated_at timestamptz not null`
+
+People are GAP participants or admins retained for historical reporting. This is not a
+directory of the full club.
+
 ### `approved_members`
 
 - `id uuid primary key`
+- `person_id uuid unique not null references people(id) on delete restrict`
 - `email text unique not null`
 - `full_name text not null`
 - `role app_role not null default 'member'`
@@ -36,11 +53,13 @@ submission state.
 - `created_at timestamptz not null`
 - `updated_at timestamptz not null`
 
-The roster is the authorization authority and may exist before first login.
+The roster is the authorization authority and may exist before first login. Deactivation
+removes access without deleting the linked person or cohort history.
 
 ### `profiles`
 
 - `id uuid primary key references auth.users(id) on delete cascade`
+- `person_id uuid unique not null references people(id) on delete restrict`
 - `email text unique not null`
 - `full_name text not null`
 - `role app_role not null`
@@ -50,16 +69,48 @@ The roster is the authorization authority and may exist before first login.
 Profiles mirror the active roster entry for an authenticated user. Members cannot modify
 their role.
 
+### `program_cohorts`
+
+- `id uuid primary key`
+- `quarter program_quarter not null`
+- `year smallint not null`
+- `starts_on date not null`
+- `ends_on date not null`
+- `state cohort_state not null default 'draft'`
+- `created_at timestamptz not null`
+- `updated_at timestamptz not null`
+
+Enforce one cohort per `(quarter, year)` and `ends_on >= starts_on`. Calendar-year labels
+such as `Winter 2027` avoid ambiguous academic-year storage.
+
+### `cohort_enrollments`
+
+- `id uuid primary key`
+- `cohort_id uuid not null references program_cohorts(id) on delete restrict`
+- `person_id uuid not null references people(id) on delete restrict`
+- `participation_status participation_status not null default 'enrolled'`
+- `advancement_status advancement_status not null default 'pending'`
+- `promotion_response promotion_response`
+- `created_at timestamptz not null`
+- `updated_at timestamptz not null`
+
+Enforce one enrollment per `(cohort_id, person_id)`. A promotion response is required only
+when advancement is `promoted` and must otherwise be null. Formal enrollments remain in
+the starter denominator even if participation later becomes `withdrew`.
+
 ### `program_weeks`
 
 - `id uuid primary key`
-- `week_number smallint unique not null check (week_number between 1 and 6)`
+- `cohort_id uuid not null references program_cohorts(id) on delete restrict`
+- `week_number smallint not null check (week_number between 1 and 6)`
 - `title text not null`
 - `description text not null`
 - `published boolean not null default false`
 - `slides_url text`
 - `created_at timestamptz not null`
 - `updated_at timestamptz not null`
+
+Enforce unique `(cohort_id, week_number)` so every cohort may have its own six weeks.
 
 ### `resources`
 
@@ -93,7 +144,7 @@ submissions.
 
 - `id uuid primary key`
 - `assignment_id uuid not null references assignments(id) on delete cascade`
-- `user_id uuid not null references profiles(id) on delete cascade`
+- `enrollment_id uuid not null references cohort_enrollments(id) on delete restrict`
 - `submission_type submission_type not null`
 - `original_filename text`
 - `file_path text`
@@ -107,7 +158,8 @@ submissions.
 - `submitted_at timestamptz not null`
 - `updated_at timestamptz not null`
 
-Constraints require exactly one of `file_path` or `submitted_url` according to
+Constraints require the assignment week and enrollment to belong to the same cohort and
+exactly one of `file_path` or `submitted_url` according to
 `submission_type`. A partial unique index permits only one current submission per user
 and assignment. Resubmission atomically sets the previous row to non-current and inserts
 a new row pointing to it. Historical records are never silently overwritten.
@@ -123,8 +175,8 @@ returns only `week_number`, `title`, and `published`. Direct member SELECT polic
 
 | Resource | Member | Admin |
 | --- | --- | --- |
-| Own profile | Read | Read all profiles |
-| Roster | No direct access | Read/create/update; no hard delete required |
+| Own profile and active enrollment | Read | Read all profiles/enrollments |
+| People, roster, cohorts, outcomes | No direct access beyond own active context | Read/create/update; no hard delete required |
 | Week catalog | Read safe fields | Read all |
 | Published weeks/resources/assignments | Read | Read/write all |
 | Draft content | No access | Read/write |
@@ -134,6 +186,18 @@ returns only `week_number`, `title`, and `published`. Direct member SELECT polic
 Admin policies derive authority from the active roster/profile through a hardened private
 helper; do not trust `raw_user_meta_data` for authorization. Mutation code and RLS both
 enforce access.
+
+## Cohort reporting
+
+Admin summaries derive rather than store:
+
+- `starters`: all cohort enrollments;
+- `advancement_rate`: promoted divided by finalized advancement decisions;
+- `offer_yield`: joined divided by finalized promoted responses;
+- `end_to_end_conversion`: joined divided by all cohort starters.
+
+Always show pending-decision, pending-response, and withdrawal counts with these rates so
+their denominators remain clear.
 
 ## Storage
 

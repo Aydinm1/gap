@@ -1,4 +1,9 @@
 export type AppRole = "member" | "admin";
+export type ProgramQuarter = "fall" | "winter" | "spring";
+export type CohortState = "draft" | "active" | "archived";
+export type ParticipationStatus = "enrolled" | "completed" | "withdrew";
+export type AdvancementStatus = "pending" | "promoted" | "not_promoted";
+export type PromotionResponse = "pending" | "joined" | "declined";
 export type WeekPublicationState = "draft" | "published";
 export type SubmissionStatus = "submitted" | "reviewed" | "needs_revision";
 export type SubmissionType = "file" | "link";
@@ -10,11 +15,44 @@ export type AssignmentDisplayState =
 
 export type ProgramUser = {
   id: string;
+  personId: string;
   email: string;
   fullName: string;
   role: AppRole;
   initials: string;
 };
+
+export type Person = {
+  id: string;
+  email: string;
+  fullName: string;
+};
+
+export type ProgramCohort = {
+  id: string;
+  quarter: ProgramQuarter;
+  year: number;
+  startsOn: string;
+  endsOn: string;
+  state: CohortState;
+};
+
+type PendingOrNotPromotedEnrollment = {
+  advancementStatus: "pending" | "not_promoted";
+  promotionResponse?: never;
+};
+
+type PromotedEnrollment = {
+  advancementStatus: "promoted";
+  promotionResponse: PromotionResponse;
+};
+
+export type CohortEnrollment = {
+  id: string;
+  cohortId: string;
+  personId: string;
+  participationStatus: ParticipationStatus;
+} & (PendingOrNotPromotedEnrollment | PromotedEnrollment);
 
 export type Resource = {
   id: string;
@@ -41,7 +79,7 @@ export type SubmissionPayload = FileSubmission | LinkSubmission;
 export type SubmissionAttempt = {
   id: string;
   assignmentId: string;
-  userId: string;
+  enrollmentId: string;
   status: SubmissionStatus;
   submittedAt: string;
   isCurrent: boolean;
@@ -61,6 +99,7 @@ export type Assignment = {
 
 export type WeekCatalogItem = {
   id: string;
+  cohortId: string;
   weekNumber: number;
   title: string;
   publicationState: WeekPublicationState;

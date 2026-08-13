@@ -10,6 +10,22 @@ import { isPublishedWeek } from "./types.ts";
 export const DUE_SOON_WINDOW_MS = 72 * 60 * 60 * 1000;
 export const PROGRAM_TIME_ZONE = "America/Los_Angeles";
 
+const quarterOrder = { winter: 0, spring: 1, fall: 2 } as const;
+
+export function formatCohortLabel(cohort: {
+  quarter: "fall" | "winter" | "spring";
+  year: number;
+}) {
+  return `${cohort.quarter[0].toUpperCase()}${cohort.quarter.slice(1)} ${cohort.year}`;
+}
+
+export function compareCohorts(
+  left: { quarter: "fall" | "winter" | "spring"; year: number },
+  right: { quarter: "fall" | "winter" | "spring"; year: number },
+) {
+  return left.year - right.year || quarterOrder[left.quarter] - quarterOrder[right.quarter];
+}
+
 export function deriveAssignmentState(
   assignment: Assignment,
   submission: SubmissionAttempt | undefined,

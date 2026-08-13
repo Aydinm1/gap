@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-13
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -28,7 +28,10 @@ It should feel like a restrained consulting-firm training portal, not a school L
 
 ## Program model
 
-- One program term is in scope for the MVP: Fall 2026.
+- Fall 2026 is the active MVP cohort. The durable model supports Fall, Winter, and Spring
+  cohorts identified by quarter and calendar year.
+- A permanent GAP person may have multiple cohort enrollments. Login access can be
+  deactivated without erasing historical participation.
 - The program contains exactly six ordered modules:
   1. Consulting Fundamentals
   2. Research & Problem Solving
@@ -107,12 +110,19 @@ does not count as complete.
 - Create and edit weeks, presentations, assignments, deadlines, and ordered resources.
 - Manually publish or return a week to draft.
 - Add, edit, activate, deactivate, and assign roles in the approved roster.
+- Create and archive cohorts, manage GAP participant rosters, and record participation,
+  advancement decisions, and promoted responses.
+- View restrained cohort counts plus advancement, offer-yield, and end-to-end conversion
+  percentages with transparent denominators.
 
 ## Explicitly out of scope
 
 Do not add grades, scores, quizzes, rubrics, discussion boards, chat, email, attendance,
 certificates, announcements, peer review, teams, calendars, notifications, analytics,
 leaderboards, study metrics, Google Drive editing, live documents, or AI features.
+
+The cohort outcome summaries above are the sole approved operational-reporting exception;
+do not expand them into charts, engagement analytics, or a full-club CRM.
 
 ## MVP acceptance criteria
 

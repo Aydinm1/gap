@@ -26,7 +26,7 @@ function submission(status) {
   return {
     id: `submission-${status}`,
     assignmentId: baseAssignment.id,
-    userId: "user-test",
+    enrollmentId: "enrollment-test",
     status,
     submittedAt: "2026-09-16T18:00:00.000Z",
     isCurrent: true,

@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-13
 **Source of truth for:** Durable decision history and ADR format
 
 Create an ADR for decisions that materially affect architecture, schema, security,
@@ -49,3 +49,9 @@ Which credible alternatives were rejected, and why?
 
 Living documents must reflect the current accepted result. ADRs explain the reasoning but
 do not override a later source-of-truth update and superseding ADR.
+
+## Accepted decisions
+
+- [ADR 0001: Documentation as product infrastructure](0001-documentation-as-product-infrastructure.md)
+- [ADR 0002: Stable runtime and framework channels](0002-stable-runtime-and-framework-channels.md)
+- [ADR 0003: Cohort history and advancement outcomes](0003-cohort-history-and-advancement-outcomes.md)

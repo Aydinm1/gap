@@ -1,7 +1,7 @@
 # GAP Application Architecture
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-13
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -88,6 +88,15 @@ concrete need emerges.
   visual states and tests do not change with the real date.
 - The `/dev/ui` component lab calls `notFound()` in production and is never a user-facing
   application route.
+- The student dashboard consumes a narrow `ProgramDashboardViewModel` built by pure
+  selectors. Pages do not independently derive completion, priority work, feedback, or
+  module presentation state.
+- During Phase 2, published-week links resolve to the final dynamic route shape with a
+  minimal read-only scaffold. Draft and malformed week routes return not found; Phase 3
+  replaces the scaffold body in place.
+- Dashboard repositories supply an explicit cohort and the current person's enrollment.
+  Identity, login authorization, and cohort participation remain separate so archived
+  history survives access deactivation.
 
 ## Time and derived state
 

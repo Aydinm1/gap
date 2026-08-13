@@ -21,6 +21,15 @@ Keep a Changelog without assigning versions until the first release.
 - Non-production component lab for reviewing the visual system and representative states.
 - Dependency-free domain-state tests using Node's built-in TypeScript stripping.
 - Interactive week-progress and local file-selection previews in the component lab.
+- Mock-backed student dashboard with program progress, priority revision work, feedback,
+  and a protected six-module catalog.
+- Published-week route scaffold with draft and malformed-route denial.
+- Pure dashboard view-model and safe published-week lookup with edge-state tests.
+- Fall, Winter, and Spring cohort domain contracts with permanent people, explicit
+  enrollments, advancement decisions, promoted responses, and fictional cohort history.
+- Transparent cohort advancement, offer-yield, and end-to-end conversion selectors.
+- Accepted cohort-history architecture decision and cohort-aware Supabase schema plan.
+- Current cohort context in the analyst profile dropdown.
 
 ### Changed
 

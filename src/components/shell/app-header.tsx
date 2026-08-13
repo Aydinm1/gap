@@ -15,10 +15,12 @@ export function AppHeader({
   user,
   navigation,
   profileLinks,
+  cohortLabel,
 }: {
   user: ProgramUser;
   navigation: readonly NavigationItem[];
   profileLinks: readonly NavigationItem[];
+  cohortLabel?: string;
 }) {
   return (
     <header className="border-b border-border bg-surface">
@@ -55,7 +57,7 @@ export function AppHeader({
             ))}
           </nav>
           <div className="col-start-2 row-start-1 self-center lg:order-3 lg:ml-auto">
-            <ProfileMenu user={user} links={profileLinks} />
+            <ProfileMenu user={user} links={profileLinks} cohortLabel={cohortLabel} />
           </div>
         </div>
       </PageContainer>

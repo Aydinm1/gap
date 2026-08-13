@@ -1,16 +1,82 @@
 import type {
   Assignment,
+  CohortEnrollment,
+  Person,
+  ProgramCohort,
   ProgramUser,
   ProgramWeek,
   SubmissionAttempt,
 } from "./types.ts";
 
 export const MOCK_NOW = new Date("2026-09-16T19:00:00.000Z");
-export const MOCK_PROGRAM_TERM = "Fall 2026";
+
+export const mockPeople = {
+  aydin: {
+    id: "person-aydin-merchant",
+    email: "aydin.merchant@ucdavis.edu",
+    fullName: "Aydin Merchant",
+  },
+  jordan: {
+    id: "person-jordan-lee",
+    email: "jordan.lee@example.edu",
+    fullName: "Jordan Lee",
+  },
+  priya: {
+    id: "person-priya-shah",
+    email: "priya.shah@example.edu",
+    fullName: "Priya Shah",
+  },
+} satisfies Record<string, Person>;
+
+export const mockCohorts = {
+  spring2026: {
+    id: "cohort-spring-2026",
+    quarter: "spring",
+    year: 2026,
+    startsOn: "2026-03-30",
+    endsOn: "2026-06-12",
+    state: "archived",
+  },
+  fall2026: {
+    id: "cohort-fall-2026",
+    quarter: "fall",
+    year: 2026,
+    startsOn: "2026-09-21",
+    endsOn: "2026-12-11",
+    state: "active",
+  },
+} satisfies Record<string, ProgramCohort>;
+
+export const mockEnrollments = [
+  {
+    id: "enrollment-aydin-fall-2026",
+    cohortId: mockCohorts.fall2026.id,
+    personId: mockPeople.aydin.id,
+    participationStatus: "enrolled",
+    advancementStatus: "pending",
+  },
+  {
+    id: "enrollment-jordan-spring-2026",
+    cohortId: mockCohorts.spring2026.id,
+    personId: mockPeople.jordan.id,
+    participationStatus: "completed",
+    advancementStatus: "promoted",
+    promotionResponse: "joined",
+  },
+  {
+    id: "enrollment-priya-spring-2026",
+    cohortId: mockCohorts.spring2026.id,
+    personId: mockPeople.priya.id,
+    participationStatus: "completed",
+    advancementStatus: "promoted",
+    promotionResponse: "declined",
+  },
+] satisfies readonly CohortEnrollment[];
 
 export const mockUsers = {
   member: {
     id: "user-aydin-merchant",
+    personId: mockPeople.aydin.id,
     email: "aydin.merchant@ucdavis.edu",
     fullName: "Aydin Merchant",
     role: "member",
@@ -18,6 +84,7 @@ export const mockUsers = {
   },
   admin: {
     id: "user-aydin-merchant",
+    personId: mockPeople.aydin.id,
     email: "aydin.merchant@ucdavis.edu",
     fullName: "Aydin Merchant",
     role: "admin",
@@ -46,6 +113,7 @@ export const researchPlanAssignment: Assignment = {
 export const mockWeeks: readonly ProgramWeek[] = [
   {
     id: "week-1",
+    cohortId: mockCohorts.fall2026.id,
     weekNumber: 1,
     title: "Consulting Fundamentals",
     publicationState: "published",
@@ -57,6 +125,7 @@ export const mockWeeks: readonly ProgramWeek[] = [
   },
   {
     id: "week-2",
+    cohortId: mockCohorts.fall2026.id,
     weekNumber: 2,
     title: "Research & Problem Solving",
     publicationState: "published",
@@ -90,17 +159,17 @@ export const mockWeeks: readonly ProgramWeek[] = [
     ],
     assignment: researchPlanAssignment,
   },
-  { id: "week-3", weekNumber: 3, title: "Client Communication", publicationState: "draft" },
-  { id: "week-4", weekNumber: 4, title: "Data & Insights", publicationState: "draft" },
-  { id: "week-5", weekNumber: 5, title: "Building Recommendations", publicationState: "draft" },
-  { id: "week-6", weekNumber: 6, title: "Final Case", publicationState: "draft" },
+  { id: "week-3", cohortId: mockCohorts.fall2026.id, weekNumber: 3, title: "Client Communication", publicationState: "draft" },
+  { id: "week-4", cohortId: mockCohorts.fall2026.id, weekNumber: 4, title: "Data & Insights", publicationState: "draft" },
+  { id: "week-5", cohortId: mockCohorts.fall2026.id, weekNumber: 5, title: "Building Recommendations", publicationState: "draft" },
+  { id: "week-6", cohortId: mockCohorts.fall2026.id, weekNumber: 6, title: "Final Case", publicationState: "draft" },
 ];
 
 export const mockSubmissions: readonly SubmissionAttempt[] = [
   {
     id: "submission-week-1-aydin",
     assignmentId: fundamentalsAssignment.id,
-    userId: mockUsers.member.id,
+    enrollmentId: mockEnrollments[0].id,
     status: "reviewed",
     submittedAt: "2026-09-11T02:43:00.000Z",
     reviewedAt: "2026-09-13T18:15:00.000Z",
@@ -114,7 +183,7 @@ export const mockSubmissions: readonly SubmissionAttempt[] = [
   {
     id: "submission-week-2-aydin-1",
     assignmentId: researchPlanAssignment.id,
-    userId: mockUsers.member.id,
+    enrollmentId: mockEnrollments[0].id,
     status: "submitted",
     submittedAt: "2026-09-15T23:43:00.000Z",
     isCurrent: false,
@@ -127,7 +196,7 @@ export const mockSubmissions: readonly SubmissionAttempt[] = [
   {
     id: "submission-week-2-aydin-2",
     assignmentId: researchPlanAssignment.id,
-    userId: mockUsers.member.id,
+    enrollmentId: mockEnrollments[0].id,
     status: "needs_revision",
     submittedAt: "2026-09-16T03:43:00.000Z",
     reviewedAt: "2026-09-16T17:20:00.000Z",

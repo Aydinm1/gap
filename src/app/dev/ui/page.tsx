@@ -10,8 +10,8 @@ import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
 import { Field } from "@/components/ui/field";
 import { StateMessage } from "@/components/ui/state-message";
-import { mockStatusExamples, mockUsers, researchPlanAssignment } from "@/lib/program/mock-data";
-import { formatDeadline } from "@/lib/program/state";
+import { mockCohorts, mockStatusExamples, mockUsers, researchPlanAssignment } from "@/lib/program/mock-data";
+import { formatCohortLabel, formatDeadline } from "@/lib/program/state";
 
 export const metadata: Metadata = { title: "UI Lab | GAP" };
 
@@ -39,7 +39,7 @@ export default function UiLabPage() {
     <main className="min-h-screen bg-canvas pb-24 text-ink">
       <section id="member-shell" aria-labelledby="member-shell-title">
         <h1 id="member-shell-title" className="sr-only">Member application header</h1>
-        <AppHeader user={mockUsers.member} navigation={memberNavigation} profileLinks={profileLinks} />
+        <AppHeader user={mockUsers.member} navigation={memberNavigation} profileLinks={profileLinks} cohortLabel={formatCohortLabel(mockCohorts.fall2026)} />
       </section>
 
       <PageContainer className="py-12 sm:py-16">
@@ -138,7 +138,7 @@ export default function UiLabPage() {
 
       <section id="admin-shell" aria-labelledby="admin-shell-title" className="border-y border-border">
         <h2 id="admin-shell-title" className="sr-only">Admin application header</h2>
-        <AppHeader user={mockUsers.admin} navigation={adminNavigation} profileLinks={profileLinks} />
+        <AppHeader user={mockUsers.admin} navigation={adminNavigation} profileLinks={profileLinks} cohortLabel={formatCohortLabel(mockCohorts.fall2026)} />
       </section>
     </main>
   );

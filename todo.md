@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-13
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -59,22 +59,22 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 2 — Student dashboard
 
-- [ ] Build `/program` with user greeting, Fall 2026 status, current week, progress text,
+- [x] Build `/program` with user greeting, Fall 2026 status, current week, progress text,
   and thin progress bar.
-- [ ] Add the featured continue-learning card for the current actionable published week.
-- [ ] Show the nearest upcoming or overdue assignment with a semantic status badge.
-- [ ] Render all six modules in a restrained ordered list/card treatment.
-- [ ] Show draft weeks as locked number/title cards without leaking protected content.
-- [ ] Link published modules to their week route and provide useful empty/error states.
-- [ ] Make the dashboard excellent on small screens with prominent deadlines and
+- [x] Add the featured continue-learning card for the current actionable published week.
+- [x] Show the nearest upcoming or overdue assignment with a semantic status badge.
+- [x] Render all six modules in a restrained ordered list/card treatment.
+- [x] Show draft weeks as locked number/title cards without leaking protected content.
+- [x] Link published modules to their week route and provide useful empty/error states.
+- [x] Make the dashboard excellent on small screens with prominent deadlines and
   thumb-friendly actions.
 
 ### Phase 2 gate
 
-- [ ] Dashboard answers the five priority questions defined in the product spec without
+- [x] Dashboard answers the five priority questions defined in the product spec without
   fake analytics or out-of-scope features.
 - [ ] Keyboard, narrow-mobile, tablet, and desktop checks pass.
-- [ ] Lint, typecheck, and production build pass.
+- [x] Lint, typecheck, and production build pass.
 
 ## Phase 3 — Week detail and mock submission flow
 
@@ -97,6 +97,11 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 4 — Mock admin experience
 
+- [ ] Build Fall/Winter/Spring cohort creation, active/archive views, and cohort switching.
+- [ ] Build cohort rosters with permanent participant history and participation,
+  advancement, and promoted-response controls.
+- [ ] Show transparent cohort starters, advancement rate, offer yield, end-to-end
+  conversion, pending, and withdrawn summary values without charts.
 - [ ] Build admin-only layout and navigation with an obvious return to the member portal.
 - [ ] Build `/admin` with active member, current submitted, outstanding, and awaiting
   review summary values.
@@ -120,13 +125,14 @@ requires implementation, validation, documentation, and changelog agreement.
 ## Phase 5 — Supabase schema, seeds, and data access
 
 - [ ] Install only current `@supabase/supabase-js` and `@supabase/ssr` dependencies.
-- [ ] Add ordered SQL migrations for enums, tables, constraints, timestamps, indexes, and
+- [ ] Add ordered SQL migrations for people, Fall/Winter/Spring cohorts, enrollments,
+  outcomes, content, submissions, constraints, timestamps, indexes, and
   private authorization helpers defined in `docs/data-model.md`.
 - [ ] Add the safe authenticated week-catalog function for locked draft cards.
 - [ ] Add RLS grants and policies for profiles, roster, weeks, resources, assignments, and
   submissions.
 - [ ] Add realistic idempotent seed data for six weeks and Week 2 details without shipping
-  real personal data.
+  real personal data; include fictional active Fall and archived Spring cohorts.
 - [ ] Add generated database TypeScript types and a documented regeneration command.
 - [ ] Add cookie-aware server and browser clients using async Next.js 16 APIs.
 - [ ] Implement a narrow server-only data layer and DTOs for member and admin reads.
