@@ -29,6 +29,10 @@ decorative analytics, gradients used as spectacle, and visual clutter.
 | Deep green | `#519D39` | Hover/pressed states and restrained secondary accents |
 | White | `#FFFFFF` | Main backgrounds and reversed text |
 
+The supplied brand greens do not meet WCAG AA contrast with white for normal-size text.
+Use derived action green `#2F7328` for primary controls and `#275F22` for their hover
+state. Keep the supplied greens for brand accents, progress, and selected surfaces.
+
 Implementation may add neutral tints derived from charcoal and white for page
 backgrounds, muted text, borders, and disabled states. Status colors may add accessible
 amber and red only when semantic meaning requires them. Green must not communicate an
@@ -71,7 +75,9 @@ descriptive filenames.
 ## Core UI patterns
 
 - **Application shell:** compact brand header, clear page title, profile control, and
-  minimal navigation.
+  minimal navigation. Use one vertically centered row for logo, navigation, and profile
+  on large screens. Below that breakpoint, keep logo and profile together with navigation
+  on a horizontally scrollable second row.
 - **Primary action:** solid brand green with white text and deep-green hover.
 - **Secondary action:** white/neutral surface with charcoal border and text.
 - **Cards:** white or near-white, subtle border, modest radius, minimal shadow.
@@ -83,6 +89,18 @@ descriptive filenames.
 - **Tables:** quiet dividers and sticky/clear headers; use horizontal scrolling or cards
   on narrow screens.
 - **Empty/error states:** concise explanation and one useful next action; no fake data.
+
+## Component conventions
+
+- Shared primitives live under `src/components/ui`; product-aware presentation belongs in
+  a domain folder such as `src/components/program`.
+- Prefer explicit variants and native HTML attributes. Do not add polymorphic component
+  APIs or a component dependency until a concrete interface requires one.
+- Buttons and button-styled links are separate components so their semantics remain clear.
+- Server Components are the default. Keep interactive client boundaries narrow, as with
+  the profile menu.
+- `/dev/ui` is the non-production review surface for tokens, primitives, shell variants,
+  and representative states.
 
 ## Responsive behavior
 

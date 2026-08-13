@@ -39,23 +39,23 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 1 — Visual system and mock data
 
-- [ ] Replace Geist/Arial usage with Montserrat through `next/font` and define Tailwind 4
+- [x] Replace Geist/Arial usage with Montserrat through `next/font` and define Tailwind 4
   theme tokens for the approved palette and neutral scale.
-- [ ] Build accessible primitives for buttons, badges, progress, cards, fields, errors,
+- [x] Build accessible primitives for buttons, badges, progress, cards, fields, errors,
   empty states, and page containers without introducing a broad UI dependency.
-- [ ] Build the responsive brand header, profile menu shell, and member/admin navigation.
-- [ ] Create typed view models and realistic Fall 2026 seed/mock data for all six weeks.
-- [ ] Populate Week 2 with realistic workshop, resource, assignment, deadline, submission,
+- [x] Build the responsive brand header, profile menu shell, and member/admin navigation.
+- [x] Create typed view models and realistic Fall 2026 seed/mock data for all six weeks.
+- [x] Populate Week 2 with realistic workshop, resource, assignment, deadline, submission,
   and feedback examples.
-- [ ] Centralize deadline formatting and assignment/module state derivation.
-- [ ] Add mock roles/states that make member and admin flows navigable before OAuth.
+- [x] Centralize deadline formatting and assignment/module state derivation.
+- [x] Add mock roles/states that make member and admin flows navigable before OAuth.
 
 ### Phase 1 gate
 
 - [ ] Brand assets, type, color, spacing, focus, and contrast match
   `docs/design-system.md` at mobile and desktop widths.
-- [ ] Mock types prevent invalid file/link and stored-overdue states.
-- [ ] Lint, typecheck, and production build pass.
+- [x] Mock types prevent invalid file/link and stored-overdue states.
+- [x] Lint, typecheck, and production build pass.
 
 ## Phase 2 — Student dashboard
 

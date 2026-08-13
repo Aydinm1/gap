@@ -78,6 +78,17 @@ status helpers should remain stable when mock repositories are replaced by Supab
 access. Do not maintain a production runtime switch between mock and live data unless a
 concrete need emerges.
 
+- Domain contracts and pure selectors live in `src/lib/program`; mock fixtures are a
+  separate module in that domain.
+- File and link submissions use a discriminated union, and persisted submission status
+  excludes deadline-derived display states.
+- Draft program items contain catalog fields only. Published detail objects carry
+  descriptions, resources, slides, and assignments.
+- Time-sensitive selectors accept an explicit `now`. Mock previews use a fixed clock so
+  visual states and tests do not change with the real date.
+- The `/dev/ui` component lab calls `notFound()` in production and is never a user-facing
+  application route.
+
 ## Time and derived state
 
 - Store deadlines and submission times as UTC-backed `timestamptz`.

@@ -1,15 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f8f6;
+  --background: #f6f7f4;
   --foreground: #434343;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-montserrat);
+
+  --color-canvas: #f6f7f4;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f0f2ee;
+  --color-ink: #434343;
+  --color-ink-soft: #5f645f;
+  --color-ink-faint: #767c76;
+  --color-border: #d9ddd7;
+  --color-border-strong: #b9c0b8;
+  --color-brand: #55b441;
+  --color-brand-deep: #519d39;
+  --color-action: #2f7328;
+  --color-action-hover: #275f22;
+  --color-focus: #2364aa;
+  --color-info-bg: #edf4f8;
+  --color-info-text: #275670;
+  --color-success-bg: #eaf5e7;
+  --color-success-text: #286326;
+  --color-warning-bg: #fff4d6;
+  --color-warning-text: #795400;
+  --color-danger-bg: #fcebea;
+  --color-danger-text: #912d28;
+
+  --radius-card: 0.875rem;
+  --shadow-card: 0 1px 2px rgb(37 39 37 / 0.05);
 }
 
 * {
@@ -24,5 +48,34 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-montserrat), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, #55b441 30%, white);
+}
+
+:focus-visible {
+  outline: 3px solid #2364aa;
+  outline-offset: 3px;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
