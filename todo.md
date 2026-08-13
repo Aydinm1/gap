@@ -52,7 +52,7 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ### Phase 1 gate
 
-- [ ] Brand assets, type, color, spacing, focus, and contrast match
+- [x] Brand assets, type, color, spacing, focus, and contrast match
   `docs/design-system.md` at mobile and desktop widths.
 - [x] Mock types prevent invalid file/link and stored-overdue states.
 - [x] Lint, typecheck, and production build pass.
