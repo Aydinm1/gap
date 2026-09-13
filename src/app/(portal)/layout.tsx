@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AppHeader } from "@/components/shell/app-header";
-import { mockCohorts, mockUsers } from "@/lib/program/mock-data";
+import { mockCohorts, mockUsers, mockSubmissions, mockEnrollments } from "@/lib/program/mock-data";
+import { MemberWorkspace } from "@/components/program/member-workspace";
 import { formatCohortLabel } from "@/lib/program/state";
 
 const navigation = [] as const;
@@ -15,7 +16,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
         profileLinks={profileLinks}
         cohortLabel={formatCohortLabel(mockCohorts.fall2026)}
       />
-      {children}
+      <MemberWorkspace initialAttempts={mockSubmissions.filter((attempt) => attempt.enrollmentId === mockEnrollments[0].id)}>{children}</MemberWorkspace>
     </div>
   );
 }

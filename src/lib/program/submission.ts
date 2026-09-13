@@ -147,9 +147,10 @@ export function replaceSubmission({
   submittedAt: string;
   id: string;
 }) {
-  const previousCurrent = attempts.find((attempt) => attempt.isCurrent);
+  const matches = (attempt: SubmissionAttempt) => attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId;
+  const previousCurrent = attempts.find((attempt) => matches(attempt) && attempt.isCurrent);
   const history = attempts.map((attempt) =>
-    attempt.isCurrent ? { ...attempt, isCurrent: false } : attempt,
+    matches(attempt) && attempt.isCurrent ? { ...attempt, isCurrent: false } : attempt,
   );
   const next: SubmissionAttempt = {
     id,

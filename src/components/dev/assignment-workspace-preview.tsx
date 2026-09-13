@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MemberWorkspace } from "@/components/program/member-workspace";
 import { SubmissionReviewWorkspace } from "@/components/program/submission-review-workspace";
 import { SubmissionWorkspace } from "@/components/program/submission-workspace";
 import { Card } from "@/components/ui/card";
@@ -57,6 +58,7 @@ export function AssignmentWorkspacePreview() {
         </div>
       </fieldset>
 
+      <MemberWorkspace initialAttempts={attempts} key={previewState}>
       <Card className="overflow-hidden" key={`week-${previewState}`}>
         <div className="border-b border-border px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
           <h3 className="text-xl font-bold tracking-[-0.02em] text-ink sm:text-2xl">
@@ -87,6 +89,7 @@ export function AssignmentWorkspacePreview() {
           </Card>
         </div>
       ) : null}
+      </MemberWorkspace>
     </div>
   );
 }

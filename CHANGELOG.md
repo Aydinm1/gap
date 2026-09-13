@@ -5,11 +5,30 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Made Continue Week the dashboard's primary action, with feedback and assignment
+  actions presented as secondary links.
+
+- Restored distinct module status icons and replaced the dashboard next-step panel with
+  a paired week and assignment overview, keeping full feedback on the review page.
+
+- Refined member pages with one dashboard next-step feature, progress beside modules,
+  consistent headings, direct materials navigation, and quieter submission-rail metadata.
+- Shared member submissions and drafts across client navigation, preserving prior attempts
+  and other assignments when revising work. Added explicit awaiting-review labels,
+  visible sample-file feedback, draft cancellation confirmation, and editor focus handling.
+
 - Locked completed submissions in the member workspace: finished work now offers only
   the view action, while awaiting-review and revision-requested work remains replaceable.
 
 ### Added
 
+- Mock admin workspace with URL-preserved cohort and queue context, mutually exclusive
+  review filters, search, review-next flow, responsive member cards, submission history,
+  explicit participant/access editors, structured week publishing, and cohort outcomes.
+- Pacific wall-clock deadline conversion with daylight-saving gap and ambiguity checks,
+  plus unsaved-change protection for admin week and review detail workflows.
+- Admin-specific DTOs, validation, authorization checks, selectors, fictional fixtures,
+  and dependency-free domain tests designed for later Supabase replacement.
 - Structured documentation system for product, design, architecture, data, operations,
   ideas, and durable decisions.
 - AI contributor workflow and definition of done in `AGENTS.md`.
@@ -41,6 +60,14 @@ Keep a Changelog without assigning versions until the first release.
 
 ### Changed
 
+- Unified week presentations and references into one materials list, simplified the
+  assignment hierarchy, and clarified the revision-requested next action.
+- Reworked submission review into an open, state-aware layout with compact awaiting-review
+  content, a full-width revision editor, and quieter retained history.
+- Emphasized reviewer feedback, enlarged current submitted-work controls, and added view
+  actions for every retained submission attempt.
+- Aligned submission review with its parent week through shared header scale, spacing,
+  week context, and a reusable submitted-work record.
 - Made the program dashboard the member home, shortened week routes to `/week`, moved
   the retired public splash to development-only `/dev/info`, and made the header logo
   the home control while preserving old `/program` links with permanent redirects.

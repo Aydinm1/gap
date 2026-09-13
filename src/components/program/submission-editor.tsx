@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { useMemberWorkspace, type SubmissionDraft } from "./member-workspace";
 import { Button } from "@/components/ui/button";
 import { formatFileSize } from "@/components/dev/file-upload-preview";
 import {
@@ -10,25 +11,42 @@ import {
 import type { SubmissionPayload } from "@/lib/program/types";
 import { cn } from "@/lib/ui";
 
-type Method = "file" | "link";
 
 export function SubmissionEditor({
   actionLabel,
   assignmentId,
   description,
+  layout = "rail",
   onCancel,
   onSubmit,
 }: {
   actionLabel: string;
   assignmentId: string;
   description: string;
+  layout?: "rail" | "wide";
   onCancel?: () => void;
   onSubmit: (payload: SubmissionPayload) => void;
 }) {
   const inputId = useId();
-  const [method, setMethod] = useState<Method>();
-  const [file, setFile] = useState<File>();
-  const [url, setUrl] = useState("");
+  const workspace = useMemberWorkspace();
+  const [localDraft, setLocalDraft] = useState<SubmissionDraft>({ url: "" });
+  const draft = workspace?.drafts[assignmentId] ?? localDraft;
+  const { method, file, url } = draft;
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus(); }, []);
+  function patchDraft(patch: Partial<SubmissionDraft>) {
+    if (workspace) workspace.setDrafts((items) => ({ ...items, [assignmentId]: { ...(items[assignmentId] ?? { url: "" }), ...patch } }));
+    else setLocalDraft((current) => ({ ...current, ...patch }));
+  }
+  function clearDraft() {
+    patchDraft({ method: undefined, file: undefined, url: "" });
+  }
+  function finish(payload: SubmissionPayload) { onSubmit(payload); clearDraft(); }
+  function cancel() {
+    if ((file || url.trim()) && !window.confirm("Discard this submission draft?")) return;
+    clearDraft();
+    onCancel?.();
+  }
   
   const [error, setError] = useState<string>();
 
@@ -36,7 +54,7 @@ export function SubmissionEditor({
     if (method === "file") {
       const fileError = validateSubmissionFile(file);
       if (fileError || !file) return setError(fileError);
-      return onSubmit({
+      return finish({
         type: "file",
         originalFilename: file.name,
         filePath: `mock/${assignmentId}/${file.name}`,
@@ -46,7 +64,7 @@ export function SubmissionEditor({
     if (method === "link") {
       const result = normalizeSubmissionUrl(url);
       if ("error" in result) return setError(result.error);
-      return onSubmit({ type: "link", submittedUrl: result.value });
+      return finish({ type: "link", submittedUrl: result.value });
     }
 
     setError("Choose file or link submission.");
@@ -54,15 +72,18 @@ export function SubmissionEditor({
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-ink">{actionLabel}</h3>
+      <h3 ref={heading} tabIndex={-1} className="text-lg font-bold text-ink outline-none">{actionLabel}</h3>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+      <div className={cn(
+        "mt-6 grid gap-3",
+        layout === "wide" ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2",
+      )}>
         {(["file", "link"] as const).map((choice) => (
           <button
             key={choice}
             type="button"
             aria-pressed={method === choice}
-            onClick={() => { setMethod(choice); setError(undefined); }}
+            onClick={() => { patchDraft({ method: choice }); setError(undefined); }}
             className={cn(
               "min-h-20 rounded-card border p-4 text-left transition-colors",
               method === choice
@@ -75,7 +96,7 @@ export function SubmissionEditor({
             </span>
             <span className="mt-1 block text-xs leading-5 text-ink-soft">
               {choice === "file"
-                ? "PDF, DOCX, PPTX, or XLSX"
+                ? "PDF, DOCX, PPTX, or XLSX · Up to 20 MB"
                 : "Google Docs, Slides, Sheets, Canva, or another web link"}
             </span>
           </button>
@@ -90,7 +111,7 @@ export function SubmissionEditor({
             type="file"
             accept=".pdf,.docx,.pptx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             className="mt-2 block min-h-11 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-action file:px-3 file:py-2 file:font-bold file:text-white"
-            onChange={(event) => { setFile(event.target.files?.[0]); setError(undefined); }}
+            onChange={(event) => { patchDraft({ file: event.target.files?.[0] }); setError(undefined); }}
           />
           {file ? <p className="mt-2 break-words text-sm text-ink-soft">{file.name} · {formatFileSize(file.size)}</p> : null}
         </div>
@@ -103,17 +124,18 @@ export function SubmissionEditor({
             id={`${inputId}-url`}
             type="url"
             value={url}
-            onChange={(event) => { setUrl(event.target.value); setError(undefined); }}
+            onChange={(event) => { patchDraft({ url: event.target.value }); setError(undefined); }}
             placeholder="https://docs.google.com/..."
             className="mt-2 min-h-11 w-full rounded-lg border border-border-strong bg-surface px-3.5 text-base text-ink placeholder:text-ink-faint"
           />
+          <p className="mt-2 text-xs leading-5 text-ink-soft">Make sure the review team has permission to open your link.</p>
         </div>
       ) : null}
 
       {error ? <p className="mt-4 text-sm font-bold text-danger-text" role="alert">{error}</p> : null}
       <div className="mt-6 flex flex-wrap gap-3">
         <Button onClick={submit}>{actionLabel}</Button>
-        {onCancel ? <Button variant="quiet" onClick={onCancel}>Cancel</Button> : null}
+        {onCancel ? <Button variant="quiet" onClick={cancel}>Cancel</Button> : null}
       </div>
     </div>
   );

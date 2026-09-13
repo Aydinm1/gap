@@ -28,6 +28,15 @@ export type Person = {
   fullName: string;
 };
 
+export type ApprovedMember = {
+  id: string;
+  personId: string;
+  email: string;
+  fullName: string;
+  role: AppRole;
+  active: boolean;
+};
+
 export type ProgramCohort = {
   id: string;
   quarter: ProgramQuarter;

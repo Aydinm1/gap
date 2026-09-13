@@ -44,6 +44,9 @@ export type ProgramDashboardViewModel = {
     href: string;
   };
   priorityAssignment?: {
+    weekNumber: number;
+    actionLabel: string;
+    actionHref: string;
     title: string;
     dueLabel: string;
     state: AssignmentDisplayState;
@@ -138,6 +141,9 @@ export function buildProgramDashboard({
       : undefined,
     priorityAssignment: priorityAssignment
       ? {
+          weekNumber: priorityAssignment.weekNumber,
+          actionLabel: prioritySubmission?.status === "revision_requested" ? "View feedback" : prioritySubmission ? "View submission" : "View assignment",
+          actionHref: prioritySubmission ? `/week/${priorityAssignment.weekNumber}/submission` : `/week/${priorityAssignment.weekNumber}#assignment`,
           title: priorityAssignment.title,
           dueLabel: formatDeadline(priorityAssignment.dueAt),
           state: deriveAssignmentState(

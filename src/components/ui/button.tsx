@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ComponentPropsWithRef, ReactNode } from "react";
 import { cn } from "@/lib/ui";
 
 export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
@@ -21,7 +21,7 @@ const sizes: Record<ButtonSize, string> = {
   compact: "min-h-10 px-4",
 };
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = ComponentPropsWithRef<"button"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
 };

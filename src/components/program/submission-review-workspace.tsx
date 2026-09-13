@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useMemberAttempts } from "./member-workspace";
+import { StateMessage } from "@/components/ui/state-message";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SubmissionEditor } from "@/components/program/submission-editor";
+import { SubmittedWorkRecord } from "@/components/program/submitted-work-record";
 import type { SubmissionAttempt, SubmissionPayload } from "@/lib/program/types";
 import {
   canReplaceSubmission,
@@ -19,14 +22,30 @@ const reviewPresentation = {
   completed: { label: "Complete", tone: "success", heading: "You’re all set", detail: "This assignment is complete." },
 } satisfies Record<SubmissionAttempt["status"], { label: string; tone: BadgeTone; heading: string; detail: string }>;
 
-function SubmissionLink({ attempt, onFileView }: { attempt: SubmissionAttempt; onFileView: () => void }) {
-  const className = "inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-border-strong bg-surface px-4 text-sm font-bold text-ink transition-colors hover:bg-surface-subtle";
+function SubmissionLink({
+  attempt,
+  label,
+  onFileView,
+  presentation = "record",
+}: {
+  attempt: SubmissionAttempt;
+  label?: string;
+  onFileView: () => void;
+  presentation?: "record" | "history";
+}) {
+  const [fileNotice, setFileNotice] = useState(false);
+  const className = cn(
+    "inline-flex min-h-11 items-center text-sm font-bold transition-colors",
+    presentation === "record"
+      ? "w-full justify-center rounded-lg border border-border-strong bg-surface px-4 text-ink hover:bg-surface-subtle"
+      : "text-action hover:text-action-hover",
+  );
   return attempt.payload.type === "link" ? (
     <a className={className} href={attempt.payload.submittedUrl} target="_blank" rel="noreferrer">
-      View submission <span className="ml-2" aria-hidden="true">↗</span>
+      {label ?? "Open submitted link"} <span className="ml-2" aria-hidden="true">↗</span>
     </a>
   ) : (
-    <button type="button" className={className} onClick={onFileView}>View submission</button>
+    <div><button type="button" className={className} onClick={() => { setFileNotice(true); onFileView(); }}>{label ?? "Download file"}</button>{fileNotice ? <p className="mt-2 text-sm leading-6 text-ink-soft" role="status">This sample file is not available to download in the demo.</p> : null}</div>
   );
 }
 
@@ -39,16 +58,16 @@ export function SubmissionReviewWorkspace({
   enrollmentId: string;
   initialAttempts: readonly SubmissionAttempt[];
 }) {
-  const [attempts, setAttempts] = useState([...initialAttempts]);
+  const [attempts, setAttempts] = useMemberAttempts(initialAttempts);
+  const actionRef = useRef<HTMLButtonElement>(null);
   const [replacing, setReplacing] = useState(false);
   const [announcement, setAnnouncement] = useState("");
-  const current = attempts.find((attempt) => attempt.isCurrent);
+  const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId);
 
-  if (!current) return null;
+  if (!current) return <StateMessage title="No submission yet">Return to the week to submit your work.</StateMessage>;
 
-  const previous = attempts.filter((attempt) => !attempt.isCurrent);
+  const previous = attempts.filter((attempt) => !attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const presentation = reviewPresentation[current.status];
-  const reviewHeading = current.feedback ? "Reviewer feedback" : presentation.heading;
   const replacementAllowed = canReplaceSubmission(current);
   const actionLabel = current.status === "revision_requested" ? "Revise submission" : "Replace submission";
 
@@ -71,56 +90,65 @@ export function SubmissionReviewWorkspace({
     <div>
       <p className="sr-only" aria-live="polite">{announcement}</p>
 
-      <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.85fr)]">
-        <section className="px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12" aria-labelledby="review-heading">
-          <Badge tone={presentation.tone}>{presentation.label}</Badge>
-          {current.reviewedAt ? <p className="mt-3 text-sm text-ink-soft">Reviewed {formatSubmissionTime(current.reviewedAt)}</p> : null}
-          <h2 id="review-heading" className={cn(
-            "mt-6 font-bold tracking-[-0.025em] text-ink",
-            current.feedback ? "text-2xl" : "text-xl",
-          )}>{reviewHeading}</h2>
+      <div className={cn(
+        "grid items-start gap-8 border-y border-border py-8 sm:py-10",
+        current.feedback
+          ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)] lg:gap-12"
+          : "max-w-5xl lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)] lg:gap-10",
+      )}>
+        <section
+          className={cn(
+            current.feedback && "border-l-4 pl-5 sm:pl-7",
+            current.status === "revision_requested" && "border-warning-text",
+            current.status === "completed" && "border-success-text",
+          )}
+          aria-labelledby="review-heading"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 id="review-heading" className={cn(
+              "font-bold tracking-[-0.025em] text-ink",
+              current.feedback ? "text-2xl" : "text-xl",
+            )}>{current.feedback ? "Feedback" : presentation.heading}</h2>
+            <Badge tone={presentation.tone}>{presentation.label}</Badge>
+          </div>
           {current.feedback ? (
-            <p className="mt-6 max-w-3xl whitespace-pre-line text-lg leading-8 text-ink">{current.feedback}</p>
+            <p className="mt-5 max-w-3xl whitespace-pre-line text-xl font-semibold leading-9 text-ink">{current.feedback}</p>
           ) : (
             <p className="mt-4 max-w-2xl text-base leading-7 text-ink-soft">{presentation.detail}</p>
           )}
-          {current.feedback ? <p className="mt-6 text-sm leading-6 text-ink-soft">{presentation.detail}</p> : null}
+          {current.reviewedAt ? <p className="mt-5 text-sm text-ink-soft">Reviewed {formatSubmissionTime(current.reviewedAt)}</p> : null}
         </section>
 
-        <aside className="border-t border-border bg-surface-subtle/70 px-6 py-7 sm:px-8 sm:py-9 lg:border-l lg:border-t-0 lg:px-8 lg:py-10" aria-label="Submitted work">
-          <div className="rounded-lg border border-border bg-surface p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-faint">Submitted work</p>
-            <p className="mt-3 break-words text-sm font-bold text-ink">{submissionDisplayName(current)}</p>
-            <p className="mt-1 text-xs leading-5 text-ink-soft">Submitted {formatSubmissionTime(current.submittedAt)}</p>
-            <div className={cn("mt-5 grid gap-2", replacementAllowed && !replacing && "xl:grid-cols-2")}>
-              <SubmissionLink
-                attempt={current}
-                onFileView={() => setAnnouncement("Private file preview will be available after Supabase Storage is connected.")}
-              />
-              {replacementAllowed && !replacing ? (
-                <Button className="w-full" size="compact" variant={current.status === "revision_requested" ? "primary" : "secondary"} onClick={() => setReplacing(true)}>
-                  {actionLabel}
-                </Button>
-              ) : null}
-            </div>
-          </div>
-
-          {replacing ? (
-            <div className="mt-7 border-t border-border pt-7">
-              <SubmissionEditor
-                actionLabel={actionLabel}
-                assignmentId={assignmentId}
-                description="Choose one submission method. Your previous attempt remains in history."
-                onCancel={() => setReplacing(false)}
-                onSubmit={submit}
-              />
-            </div>
-          ) : null}
+        <aside aria-label="Submitted work">
+          <SubmittedWorkRecord attempt={current}>
+            <SubmissionLink
+              attempt={current}
+              onFileView={() => setAnnouncement("Private file preview will be available after Supabase Storage is connected.")}
+            />
+            {replacementAllowed && !replacing ? (
+              <Button ref={actionRef} className="w-full" size="compact" variant={current.status === "revision_requested" ? "primary" : "secondary"} onClick={() => setReplacing(true)}>
+                {actionLabel}
+              </Button>
+            ) : null}
+          </SubmittedWorkRecord>
         </aside>
       </div>
 
+      {replacing ? (
+        <section className="mt-8 rounded-card border border-border bg-surface p-6 shadow-card sm:p-8 lg:p-10" aria-label={`${actionLabel} form`}>
+          <SubmissionEditor
+            actionLabel={actionLabel}
+            assignmentId={assignmentId}
+            description="Choose one submission method. Your previous attempt remains in history."
+            layout="wide"
+            onCancel={() => { setReplacing(false); requestAnimationFrame(() => actionRef.current?.focus()); }}
+            onSubmit={submit}
+          />
+        </section>
+      ) : null}
+
       {previous.length ? (
-        <section className="border-t border-border px-6 py-8 sm:px-8 lg:px-10" aria-labelledby="submission-history-heading">
+        <section className="mt-10 border-t border-border pt-8 sm:mt-12 sm:pt-10" aria-labelledby="submission-history-heading">
           <h2 id="submission-history-heading" className="text-sm font-bold text-ink">Previous submissions</h2>
           <ol className="mt-5 max-w-3xl border-l border-border pl-5">
             {previous.map((attempt) => (
@@ -129,6 +157,14 @@ export function SubmissionReviewWorkspace({
                 <p className="break-words text-sm font-bold text-ink">{submissionDisplayName(attempt)}</p>
                 <p className="mt-1 text-xs leading-5 text-ink-soft">{formatSubmissionTime(attempt.submittedAt)} · {reviewPresentation[attempt.status].label}</p>
                 {attempt.feedback ? <p className="mt-2 text-sm leading-6 text-ink-soft">{attempt.feedback}</p> : null}
+                <div className="mt-2">
+                  <SubmissionLink
+                    attempt={attempt}
+                    label="View previous submission"
+                    presentation="history"
+                    onFileView={() => setAnnouncement(`Private file preview for ${submissionDisplayName(attempt)} will be available after Supabase Storage is connected.`)}
+                  />
+                </div>
               </li>
             ))}
           </ol>

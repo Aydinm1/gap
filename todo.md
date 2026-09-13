@@ -88,6 +88,14 @@ requires implementation, validation, documentation, and changelog agreement.
 - [x] Show admin feedback and completed/revision-requested outcomes when present.
 - [x] Keep week instructions primary and move feedback, revision, and history into a
   focused member submission-review route.
+- [x] Unify workshop slides and ordered references into one coherent materials list and
+  simplify the assignment workspace hierarchy.
+- [x] Recompose submission review around open feedback, a compact submitted-work record,
+  a full-width revision editor, and quiet retained history.
+- [x] Strengthen feedback emphasis, enlarge the current-work record, and make every
+  retained submission attempt viewable.
+- [x] Unify week and submission-review hierarchy through shared page rhythm and a common
+  submitted-work record.
 - [x] Preserve mock resubmission history and display current versus prior attempts.
 - [x] Add invalid week, locked draft, missing assignment, validation, and failure states.
 
@@ -99,32 +107,48 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 4 — Mock admin experience
 
-- [ ] Build Fall/Winter/Spring cohort creation, active/archive views, and cohort switching.
-- [ ] Build cohort rosters with permanent participant history and participation,
+- [x] Build Fall/Winter/Spring cohort creation, active/archive views, and cohort switching.
+- [x] Build cohort rosters with permanent participant history and participation,
   advancement, and promoted-response controls.
-- [ ] Show transparent cohort starters, advancement rate, offer yield, end-to-end
+- [x] Show transparent cohort starters, advancement rate, offer yield, end-to-end
   conversion, pending, and withdrawn summary values without charts.
-- [ ] Build admin-only layout and navigation with an obvious return to the member portal.
-- [ ] Build `/admin` with active member, current submitted, outstanding, and awaiting
-  review summary values.
-- [ ] Build a week-filterable submission matrix with responsive overflow/card behavior.
-- [ ] Build `/admin/submissions/[id]` with member, assignment, timestamp, current
+- [x] Build admin-only layout and navigation with an obvious return to the member portal.
+- [x] Build `/admin` with active-member and mutually exclusive review-state counts.
+- [x] Build a week/status/search-filterable submission matrix with URL-preserved context
+  and responsive table/card behavior.
+- [x] Build `/admin/submissions/[id]` with member, assignment, timestamp, current
   submission, and history.
-- [ ] Add file/link opening, written feedback, and awaiting-review/revision-requested/
+- [x] Add file/link opening, written feedback, and awaiting-review/revision-requested/
   complete controls.
-- [ ] Build `/admin/weeks` and `/admin/weeks/[id]` for week, slides, assignment, deadline,
+- [x] Build `/admin/weeks` and `/admin/weeks/[id]` for week, slides, assignment, deadline,
   publication, and ordered resource editing.
-- [ ] Build `/admin/members` for roster add/edit, role, activation, and deactivation.
-- [ ] Add validation, unsaved/submitting states, empty states, and safe destructive-action
-  confirmations where needed.
+- [x] Build `/admin/members` for roster add/edit, role, activation, and deactivation.
+- [x] Add validation, unsaved/submitting states, empty states, safe destructive-action
+  confirmations, and Pacific daylight-saving deadline handling where needed.
 
 ### Phase 4 gate
 
-- [ ] Mock admin can complete content publishing, roster, and review workflows.
-- [ ] Member mock role cannot reach or trigger admin behavior.
-- [ ] Lint, typecheck, and production build pass.
+- [ ] Browser-verify that a mock admin can complete content publishing, roster, and review
+  workflows at mobile and desktop widths.
+- [ ] Replace the hardcoded mock admin identity with server-side authorization before
+  claiming members cannot reach or trigger admin behavior.
+- [x] Lint, typecheck, and production build pass.
 
 ## Phase 5 — Supabase schema, seeds, and data access
+
+### Member refinement follow-up
+
+- [x] Prioritize Continue Week on the dashboard and demote feedback to a secondary link.
+
+- [x] Restore distinct module status icons and pair featured week context with a compact
+  assignment summary; inspect the rendered desktop dashboard.
+
+- [x] Unify dashboard next-step hierarchy, member heading scale, materials anchors, and
+  submission metadata presentation.
+- [x] Share member attempts and drafts across dashboard, week, and review navigation;
+  preserve unrelated assignments during replacement.
+- [x] Clarify awaiting-review status, file/link actions, validation help, and editor focus.
+- [ ] Browser-verify the member navigation and draft flow at 375px, 768px, and 1280px.
 
 - [ ] Install only current `@supabase/supabase-js` and `@supabase/ssr` dependencies.
 - [ ] Add ordered SQL migrations for people, Fall/Winter/Spring cohorts, enrollments,

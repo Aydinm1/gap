@@ -32,6 +32,8 @@ test("canonical dashboard centers Week 2 revision work", () => {
   assert.equal(dashboard.continueLearning?.href, "/week/2");
   assert.equal(dashboard.priorityAssignment?.state, "revision_requested");
   assert.equal(dashboard.priorityAssignment?.href, "/week/2");
+  assert.equal(dashboard.priorityAssignment?.actionHref, "/week/2/submission");
+  assert.equal(dashboard.priorityAssignment?.actionLabel, "View feedback");
   assert.match(dashboard.priorityAssignment?.dueLabel ?? "", /September 18/);
   assert.match(dashboard.priorityAssignment?.feedback ?? "", /mutually exclusive/);
   assert.deepEqual(

@@ -73,7 +73,7 @@ export function findNearestActionableAssignment(
   for (const week of weeks) {
     if (!isPublishedWeek(week) || !week.assignment) continue;
     const submission = submissionsByAssignment.get(week.assignment.id);
-    if (submission?.status === "completed") continue;
+    if (submission?.status === "completed" || submission?.status === "submitted") continue;
     if (!nearest || week.assignment.dueAt < nearest.dueAt) nearest = week.assignment;
   }
 

@@ -57,8 +57,15 @@ The dashboard answers, in order:
 4. What feedback did I receive?
 5. How far through the program am I?
 
-It includes the program term, current week, completion progress, a continue-learning
-card, closest actionable assignment, and all six modules.
+It includes the program term, one featured week-and-assignment overview, completion progress beside
+the module list, and all six modules. Combine learning and assignment context when they
+refer to the same week. The primary Continue Week action opens the current learning week;
+when the priority assignment belongs to another week, label its week in the secondary
+assignment summary.
+Revision actions open feedback directly; the dashboard summarizes feedback availability.
+Unsubmitted actions open the week assignment.
+Awaiting-review work remains visible in module status but is not a next-step priority.
+Submitted and completed work still both count toward progress.
 
 ### Week detail
 
@@ -141,6 +148,12 @@ do not expand them into charts, engagement analytics, or a full-club CRM.
   a file or link, replace actionable work, and view status and feedback.
 - An admin can manage the roster and week content, inspect all submissions, preserve
   history, provide feedback, and set review status.
+- The admin review queue opens on awaiting-review work, keeps queue filters mutually
+  exclusive, and returns reviewers to their prior cohort/week/filter/search context.
+  A review can be saved in place or saved while advancing to the next awaiting item.
+- Draft weeks may be saved incomplete. Publishing requires the member-facing title,
+  description, valid resources, and complete assignment fields; assignments with any
+  submission history cannot be removed.
 - An unapproved, inactive, non-UC-Davis, or anonymous user cannot access protected data.
 - Draft content and other members' submissions remain inaccessible even through direct
   Supabase requests.

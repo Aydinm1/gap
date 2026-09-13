@@ -2,6 +2,7 @@ import type {
   Assignment,
   CohortEnrollment,
   Person,
+  ApprovedMember,
   ProgramCohort,
   ProgramUser,
   ProgramWeek,
@@ -26,7 +27,21 @@ export const mockPeople = {
     email: "priya.shah@example.edu",
     fullName: "Priya Shah",
   },
+  maya: { id: "person-maya-chen", email: "maya.chen@ucdavis.edu", fullName: "Maya Chen" },
+  leo: { id: "person-leo-martinez", email: "leo.martinez@ucdavis.edu", fullName: "Leo Martinez" },
+  nina: { id: "person-nina-patel", email: "nina.patel@ucdavis.edu", fullName: "Nina Patel" },
+  omar: { id: "person-omar-hassan", email: "omar.hassan@ucdavis.edu", fullName: "Omar Hassan" },
+  sophia: { id: "person-sophia-kim", email: "sophia.kim@ucdavis.edu", fullName: "Sophia Kim" },
 } satisfies Record<string, Person>;
+
+export const mockApprovedMembers = Object.values(mockPeople).map((person, index) => ({
+  id: `approved-${person.id}`,
+  personId: person.id,
+  email: person.email.replace("example.edu", "ucdavis.edu"),
+  fullName: person.fullName,
+  role: index === 0 ? "admin" : "member",
+  active: true,
+})) satisfies readonly ApprovedMember[];
 
 export const mockCohorts = {
   spring2026: {
@@ -55,6 +70,11 @@ export const mockEnrollments = [
     participationStatus: "enrolled",
     advancementStatus: "pending",
   },
+  { id: "enrollment-maya-fall-2026", cohortId: mockCohorts.fall2026.id, personId: mockPeople.maya.id, participationStatus: "enrolled", advancementStatus: "pending" },
+  { id: "enrollment-leo-fall-2026", cohortId: mockCohorts.fall2026.id, personId: mockPeople.leo.id, participationStatus: "enrolled", advancementStatus: "pending" },
+  { id: "enrollment-nina-fall-2026", cohortId: mockCohorts.fall2026.id, personId: mockPeople.nina.id, participationStatus: "enrolled", advancementStatus: "pending" },
+  { id: "enrollment-omar-fall-2026", cohortId: mockCohorts.fall2026.id, personId: mockPeople.omar.id, participationStatus: "enrolled", advancementStatus: "pending" },
+  { id: "enrollment-sophia-fall-2026", cohortId: mockCohorts.fall2026.id, personId: mockPeople.sophia.id, participationStatus: "enrolled", advancementStatus: "pending" },
   {
     id: "enrollment-jordan-spring-2026",
     cohortId: mockCohorts.spring2026.id,
@@ -211,6 +231,40 @@ export const mockSubmissions: readonly SubmissionAttempt[] = [
       originalFilename: "research-plan.pdf",
       filePath: "user-aydin-merchant/assignment-week-2/submission-v2-research-plan.pdf",
     },
+  },
+];
+
+export const mockAdminSubmissions: readonly SubmissionAttempt[] = [
+  ...mockSubmissions,
+  {
+    id: "submission-week-2-maya",
+    assignmentId: researchPlanAssignment.id,
+    enrollmentId: "enrollment-maya-fall-2026",
+    status: "submitted",
+    submittedAt: "2026-09-16T17:05:00.000Z",
+    isCurrent: true,
+    payload: { type: "link", submittedUrl: "https://docs.google.com/document/d/maya-research-plan" },
+  },
+  {
+    id: "submission-week-2-leo",
+    assignmentId: researchPlanAssignment.id,
+    enrollmentId: "enrollment-leo-fall-2026",
+    status: "submitted",
+    submittedAt: "2026-09-16T18:20:00.000Z",
+    isCurrent: true,
+    payload: { type: "file", originalFilename: "leo-research-plan.pptx", filePath: "mock/leo/research-plan.pptx" },
+  },
+  {
+    id: "submission-week-2-nina",
+    assignmentId: researchPlanAssignment.id,
+    enrollmentId: "enrollment-nina-fall-2026",
+    status: "completed",
+    submittedAt: "2026-09-15T22:10:00.000Z",
+    reviewedAt: "2026-09-16T16:00:00.000Z",
+    reviewedByUserId: mockUsers.admin.id,
+    feedback: "Clear structure and credible source choices.",
+    isCurrent: true,
+    payload: { type: "file", originalFilename: "nina-research-plan.pdf", filePath: "mock/nina/research-plan.pdf" },
   },
 ];
 

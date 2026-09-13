@@ -7,6 +7,14 @@
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
 been configured or verified.
 
+The current Phase 4 admin workspace is a session-only prototype backed by hardcoded mock
+identity and data. Its authorization helper, file-download affordance, and mutations are
+not production authentication, Storage, or persistence. Admin and member mock stores are
+separate, so admin edits intentionally do not appear in member pages yet.
+Member submissions and entered drafts persist across client navigation within the portal.
+Reloading resets this in-memory state. Sample file actions explain unavailable downloads;
+this does not constitute a live upload or private Storage implementation.
+
 ## Local development
 
 1. Install Node.js 24 LTS. The recommended machine setup is Homebrew-installed `fnm` with

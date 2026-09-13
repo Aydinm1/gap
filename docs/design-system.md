@@ -87,7 +87,9 @@ descriptive filenames.
   directly beneath a single Feedback heading, and connect file metadata and actions in
   one submitted-work record. Place the icon-free status badge beside Feedback instead of
   repeating status labels or helper copy. Use a single bordered attachment tile and
-  standard button hierarchy; avoid alert-like filled feedback boxes.
+  standard button hierarchy; avoid alert-like filled feedback boxes. Revision feedback
+  uses an amber editorial rule and prominent reviewer text, with review metadata demoted
+  beneath it. Every retained historical attempt provides a quiet view action.
 - **Progress:** thin linear bar plus a textual value such as `2 / 6 modules complete`.
 - **Forms:** visible labels, help/error text, clear focus rings, and full-width controls on
   small screens.
@@ -115,19 +117,50 @@ descriptive filenames.
   thumb-friendly on small screens.
 - Week detail pages are assignment-first: instructions retain the wide column in every
   lifecycle state while a compact submission rail answers status and next action.
-  Workshop slides and references follow in a quieter supporting row.
+  Workshop slides and references follow in one quieter, full-width materials list, with
+  the presentation first and ordered references beneath it.
 - Do not enlarge short status copy to fill the assignment body or hide instructions after
   submission. Written feedback, revision controls, current work, and history belong on a
   focused submission-review page reached through `View feedback` or `View submission`.
 - On the review page, real reviewer feedback may own the wide column. Awaiting-review
-  states remain compact instead of manufacturing an empty feedback region.
+  states remain compact instead of manufacturing an empty feedback region. Compose the
+  review as an open page with a bordered submitted-work record, a full-width revision
+  editor when active, and quiet history beneath rather than one enclosing card. Treat it
+  as a child detail of its week by retaining week context, page-title scale, spacing
+  rhythm, and the same submitted-work record at a roomier density.
 - Avoid fixed widths that cause horizontal overflow.
 - Components inside narrow desktop panes must use their actual available space rather
   than global viewport breakpoints. Keep attachment metadata above its actions when a
   sibling column constrains the component width.
 - Admin pages may prioritize desktop density but must remain operable on mobile.
+- Member titles share a 32px mobile/36px desktop scale with admin titles. The dashboard
+  leads with one next-step feature and places progress beside the module-list heading.
+  Week submission rails use unboxed attachment metadata; submission review retains the
+  roomier bordered record and prominent feedback. Materials have a direct anchor from
+  the week introduction. Status labels distinguish awaiting review from complete.
+- Submission editors show file formats and the 20 MB limit before selection. Opening an
+  editor focuses its heading; cancelling restores focus to the action that opened it.
+  Unavailable sample-file actions display an adjacent explanation.
+- Admin pages use the same editorial headings and restrained surfaces as member pages,
+  with a persistent cohort context bar beneath the primary header. Operational queues
+  lead; cohort outcome summaries remain secondary and use counts plus transparent
+  denominators rather than charts. Submission tables become per-member cards on narrow
+  screens, and long editors use clearly separated sections with a sticky save area.
+- Admin page titles use a compact `text-3xl` to `text-4xl` scale. Review queues default
+  to awaiting-review work and expose mutually exclusive status filters, member search,
+  and the selected assignment before the table. Submission review follows reading order:
+  submitted work, feedback, decision, then save actions. Member and access records stay
+  readable until an explicit edit action opens their controls.
+- All admin deadline fields are labeled Pacific time. Repeated daylight-saving times
+  require an explicit PDT/PST choice, and nonexistent spring-forward times are rejected.
 
 ## Accessibility baseline
+
+Dashboard overview refinements: pair the featured week and primary Continue Week action with
+an assignment summary in one divided surface, stacked on mobile. Full feedback belongs
+on the review page, reached through a secondary text link. Module rows place week numbers beside titles and use distinct icons:
+check for complete, clock for awaiting review, revision arrow for requested changes,
+forward arrow for available work, and lock for upcoming modules. Retain text labels.
 
 - Meet WCAG AA color contrast for text and interactive controls.
 - Provide visible keyboard focus and logical focus order.

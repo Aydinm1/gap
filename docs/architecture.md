@@ -99,9 +99,26 @@ concrete need emerges.
   Identity, login authorization, and cohort participation remain separate so archived
   history survives access deactivation.
 - Week and member submission-review pages render scoped learning data on the server and
-  pass narrow assignment DTOs into client submission controls. Phase 3 replacements are
-  session-only and reset to seeded attempts on reload; the same immutable replacement
-  contract will move behind Supabase.
+  pass narrow assignment DTOs into client submission controls. A member provider beneath
+  the portal layout owns enrollment-scoped attempts and assignment drafts across client
+  navigation. Dashboard selectors and both submission surfaces consume that state.
+  Replacement only supersedes the matching assignment/enrollment's current attempt.
+  The server validates published assignment routes; current-submission existence is
+  resolved in the client workspace so newly submitted work can be reviewed immediately.
+  Attempts and drafts reset to fixtures on reload; drafts containing input warn before
+  unload and require confirmation when explicitly cancelled. The same immutable
+  replacement contract will move behind Supabase.
+- Phase 4 admin routes share a layout-scoped client workspace seeded from typed mock data.
+  It owns selected-cohort context and immutable mock mutations across admin navigation,
+  then resets on reload. Admin DTOs retain draft content separately from member-safe
+  `ProgramWeek` objects so later repository replacement does not weaken draft isolation.
+- Admin queue context is represented in URL query parameters (`cohort`, `week`, `status`,
+  and `q`) so review-detail navigation can return to the same operational view. Detail
+  resolution always checks both the record identifier and selected cohort. This remains
+  prototype state: mutations do not propagate into the separately seeded member routes.
+- Pacific wall-clock conversion is centralized in `src/lib/program/admin.ts`; it rejects
+  daylight-saving gaps and requires disambiguation for repeated PDT/PST times before
+  producing a UTC timestamp.
 
 ## Time and derived state
 
