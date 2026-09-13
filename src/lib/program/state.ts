@@ -31,8 +31,8 @@ export function deriveAssignmentState(
   submission: SubmissionAttempt | undefined,
   now: Date,
 ): AssignmentDisplayState {
-  if (submission?.status === "needs_revision") return "needs_revision";
-  if (submission?.status === "reviewed") return "reviewed";
+  if (submission?.status === "revision_requested") return "revision_requested";
+  if (submission?.status === "completed") return "completed";
   if (submission?.status === "submitted") return "submitted";
 
   const timeRemaining = new Date(assignment.dueAt).getTime() - now.getTime();
@@ -42,7 +42,7 @@ export function deriveAssignmentState(
 }
 
 export function isModuleComplete(submission: SubmissionAttempt | undefined) {
-  return submission?.status === "submitted" || submission?.status === "reviewed";
+  return submission?.status === "submitted" || submission?.status === "completed";
 }
 
 export function countCompletedModules(submissions: readonly SubmissionAttempt[]) {
@@ -73,7 +73,7 @@ export function findNearestActionableAssignment(
   for (const week of weeks) {
     if (!isPublishedWeek(week) || !week.assignment) continue;
     const submission = submissionsByAssignment.get(week.assignment.id);
-    if (submission?.status === "reviewed") continue;
+    if (submission?.status === "completed") continue;
     if (!nearest || week.assignment.dueAt < nearest.dueAt) nearest = week.assignment;
   }
 

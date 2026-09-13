@@ -104,7 +104,7 @@ export function buildProgramDashboard({
         ? submissionsByAssignment.get(week.assignment.id)
         : undefined;
       const complete =
-        submission?.status === "submitted" || submission?.status === "reviewed";
+        submission?.status === "submitted" || submission?.status === "completed";
 
       return {
         id: week.id,
@@ -115,7 +115,7 @@ export function buildProgramDashboard({
           : week.id === currentWeek?.id
             ? "current"
             : "available",
-        href: `/program/week/${week.weekNumber}`,
+        href: `/week/${week.weekNumber}`,
         assignmentState: week.assignment
           ? deriveAssignmentState(week.assignment, submission, now)
           : undefined,
@@ -133,7 +133,7 @@ export function buildProgramDashboard({
           weekNumber: currentWeek.weekNumber,
           title: currentWeek.title,
           description: currentWeek.description,
-          href: `/program/week/${currentWeek.weekNumber}`,
+          href: `/week/${currentWeek.weekNumber}`,
         }
       : undefined,
     priorityAssignment: priorityAssignment
@@ -145,7 +145,7 @@ export function buildProgramDashboard({
             prioritySubmission,
             now,
           ),
-          href: `/program/week/${priorityAssignment.weekNumber}`,
+          href: `/week/${priorityAssignment.weekNumber}`,
           feedback: prioritySubmission?.feedback,
         }
       : undefined,

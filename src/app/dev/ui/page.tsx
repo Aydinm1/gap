@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/shell/app-header";
 import { AssignmentStatusBadge } from "@/components/program/assignment-status-badge";
+import { AssignmentWorkspacePreview } from "@/components/dev/assignment-workspace-preview";
 import { FileUploadPreview } from "@/components/dev/file-upload-preview";
 import { ProgressPlayground } from "@/components/dev/progress-playground";
 import { Badge } from "@/components/ui/badge";
@@ -103,6 +104,15 @@ export default function UiLabPage() {
               <p className="mt-2 text-sm text-ink-soft">Due {formatDeadline(researchPlanAssignment.dueAt)}</p>
             </div>
           </Card>
+        </section>
+
+        <section className="mt-16" aria-labelledby="assignment-workspace-title">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-deep">Product patterns</p>
+          <h2 id="assignment-workspace-title" className="mt-2 text-2xl font-bold tracking-[-0.025em]">Assignment workspace</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-ink-soft">
+            Switch among deterministic assignment states here without changing the member-facing program routes.
+          </p>
+          <AssignmentWorkspacePreview />
         </section>
 
         <section id="forms" className="mt-16" aria-labelledby="forms-title">

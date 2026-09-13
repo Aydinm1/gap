@@ -59,7 +59,7 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 2 — Student dashboard
 
-- [x] Build `/program` with user greeting, Fall 2026 status, current week, progress text,
+- [x] Build `/` with user greeting, Fall 2026 status, current week, progress text,
   and thin progress bar.
 - [x] Add the featured continue-learning card for the current actionable published week.
 - [x] Show the nearest upcoming or overdue assignment with a semantic status badge.
@@ -78,22 +78,24 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 3 — Week detail and mock submission flow
 
-- [ ] Build `/program/week/[weekNumber]` using Next.js 16 async `params` conventions.
-- [ ] Add program back-link, numbered title, description, workshop presentation, and
+- [x] Build `/week/[weekNumber]` using Next.js 16 async `params` conventions.
+- [x] Add program back-link, numbered title, description, workshop presentation, and
   ordered resource list.
-- [ ] Add assignment instructions, explicit Pacific deadline, and derived state.
-- [ ] Build file selection with PDF/DOCX/PPTX/XLSX and 20 MB validation.
-- [ ] Build `http`/`https` link submission with clear validation.
-- [ ] Show submitted timestamp, original filename or URL, view, and replace actions.
-- [ ] Show admin feedback and reviewed/needs-revision state when present.
-- [ ] Preserve mock resubmission history and display current versus prior attempts.
-- [ ] Add invalid week, locked draft, missing assignment, validation, and failure states.
+- [x] Add assignment instructions, explicit Pacific deadline, and derived state.
+- [x] Build file selection with PDF/DOCX/PPTX/XLSX and 20 MB validation.
+- [x] Build `http`/`https` link submission with clear validation.
+- [x] Show submitted timestamp, original filename or URL, view, and replace actions.
+- [x] Show admin feedback and completed/revision-requested outcomes when present.
+- [x] Keep week instructions primary and move feedback, revision, and history into a
+  focused member submission-review route.
+- [x] Preserve mock resubmission history and display current versus prior attempts.
+- [x] Add invalid week, locked draft, missing assignment, validation, and failure states.
 
 ### Phase 3 gate
 
-- [ ] A mock member can learn, submit either method, replace, and view feedback end to end.
+- [x] A mock member can learn, submit either method, replace, and view feedback end to end.
 - [ ] Mobile submission controls remain usable and accessible.
-- [ ] Lint, typecheck, and production build pass.
+- [x] Lint, typecheck, and production build pass.
 
 ## Phase 4 — Mock admin experience
 
@@ -108,8 +110,8 @@ requires implementation, validation, documentation, and changelog agreement.
 - [ ] Build a week-filterable submission matrix with responsive overflow/card behavior.
 - [ ] Build `/admin/submissions/[id]` with member, assignment, timestamp, current
   submission, and history.
-- [ ] Add file/link opening, written feedback, and submitted/reviewed/needs-revision
-  controls.
+- [ ] Add file/link opening, written feedback, and awaiting-review/revision-requested/
+  complete controls.
 - [ ] Build `/admin/weeks` and `/admin/weeks/[id]` for week, slides, assignment, deadline,
   publication, and ordered resource editing.
 - [ ] Build `/admin/members` for roster add/edit, role, activation, and deactivation.

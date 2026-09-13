@@ -73,6 +73,11 @@ A published week provides:
 - replacement/resubmission;
 - admin feedback and review status.
 
+The week assignment workspace remains instruction-led in every state. A compact submission
+rail shows status, current-work metadata, and one next action without displacing the full
+instructions. Once work exists, a dedicated submission-review page contains feedback,
+revision controls, submitted work, and retained history.
+
 ### Submission rules
 
 - A submission is either `file` or `link`, never both.
@@ -81,6 +86,11 @@ A published week provides:
 - Files may be PDF, DOCX, PPTX, or XLSX and must not exceed 20 MB.
 - Resubmitting creates a new submission record and supersedes the former current record.
   Historical records and timestamps are retained.
+- Members may replace work while it is awaiting review and must revise work when a
+  revision is requested. Once an admin marks a submission complete, it is closed to
+  member replacement unless an admin requests a revision.
+- Review is metadata, not a submission outcome. Both `revision_requested` and `completed`
+  carry `reviewed_at` and `reviewed_by`; requesting a revision requires written feedback.
 - A student may submit before or after the deadline; the real timestamp is always shown.
 - Members may view only their own submissions and feedback.
 
@@ -88,16 +98,16 @@ A published week provides:
 
 Evaluate display state in this precedence order:
 
-1. `needs_revision`
-2. `reviewed`
+1. `revision_requested`
+2. `completed`
 3. `submitted`
 4. `overdue`: deadline passed and no current submission
 5. `due_soon`: no current submission and deadline is within 72 hours
 6. `upcoming`
 
-`Overdue` is derived and is never stored as a submission status. Submitted and reviewed
-assignments count toward module completion. Needs-revision work remains actionable and
-does not count as complete.
+`Overdue` is derived and is never stored as a submission status. Submitted and completed
+assignments count toward module completion. Revision-requested work remains actionable
+and does not count as complete.
 
 ## Admin workflows
 
@@ -105,7 +115,8 @@ does not count as complete.
   and awaiting review.
 - Filter a submission matrix by week and open a member's current submission.
 - View/download a private file or open a submitted link.
-- Leave written feedback and set `submitted`, `reviewed`, or `needs_revision`.
+- Return work to awaiting review, request a revision with written feedback, or mark the
+  review complete with optional feedback.
 - View retained resubmission history.
 - Create and edit weeks, presentations, assignments, deadlines, and ordered resources.
 - Manually publish or return a week to draft.
@@ -127,7 +138,7 @@ do not expand them into charts, engagement analytics, or a full-club CRM.
 ## MVP acceptance criteria
 
 - An approved member can sign in, navigate six weeks, access published material, submit
-  a file or link, replace it, and view status and feedback.
+  a file or link, replace actionable work, and view status and feedback.
 - An admin can manage the roster and week content, inspect all submissions, preserve
   history, provide feedback, and set review status.
 - An unapproved, inactive, non-UC-Davis, or anonymous user cannot access protected data.

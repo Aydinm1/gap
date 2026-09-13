@@ -35,8 +35,8 @@ function submission(status) {
 }
 
 test("stored submission states take precedence over deadline states", () => {
-  assert.equal(deriveAssignmentState(baseAssignment, submission("needs_revision"), MOCK_NOW), "needs_revision");
-  assert.equal(deriveAssignmentState(baseAssignment, submission("reviewed"), MOCK_NOW), "reviewed");
+  assert.equal(deriveAssignmentState(baseAssignment, submission("revision_requested"), MOCK_NOW), "revision_requested");
+  assert.equal(deriveAssignmentState(baseAssignment, submission("completed"), MOCK_NOW), "completed");
   assert.equal(deriveAssignmentState(baseAssignment, submission("submitted"), MOCK_NOW), "submitted");
 });
 

@@ -1,6 +1,12 @@
 import Image from "next/image";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+export const metadata: Metadata = { title: "Information Preview | GAP" };
 
 export default function Home() {
+  if (process.env.NODE_ENV === "production") notFound();
+
   return (
     <main className="flex min-h-screen bg-canvas px-6 py-8 text-ink sm:px-10 sm:py-10 lg:px-16">
       <section className="mx-auto flex w-full max-w-7xl flex-col justify-between">

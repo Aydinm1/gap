@@ -1,4 +1,14 @@
-export function Progress({ value, max, label }: { value: number; max: number; label: string }) {
+export function Progress({
+  value,
+  max,
+  label,
+  valueLabel,
+}: {
+  value: number;
+  max: number;
+  label: string;
+  valueLabel?: string;
+}) {
   const safeMax = Math.max(max, 1);
   const safeValue = Math.min(Math.max(value, 0), safeMax);
   const percent = (safeValue / safeMax) * 100;
@@ -7,7 +17,9 @@ export function Progress({ value, max, label }: { value: number; max: number; la
     <div>
       <div className="mb-2 flex items-center justify-between gap-4 text-sm">
         <span className="font-semibold text-ink">{label}</span>
-        <span className="text-ink-soft">{safeValue} / {safeMax}</span>
+        <span className="text-ink-soft">
+          {valueLabel ?? `${safeValue} / ${safeMax}`}
+        </span>
       </div>
       <div
         className="h-2 overflow-hidden rounded-full bg-surface-subtle"

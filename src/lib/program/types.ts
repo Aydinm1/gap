@@ -5,7 +5,7 @@ export type ParticipationStatus = "enrolled" | "completed" | "withdrew";
 export type AdvancementStatus = "pending" | "promoted" | "not_promoted";
 export type PromotionResponse = "pending" | "joined" | "declined";
 export type WeekPublicationState = "draft" | "published";
-export type SubmissionStatus = "submitted" | "reviewed" | "needs_revision";
+export type SubmissionStatus = "submitted" | "revision_requested" | "completed";
 export type SubmissionType = "file" | "link";
 export type AssignmentDisplayState =
   | SubmissionStatus
@@ -85,6 +85,7 @@ export type SubmissionAttempt = {
   isCurrent: boolean;
   feedback?: string;
   reviewedAt?: string;
+  reviewedByUserId?: string;
   supersedesSubmissionId?: string;
   payload: SubmissionPayload;
 };

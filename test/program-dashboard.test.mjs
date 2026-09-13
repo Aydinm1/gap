@@ -29,12 +29,18 @@ test("canonical dashboard centers Week 2 revision work", () => {
   assert.equal(dashboard.completedModules, 1);
   assert.equal(dashboard.totalModules, 6);
   assert.equal(dashboard.continueLearning?.title, "Research & Problem Solving");
-  assert.equal(dashboard.priorityAssignment?.state, "needs_revision");
+  assert.equal(dashboard.continueLearning?.href, "/week/2");
+  assert.equal(dashboard.priorityAssignment?.state, "revision_requested");
+  assert.equal(dashboard.priorityAssignment?.href, "/week/2");
   assert.match(dashboard.priorityAssignment?.dueLabel ?? "", /September 18/);
   assert.match(dashboard.priorityAssignment?.feedback ?? "", /mutually exclusive/);
   assert.deepEqual(
     dashboard.modules.map((module) => module.state),
     ["complete", "current", "locked", "locked", "locked", "locked"],
+  );
+  assert.deepEqual(
+    dashboard.modules.slice(0, 2).map((module) => module.href),
+    ["/week/1", "/week/2"],
   );
 });
 
@@ -68,7 +74,7 @@ test("dashboard supports empty and caught-up program states", () => {
 
   const completed = mockSubmissions.map((submission) =>
     submission.isCurrent && submission.assignmentId === "assignment-week-2"
-      ? { ...submission, status: "reviewed" }
+      ? { ...submission, status: "completed" }
       : submission,
   );
   const caughtUp = buildProgramDashboard({

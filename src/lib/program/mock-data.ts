@@ -170,9 +170,10 @@ export const mockSubmissions: readonly SubmissionAttempt[] = [
     id: "submission-week-1-aydin",
     assignmentId: fundamentalsAssignment.id,
     enrollmentId: mockEnrollments[0].id,
-    status: "reviewed",
+    status: "completed",
     submittedAt: "2026-09-11T02:43:00.000Z",
     reviewedAt: "2026-09-13T18:15:00.000Z",
+    reviewedByUserId: mockUsers.admin.id,
     feedback: "Strong stakeholder framing and thoughtful kickoff questions.",
     isCurrent: true,
     payload: {
@@ -197,9 +198,10 @@ export const mockSubmissions: readonly SubmissionAttempt[] = [
     id: "submission-week-2-aydin-2",
     assignmentId: researchPlanAssignment.id,
     enrollmentId: mockEnrollments[0].id,
-    status: "needs_revision",
+    status: "revision_requested",
     submittedAt: "2026-09-16T03:43:00.000Z",
     reviewedAt: "2026-09-16T17:20:00.000Z",
+    reviewedByUserId: mockUsers.admin.id,
     feedback:
       "The issue areas are promising. Make them mutually exclusive and add a source for sizing each branch.",
     supersedesSubmissionId: "submission-week-2-aydin-1",
@@ -217,6 +219,6 @@ export const mockStatusExamples = [
   { label: "Due soon", state: "due_soon" },
   { label: "Overdue", state: "overdue" },
   { label: "Submitted", state: "submitted" },
-  { label: "Reviewed", state: "reviewed" },
-  { label: "Needs revision", state: "needs_revision" },
+  { label: "Complete", state: "completed" },
+  { label: "Revision requested", state: "revision_requested" },
 ] as const;

@@ -24,7 +24,7 @@
 - `advancement_status`: `pending | promoted | not_promoted`
 - `promotion_response`: `pending | joined | declined`
 - `submission_type`: `file | link`
-- `submission_status`: `submitted | reviewed | needs_revision`
+- `submission_status`: `submitted | revision_requested | completed`
 
 Do not store `overdue`, `due_soon`, or `upcoming`; derive them from deadline and current
 submission state.

@@ -5,6 +5,9 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Locked completed submissions in the member workspace: finished work now offers only
+  the view action, while awaiting-review and revision-requested work remains replaceable.
+
 ### Added
 
 - Structured documentation system for product, design, architecture, data, operations,
@@ -30,9 +33,38 @@ Keep a Changelog without assigning versions until the first release.
 - Transparent cohort advancement, offer-yield, and end-to-end conversion selectors.
 - Accepted cohort-history architecture decision and cohort-aware Supabase schema plan.
 - Current cohort context in the analyst profile dropdown.
+- Simplified dashboard status with one clear completed-program progress indicator.
+- Complete mock week workspace with workshop materials, resources, assignment state,
+  file/link replacement, feedback, and retained submission history.
+- Pure cohort-scoped week-detail, submission validation, and immutable replacement helpers.
+- Focused member submission-review route for feedback, revision, current work, and history.
 
 ### Changed
 
+- Made the program dashboard the member home, shortened week routes to `/week`, moved
+  the retired public splash to development-only `/dev/info`, and made the header logo
+  the home control while preserving old `/program` links with permanent redirects.
+- Moved assignment lifecycle preview controls out of member-facing week and submission
+  routes and into the non-production component lab, leaving the real workspaces driven
+  solely by their current submission data.
+- Kept assignment instructions in the wide week-page column across every submission state
+  and reduced the submission rail to status, current-work metadata, and one next action.
+- Reframed week detail pages around the assignment workflow, with progressive submission
+  controls, a full-width desktop workspace, and quieter workshop and resource references.
+- Simplified submission review into an outcome-first status, prominent feedback, compact
+  current-file metadata, and an always-visible timeline of prior attempts.
+- Recast reviewer feedback as an editorial note and joined current-file metadata with its
+  view and revision actions in one cohesive submitted-work record.
+- Reconnected the editorial review treatment to the shared UI kit with icon-free status
+  badges, a restrained attachment tile, and standard secondary and primary controls.
+- Repaired the submitted-work tile so metadata keeps its full row and equal-width actions
+  no longer compress filenames or timestamps inside the desktop review pane.
+- Reduced completed submission states to one Feedback heading, one adjacent status badge,
+  and the reviewer comment without repeated labels or instructional copy.
+- Split assignment workspaces into automatic preparation and review modes, with a
+  development-only four-state preview control for visual and interaction testing.
+- Replaced ambiguous reviewed/needs-revision outcomes with submitted,
+  revision-requested, and completed states; review remains timestamped metadata.
 - Official UC Davis logo assets are now treated as available production brand sources.
 - Reworked the holding page around the Growth Analyst Program name and UC Davis brand
   palette.

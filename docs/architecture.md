@@ -21,12 +21,13 @@
 
 | Route | Access | Purpose |
 | --- | --- | --- |
-| `/` | Public/session-aware | Landing or redirect to the appropriate portal |
+| `/` | Active member/admin | Student dashboard and portal home |
 | `/login` | Public | Google sign-in and access explanation |
 | `/auth/callback` | Public callback | Exchange OAuth code and validate access |
 | `/access-denied` | Public | Explain domain, roster, or inactive access failure |
-| `/program` | Active member/admin | Student dashboard |
-| `/program/week/[weekNumber]` | Active member/admin | Published week detail |
+| `/week/[weekNumber]` | Active member/admin | Published week detail |
+| `/week/[weekNumber]/submission` | Active member/admin | Own submission review and history |
+| `/dev/info` | Development only | Retired public-information page reference |
 | `/admin` | Admin | Overview and submission matrix |
 | `/admin/submissions/[id]` | Admin | Submission review and history |
 | `/admin/weeks` | Admin | Week listing and publication state |
@@ -97,6 +98,10 @@ concrete need emerges.
 - Dashboard repositories supply an explicit cohort and the current person's enrollment.
   Identity, login authorization, and cohort participation remain separate so archived
   history survives access deactivation.
+- Week and member submission-review pages render scoped learning data on the server and
+  pass narrow assignment DTOs into client submission controls. Phase 3 replacements are
+  session-only and reset to seeded attempts on reload; the same immutable replacement
+  contract will move behind Supabase.
 
 ## Time and derived state
 

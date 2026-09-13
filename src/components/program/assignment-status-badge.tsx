@@ -8,9 +8,9 @@ const presentation: Record<
   upcoming: { label: "Not submitted", tone: "neutral", symbol: "○" },
   due_soon: { label: "Due soon", tone: "warning", symbol: "◷" },
   overdue: { label: "Overdue", tone: "danger", symbol: "!" },
-  submitted: { label: "Submitted", tone: "info", symbol: "↑" },
-  reviewed: { label: "Reviewed", tone: "success", symbol: "✓" },
-  needs_revision: { label: "Needs revision", tone: "warning", symbol: "↻" },
+  submitted: { label: "Awaiting review", tone: "info", symbol: "↑" },
+  completed: { label: "Complete", tone: "success", symbol: "✓" },
+  revision_requested: { label: "Revision requested", tone: "warning", symbol: "↻" },
 };
 
 export function AssignmentStatusBadge({ state }: { state: AssignmentDisplayState }) {

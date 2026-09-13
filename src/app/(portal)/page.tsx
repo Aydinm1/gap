@@ -35,7 +35,7 @@ const moduleSymbols = {
   locked: "○",
 } as const;
 
-export default function ProgramPage() {
+export default function DashboardPage() {
   const firstName = dashboard.user.fullName.split(" ")[0];
 
   return (
@@ -50,11 +50,6 @@ export default function ProgramPage() {
               <h1 id="program-heading" className="text-4xl font-bold tracking-[-0.04em] sm:text-5xl">
                 Welcome back, {firstName}
               </h1>
-              <p className="mt-3 text-base text-ink-soft">
-                {dashboard.currentWeekNumber
-                  ? `Week ${dashboard.currentWeekNumber} of ${dashboard.totalModules}`
-                  : "You are caught up with all published modules."}
-              </p>
             </div>
           </div>
           {dashboard.totalModules > 0 ? (
@@ -62,7 +57,8 @@ export default function ProgramPage() {
               <Progress
                 value={dashboard.completedModules}
                 max={dashboard.totalModules}
-                label="Modules complete"
+                label="Program progress"
+                valueLabel={`${dashboard.completedModules} of ${dashboard.totalModules} complete`}
               />
             </div>
           ) : null}

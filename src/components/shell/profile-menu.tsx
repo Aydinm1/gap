@@ -70,19 +70,21 @@ export function ProfileMenu({
               </p>
             ) : null}
           </div>
-          <div className="pt-2">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                role="menuitem"
-                className="flex min-h-10 items-center rounded-md px-3 text-sm font-semibold text-ink-soft hover:bg-surface-subtle hover:text-ink"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {links.length ? (
+            <div className="pt-2">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  role="menuitem"
+                  className="flex min-h-10 items-center rounded-md px-3 text-sm font-semibold text-ink-soft hover:bg-surface-subtle hover:text-ink"
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

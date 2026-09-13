@@ -83,6 +83,11 @@ descriptive filenames.
 - **Cards:** white or near-white, subtle border, modest radius, minimal shadow.
 - **Status badges:** short text labels with icon/color as redundant cues; never color
   alone.
+- **Submission outcomes:** lead with one plain-language result, place reviewer feedback
+  directly beneath a single Feedback heading, and connect file metadata and actions in
+  one submitted-work record. Place the icon-free status badge beside Feedback instead of
+  repeating status labels or helper copy. Use a single bordered attachment tile and
+  standard button hierarchy; avoid alert-like filled feedback boxes.
 - **Progress:** thin linear bar plus a textual value such as `2 / 6 modules complete`.
 - **Forms:** visible labels, help/error text, clear focus rings, and full-width controls on
   small screens.
@@ -100,14 +105,26 @@ descriptive filenames.
 - Server Components are the default. Keep interactive client boundaries narrow, as with
   the profile menu.
 - `/dev/ui` is the non-production review surface for tokens, primitives, shell variants,
-  and representative states.
+  and representative states. Assignment lifecycle state changers belong only on this
+  design-guide surface and never appear in member-facing program routes.
 
 ## Responsive behavior
 
 - Design student pages mobile-first in behavior even when composing desktop-first.
 - Cards stack, deadlines stay near assignment titles, and submission controls remain
   thumb-friendly on small screens.
+- Week detail pages are assignment-first: instructions retain the wide column in every
+  lifecycle state while a compact submission rail answers status and next action.
+  Workshop slides and references follow in a quieter supporting row.
+- Do not enlarge short status copy to fill the assignment body or hide instructions after
+  submission. Written feedback, revision controls, current work, and history belong on a
+  focused submission-review page reached through `View feedback` or `View submission`.
+- On the review page, real reviewer feedback may own the wide column. Awaiting-review
+  states remain compact instead of manufacturing an empty feedback region.
 - Avoid fixed widths that cause horizontal overflow.
+- Components inside narrow desktop panes must use their actual available space rather
+  than global viewport breakpoints. Keep attachment metadata above its actions when a
+  sibling column constrains the component width.
 - Admin pages may prioritize desktop density but must remain operable on mobile.
 
 ## Accessibility baseline

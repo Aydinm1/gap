@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/container";
 import { StateMessage } from "@/components/ui/state-message";
 
-export default function ProgramError({ reset }: { reset: () => void }) {
+export default function PortalError({ reset }: { reset: () => void }) {
   return (
     <main>
       <PageContainer className="py-12 sm:py-16">
