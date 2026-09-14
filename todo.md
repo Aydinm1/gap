@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-08-13
+**Last updated:** 2026-09-14
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -128,15 +128,28 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ### Phase 4 gate
 
+- [x] Automated admin checks cover mock-role rejection, queue selection/filtering,
+  cohort/roster/publishing validation, and Pacific deadline edge cases (2026-09-14).
 - [ ] Browser-verify that a mock admin can complete content publishing, roster, and review
   workflows at mobile and desktop widths.
 - [ ] Replace the hardcoded mock admin identity with server-side authorization before
   claiming members cannot reach or trigger admin behavior.
 - [x] Lint, typecheck, and production build pass.
 
+Audit note (2026-09-14): all 36 automated tests, lint, and typecheck pass. The production
+build checkbox reflects prior validation, not a new build in this audit. Mock feature
+implementation is complete; the browser workflow gate remains unverified. Real admin
+authorization depends on the Phase 5/7 backend and authentication work and is not supplied
+by the mock-role test.
+
 ## Phase 5 — Supabase schema, seeds, and data access
 
 ### Member refinement follow-up
+
+- [x] Attach continuation to the module panel and verify desktop, phone, and navigation.
+
+- [x] Replace the dashboard overview card with a thin continuation bar and remove
+  assignment and feedback summaries.
 
 - [x] Prioritize Continue Week on the dashboard and demote feedback to a secondary link.
 
@@ -167,8 +180,24 @@ requires implementation, validation, documentation, and changelog agreement.
   authorize inside each action.
 - [ ] Implement atomic current-submission replacement that retains historical rows.
 
+### Monday-ready enrollment foundation
+
+- [x] Support durable links between Monday applicants and GAP people/cohort enrollments,
+  preserving returning applicants' history through a private application-link table.
+- [x] Implement a shared, server-only enrollment operation with duplicate-safe processing
+  and preservation of existing roles, access restrictions, and outcomes.
+
+Only the enrollment foundation is implemented in migrations. Content, profiles,
+submissions, browser/admin policies, generated client types, and client integration remain
+pending above. The operation is private SQL; it is not connected to the mock admin UI.
+
 ### Phase 5 gate
 
+- [x] Enrollment migrations apply to a clean local PostgreSQL database; external-link
+  uniqueness, repeat/concurrent requests, returning participants, rollback, inactive
+  access, role/history preservation, and database authorization boundaries pass.
+- [ ] Verify enrollment migrations and authorization against the actual Supabase
+  environment before connecting a real server adapter; no Monday configuration required.
 - [ ] Fresh project migration and seed execution succeeds.
 - [ ] Anonymous/member/admin/inactive/cross-user SQL and client policy tests match the RLS
   matrix.
@@ -228,6 +257,25 @@ requires implementation, validation, documentation, and changelog agreement.
 - [ ] Lint, typecheck, auth/RLS tests, and production build pass.
 
 ## Phase 8 — Final responsive and usability polish
+
+### Monday recruiting and club reporting — Planned integration
+
+Live enrollment and synchronization depend on P5 database/client work and P7 real
+authentication/authorization. A configured Monday board is not a P5 completion gate.
+
+- [x] Document Supabase/Monday ownership, expected form intake, reporting scope, and ADR.
+- [x] Record the lead-controlled “Enroll in GAP” checkbox decision and enrollment safeguards.
+- [ ] Confirm form/boards/columns, individual-report audience, and sync timing.
+- [ ] Configure the Monday enrollment checkbox, lead permissions, and separate enrollment result fields.
+- [x] Implement durable application-to-enrollment mapping and atomic server-only provisioning.
+- [ ] Finalize the live adapter, credentials, transport, and field mappings.
+- [ ] Implement checkbox-triggered accepted-participant intake under approved-roster
+  authorization rules; verify eligibility, retries, failure reporting, and non-destructive unchecking.
+- [ ] Export per-person due-work counts and cohort outcomes without private work or feedback.
+- [ ] Verify duplicate-safe retries, returning applicants, historical cohorts, stale-sync
+  visibility, and continued GAP operation when Monday is unavailable.
+
+### Responsive and usability work
 
 - [ ] Verify assignment-state precedence and consistency across dashboard, week, and admin
   screens.

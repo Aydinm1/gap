@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 **Status:** Active
-**Last updated:** 2026-08-13
+**Last updated:** 2026-09-14
 **Source of truth for:** Durable decision history and ADR format
 
 Create an ADR for decisions that materially affect architecture, schema, security,
@@ -55,3 +55,6 @@ do not override a later source-of-truth update and superseding ADR.
 - [ADR 0001: Documentation as product infrastructure](0001-documentation-as-product-infrastructure.md)
 - [ADR 0002: Stable runtime and framework channels](0002-stable-runtime-and-framework-channels.md)
 - [ADR 0003: Cohort history and advancement outcomes](0003-cohort-history-and-advancement-outcomes.md)
+- [ADR 0004: Monday recruiting and GAP reporting](0004-monday-recruiting-and-gap-reporting.md)
+- [ADR 0005: Explicit GAP enrollment approval](0005-explicit-gap-enrollment.md)
+- [ADR 0006: Monday-ready enrollment foundation](0006-monday-ready-enrollment-foundation.md)

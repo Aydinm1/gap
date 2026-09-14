@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-08-13
+**Last updated:** 2026-09-14
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -30,6 +30,12 @@ Do not store `overdue`, `due_soon`, or `upcoming`; derive them from deadline and
 submission state.
 
 ## Tables
+
+Implementation boundary: the enrollment-foundation migrations currently create only
+people, approved members, cohorts, enrollments, and private Monday application links.
+Profiles, content, submissions, and their member/admin policies below remain planned.
+The implemented tables have RLS enabled and no browser-role grants or policies yet;
+only trusted server provisioning is available. This is not the completed RLS matrix.
 
 ### `people`
 
@@ -198,6 +204,77 @@ Admin summaries derive rather than store:
 
 Always show pending-decision, pending-response, and withdrawal counts with these rates so
 their denominators remain clear.
+
+## Monday reporting contract — Planned
+
+The [planned reporting set](product-spec.md#mondaycom-recruiting-and-club-reporting--planned)
+is a projection of GAP records, not a second authoritative store. Monday remains the
+source for applicants, recruiting decisions, and club-wide person records; do not
+import all applicants into the GAP participant or access tables.
+
+`private.monday_application_links` stores a UUID primary key, nonempty trimmed text
+`account_id`, `board_id`, and `item_id`, an `enrollment_id` foreign key with delete
+restriction, and `created_at`/`updated_at` timestamps. The external identifier triple is
+unique; `enrollment_id` is indexed but not unique. Multiple applications can link to one
+enrollment, while returning participants retain separate cohort enrollments. Person and
+cohort are derived through the enrollment, not copied into the mapping. Manual enrollment
+requires no external link. No rejected/unapproved applicant is imported by a live adapter.
+
+The table is private, with RLS enabled and no browser grants. `service_role` may read links
+but cannot directly insert/update/delete them; inserts go through the private operation.
+Admin access will go through an authorized server boundary, not a client-side admin flag.
+Actual Monday board/column configuration and live adapter remain pending.
+
+The “Enroll in GAP” checkbox is enrollment intent, not an authorization field. Successful
+processing links `people`, `cohort_enrollments`, and `approved_members` under the
+[enrollment rules](product-spec.md#enrollment-approval--approved-not-implemented).
+New access uses the member role; preserve existing roles and require explicit GAP admin
+approval to reactivate previously deactivated access. Do not reset existing enrollment
+outcomes on retries. The link creation timestamp records successful application linking;
+it is not a pending-request log. Checkbox pending/failure reporting remains adapter work.
+
+### Enrollment operation — Implemented, not connected to the portal
+
+`private.enroll_in_gap(p_email text, p_full_name text, p_cohort_id uuid,
+p_account_id text default null, p_board_id text default null, p_item_id text default null)`
+returns one row: `person_id uuid`, `enrollment_id uuid`, and `created boolean` (whether the
+enrollment itself was newly created, not whether a mapping was added).
+
+Only `service_role` and the database owner can execute this private SQL function; it is
+not an exposed PostgREST RPC. A future trusted server caller must authenticate the GAP
+admin, or verify Monday acceptance and lead approval, before invoking it. Caller-provided
+claims cannot substitute for database execution privileges. It never trusts mock identity.
+
+The transaction validates a nonempty name, normalized UC Davis email, existing cohort,
+and all-or-none external identifiers. Existing application links are resolved first;
+email/cohort mismatch requires manual resolution, never relinking. Without a mapping,
+normalized email links an existing person. Existing names/roles/outcomes are not overwritten.
+Previously inactive access and roster/person email conflicts fail closed.
+
+All provisioning and optional linking occur atomically. A transaction-scoped advisory
+lock serializes this low-volume operation, while unique constraints protect against other
+writers. Replays return the same enrollment without timestamp/history resets. Failures
+roll back all new rows. Any existing cohort is eligible (including draft/archived); retries
+therefore remain valid after archival, and choosing the intended cohort is the caller's
+responsibility. No unchecking/revocation behavior is implemented by this operation.
+
+For per-person due-work reporting, count distinct published assignments whose deadlines
+have passed at the report's as-of time. Count one current attempt per assignment:
+
+- Submitted: due assignments with any current attempt, including revision-requested work.
+- Approved: due assignments whose current attempt is `completed`.
+- Awaiting review: due assignments whose current attempt is `submitted`.
+- Outstanding revisions: due assignments whose current attempt is `revision_requested`.
+- Missing: due assignments without a current attempt.
+
+Report counts and the due-assignment denominator together. A zero denominator produces
+“Not yet due”/an unavailable rate, not 0% or 100%. Historical attempts never inflate
+these counts; future and draft assignments do not enter the denominator. This reporting
+submission rate is distinct from the portal's module-completion calculation.
+Cohort assignment rates aggregate these counts for currently enrolled participants;
+report withdrawals separately. Existing starter-based outcome denominators above retain
+withdrawn participants. Cohort completion is the participation status `completed`,
+not an inference that every submitted assignment was approved.
 
 ## Storage
 

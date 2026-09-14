@@ -5,6 +5,24 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added the Monday-ready enrollment database foundation: private application links and
+  atomic, duplicate-safe provisioning that preserves roles, inactive access, and cohort
+  history. Added isolated SQL concurrency, rollback, and permission tests. No live Monday
+  connection, public enrollment endpoint, or mock-admin integration is enabled.
+
+- Documented the planned Monday.com recruiting and club-reporting integration: expected
+  application-form intake, Supabase ownership of GAP records/files, per-person and cohort
+  summaries, and pending external/sync setup decisions. No integration is deployed.
+- Approved a lead-controlled “Enroll in GAP” checkbox in Monday as the enrollment request;
+  acceptance alone grants no access. Documented eligibility, separate result reporting,
+  duplicate-safe processing, and non-destructive unchecking. Configuration is still pending.
+
+- Integrated continuation into the module panel beneath a shared heading and progress
+  indicator, with a compact caught-up state in the same header position.
+
+- Simplified the dashboard hero into a slim continuation bar; assignment and feedback
+  summaries now stay on their dedicated week and submission pages.
+
 - Made Continue Week the dashboard's primary action, with feedback and assignment
   actions presented as secondary links.
 

@@ -29,5 +29,5 @@ export function useMemberWorkspace() { return useContext(Context); }
 export function useMemberAttempts(initialAttempts: readonly SubmissionAttempt[]) {
   const workspace = useMemberWorkspace();
   const [local, setLocal] = useState([...initialAttempts]);
-  return [workspace?.attempts ?? local, workspace?.setAttempts ?? setLocal] as const;
+  return [workspace ? initialAttempts : local, workspace?.setAttempts ?? setLocal] as const;
 }

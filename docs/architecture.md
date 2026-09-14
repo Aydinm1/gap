@@ -1,7 +1,7 @@
 # GAP Application Architecture
 
 **Status:** Active
-**Last updated:** 2026-08-13
+**Last updated:** 2026-09-14
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -119,6 +119,40 @@ concrete need emerges.
 - Pacific wall-clock conversion is centralized in `src/lib/program/admin.ts`; it rejects
   daylight-saving gaps and requires disambiguation for repeated PDT/PST times before
   producing a UTC timestamp.
+
+## Monday.com ownership and synchronization — Planned, not implemented
+
+See [product scope](product-spec.md#mondaycom-recruiting-and-club-reporting--planned)
+and [ADR 0004](decisions/0004-monday-recruiting-and-gap-reporting.md).
+Monday owns recruiting and the club directory; Supabase owns GAP records and files.
+The boundary is field-specific: accepted-participant identity/cohort context enters GAP,
+while GAP-derived summaries return to Monday. Do not make both systems independent
+editors of the same progress or outcome fields.
+
+Keep integration credentials and synchronization work on the server. External identity
+mapping must connect Monday person/application/cohort records to GAP people/enrollments.
+Retries must not duplicate people or enrollments, and a sync failure must not interrupt
+learning, submissions, or review in GAP. Show the last successful synchronization time
+so stale reports do not appear current. The private application-link schema and atomic
+enrollment operation are implemented in migrations; transport, scheduling, checkbox
+results, and live synchronization remain pending.
+
+The [enrollment operation](data-model.md#enrollment-operation--implemented-not-connected-to-the-portal)
+is a private SQL entry point executable only by trusted server credentials. No HTTP route,
+public RPC, Supabase client, or mock-admin wiring is introduced. Future admin and Monday
+adapters must authorize their callers before using it. The function handles atomic
+provisioning and duplicate-safe linking; the adapter owns external approval checks and
+reporting failures back to Monday. See [ADR 0006](decisions/0006-monday-ready-enrollment-foundation.md).
+
+Monday acceptance alone never provisions access. A lead-controlled “Enroll in GAP”
+checkbox requests server-side enrollment under the
+[approved trigger](product-spec.md#enrollment-approval--approved-not-implemented)
+and existing approved-roster rules. Validate the authorized request, current acceptance,
+identity, and cohort before provisioning. Record the enrollment result separately from
+the checkbox, and make retries safe without resetting existing history or access roles.
+Unchecking is not a revocation mechanism.
+Outbound GAP links still require ordinary GAP authorization; never export signed file
+URLs, credentials, or private submission payloads into club reporting.
 
 ## Time and derived state
 

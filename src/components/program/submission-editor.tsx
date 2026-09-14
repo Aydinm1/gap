@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { formatFileSize } from "@/components/dev/file-upload-preview";
 import {
   normalizeSubmissionUrl,
-  validateSubmissionFile,
 } from "@/lib/program/submission";
 import type { SubmissionPayload } from "@/lib/program/types";
 import { cn } from "@/lib/ui";
@@ -25,7 +24,7 @@ export function SubmissionEditor({
   description: string;
   layout?: "rail" | "wide";
   onCancel?: () => void;
-  onSubmit: (payload: SubmissionPayload) => void;
+  onSubmit: (payload: SubmissionPayload) => void | Promise<void>;
 }) {
   const inputId = useId();
   const workspace = useMemberWorkspace();
@@ -41,7 +40,13 @@ export function SubmissionEditor({
   function clearDraft() {
     patchDraft({ method: undefined, file: undefined, url: "" });
   }
-  function finish(payload: SubmissionPayload) { onSubmit(payload); clearDraft(); }
+  const [saving, setSaving] = useState(false);
+  async function finish(payload: SubmissionPayload) {
+    setSaving(true);
+    try { await onSubmit(payload); clearDraft(); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not submit. Your draft has been kept.'); }
+    finally { setSaving(false); }
+  }
   function cancel() {
     if ((file || url.trim()) && !window.confirm("Discard this submission draft?")) return;
     clearDraft();
@@ -52,13 +57,7 @@ export function SubmissionEditor({
 
   function submit() {
     if (method === "file") {
-      const fileError = validateSubmissionFile(file);
-      if (fileError || !file) return setError(fileError);
-      return finish({
-        type: "file",
-        originalFilename: file.name,
-        filePath: `mock/${assignmentId}/${file.name}`,
-      });
+      return setError('File uploads are not available yet. Submit a link instead.');
     }
 
     if (method === "link") {
@@ -82,6 +81,7 @@ export function SubmissionEditor({
           <button
             key={choice}
             type="button"
+            disabled={choice === 'file' || saving}
             aria-pressed={method === choice}
             onClick={() => { patchDraft({ method: choice }); setError(undefined); }}
             className={cn(
@@ -96,7 +96,7 @@ export function SubmissionEditor({
             </span>
             <span className="mt-1 block text-xs leading-5 text-ink-soft">
               {choice === "file"
-                ? "PDF, DOCX, PPTX, or XLSX · Up to 20 MB"
+                ? "Not available yet · Please submit a link"
                 : "Google Docs, Slides, Sheets, Canva, or another web link"}
             </span>
           </button>
@@ -134,8 +134,8 @@ export function SubmissionEditor({
 
       {error ? <p className="mt-4 text-sm font-bold text-danger-text" role="alert">{error}</p> : null}
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button onClick={submit}>{actionLabel}</Button>
-        {onCancel ? <Button variant="quiet" onClick={cancel}>Cancel</Button> : null}
+        <Button disabled={saving} onClick={submit}>{saving ? 'Submitting…' : actionLabel}</Button>
+        {onCancel ? <Button disabled={saving} variant="quiet" onClick={cancel}>Cancel</Button> : null}
       </div>
     </div>
   );

@@ -156,9 +156,12 @@ descriptive filenames.
 
 ## Accessibility baseline
 
-Dashboard overview refinements: pair the featured week and primary Continue Week action with
-an assignment summary in one divided surface, stacked on mobile. Full feedback belongs
-on the review page, reached through a secondary text link. Module rows place week numbers beside titles and use distinct icons:
+Dashboard overview refinements: use a slim continuation header inside the module panel,
+with a small label, week number/title, and one Continue button. Put the module heading
+and progress above the shared panel. Use a subtle neutral fill and bottom divider for
+the continuation header, without a separate card or shadow. Show a compact caught-up
+message there when appropriate. Stack only as needed on narrow screens. Do not
+include an assignment or feedback panel. Module rows place week numbers beside titles and use distinct icons:
 check for complete, clock for awaiting review, revision arrow for requested changes,
 forward arrow for available work, and lock for upcoming modules. Retain text labels.
 

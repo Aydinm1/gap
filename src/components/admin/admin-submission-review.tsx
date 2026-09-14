@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
 import { StateMessage } from "@/components/ui/state-message";
 import { getNextAwaitingSubmission, getSubmissionRows } from "@/lib/program/admin";
-import { MOCK_NOW } from "@/lib/program/mock-data";
+
 import { formatSubmissionTime } from "@/lib/program/state";
 import { submissionDisplayName, validateReviewFeedback } from "@/lib/program/submission";
 import type { SubmissionStatus } from "@/lib/program/types";
@@ -28,6 +28,7 @@ export function AdminSubmissionReview({ submissionId }: { submissionId: string }
   const submission = workspace.submissions.find((item) => item.id === submissionId && item.isCurrent);
   const [status, setStatus] = useState<SubmissionStatus>(submission?.status ?? "submitted");
   const [feedback, setFeedback] = useState(submission?.feedback ?? "");
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState(submission?.updatedAt);
   const [message, setMessage] = useState("");
   const [saving, startSaving] = useTransition();
   const dirty = Boolean(submission && (status !== submission.status || feedback !== (submission.feedback ?? "")));
@@ -43,7 +44,7 @@ export function AdminSubmissionReview({ submissionId }: { submissionId: string }
   if (!enrollment || !week) return <PageContainer className="py-16"><StateMessage title="Submission not found">This submission does not belong to the selected cohort.</StateMessage></PageContainer>;
   const currentSubmission = submission;
   const history = workspace.submissions.filter((item) => item.enrollmentId === submission.enrollmentId && item.assignmentId === submission.assignmentId && !item.isCurrent).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
-  const queueRows = getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: week.id, now: MOCK_NOW });
+  const queueRows = getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: week.id, now: new Date() });
   const nextSubmission = getNextAwaitingSubmission(queueRows, submission.id);
   const backParams = new URLSearchParams(params.toString());
   backParams.set("cohort", workspace.selectedCohortId); backParams.set("week", week.id);
@@ -52,8 +53,10 @@ export function AdminSubmissionReview({ submissionId }: { submissionId: string }
   function saveReview(reviewNext = false) {
     const error = status === "submitted" ? undefined : validateReviewFeedback(status, feedback);
     if (error) return setMessage(error);
-    startSaving(() => {
-      workspace.updateSubmission(currentSubmission.id, status, feedback);
+    startSaving(async () => {
+      const result = await workspace.updateSubmission(currentSubmission.id, status, feedback, expectedUpdatedAt);
+      if (result.error) return setMessage(result.error);
+      setExpectedUpdatedAt(result.updatedAt);
       if (status === "submitted") setFeedback("");
       workspace.setUnsavedChanges(false);
       if (reviewNext && nextSubmission) router.push(`/admin/submissions/${nextSubmission.id}?${backParams.toString()}`);

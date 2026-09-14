@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { signOut } from '@/app/login/actions';
 import { useEffect, useRef, useState } from "react";
 import type { ProgramUser } from "@/lib/program/types";
 
@@ -85,6 +86,7 @@ export function ProfileMenu({
               ))}
             </div>
           ) : null}
+          <form action={signOut}><button role="menuitem" className="min-h-11 w-full rounded-md px-3 text-left text-sm font-semibold text-ink-soft hover:bg-surface-subtle">Sign out</button></form>
         </div>
       ) : null}
     </div>

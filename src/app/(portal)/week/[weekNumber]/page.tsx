@@ -5,31 +5,16 @@ import { SubmissionWorkspace } from "@/components/program/submission-workspace";
 import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
 import { StateMessage } from "@/components/ui/state-message";
-import {
-  MOCK_NOW,
-  mockCohorts,
-  mockEnrollments,
-  mockSubmissions,
-  mockWeeks,
-} from "@/lib/program/mock-data";
-import { buildWeekDetail } from "@/lib/program/week-detail";
+import { readWeek } from '@/lib/supabase/data';
+
 
 type WeekPageProps = { params: Promise<{ weekNumber: string }> };
 
-function getDetail(weekNumber: string) {
-  return buildWeekDetail({
-    weeks: mockWeeks,
-    weekNumber,
-    cohortId: mockCohorts.fall2026.id,
-    enrollmentId: mockEnrollments[0].id,
-    submissions: mockSubmissions,
-    now: MOCK_NOW,
-  });
-}
+const getDetail = readWeek;
 
 export async function generateMetadata({ params }: WeekPageProps): Promise<Metadata> {
   const { weekNumber } = await params;
-  const detail = getDetail(weekNumber);
+  const detail = await getDetail(weekNumber);
   return { title: detail ? `${detail.week.title} | GAP` : "Week not found | GAP" };
 }
 
@@ -42,7 +27,7 @@ const resourceLabels = {
 
 export default async function WeekDetailPage({ params }: WeekPageProps) {
   const { weekNumber } = await params;
-  const detail = getDetail(weekNumber);
+  const detail = await getDetail(weekNumber);
   if (!detail) notFound();
 
   return (
@@ -69,7 +54,7 @@ export default async function WeekDetailPage({ params }: WeekPageProps) {
                 <Card className="mt-5 overflow-hidden">
                   <SubmissionWorkspace
                     assignmentId={detail.assignment.id}
-                    enrollmentId={mockEnrollments[0].id}
+                    enrollmentId={detail.enrollmentId}
                     unsubmittedState={detail.assignment.unsubmittedState}
                     instructions={detail.assignment.instructions}
                     initialAttempts={detail.assignment.attempts}

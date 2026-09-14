@@ -1,5 +1,7 @@
 "use client";
 
+import { saveLink } from "@/lib/supabase/actions";
+
 import { useRef, useState } from "react";
 import { useMemberAttempts } from "./member-workspace";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
@@ -7,8 +9,8 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { SubmissionEditor } from "@/components/program/submission-editor";
 import { SubmittedWorkRecord } from "@/components/program/submitted-work-record";
 import type { AssignmentDisplayState, SubmissionAttempt, SubmissionPayload } from "@/lib/program/types";
-import { replaceSubmission } from "@/lib/program/submission";
-import { formatSubmissionTime } from "@/lib/program/state";
+
+
 
 const statusPresentation = {
   upcoming: { label: "Not submitted", detail: "Submit your work by the deadline.", tone: "neutral" },
@@ -34,25 +36,19 @@ export function SubmissionWorkspace({
   initialAttempts: readonly SubmissionAttempt[];
   reviewPath: string;
 }) {
-  const [attempts, setAttempts] = useMemberAttempts(initialAttempts);
+  const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId);
   const presentation = statusPresentation[current?.status ?? unsubmittedState];
 
-  function submit(payload: SubmissionPayload) {
-    const now = new Date().toISOString();
-    setAttempts((existing) => replaceSubmission({
-      attempts: existing,
-      assignmentId,
-      enrollmentId,
-      payload,
-      submittedAt: now,
-      id: `mock-${crypto.randomUUID()}`,
-    }));
+  async function submit(payload: SubmissionPayload) {
+    if (payload.type !== 'link') throw new Error('File uploads are not available yet. Submit a link instead.');
+    const result = await saveLink(assignmentId, payload.submittedUrl, current?.id, current?.updatedAt);
+    if (result.error) throw new Error(result.error);
     setSubmitting(false);
-    setAnnouncement(`Submission received ${formatSubmissionTime(now)}.`);
+    setAnnouncement('Submission received.');
   }
 
   return (
@@ -85,7 +81,7 @@ export function SubmissionWorkspace({
               <SubmissionEditor
                 actionLabel="Submit assignment"
                 assignmentId={assignmentId}
-                description="Choose a file or link to submit your work."
+                description="Submit a link the review team can open."
                 onCancel={() => { setSubmitting(false); requestAnimationFrame(() => actionRef.current?.focus()); }}
                 onSubmit={submit}
               />

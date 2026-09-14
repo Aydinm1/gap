@@ -5,5 +5,5 @@ export const metadata: Metadata = { title: "Review submission | GAP" };
 
 export default async function AdminSubmissionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <AdminSubmissionReview submissionId={id} />;
+  return <AdminSubmissionReview key={id} submissionId={id} />;
 }

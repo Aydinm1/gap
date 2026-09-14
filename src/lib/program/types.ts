@@ -86,6 +86,7 @@ export type LinkSubmission = {
 export type SubmissionPayload = FileSubmission | LinkSubmission;
 
 export type SubmissionAttempt = {
+  updatedAt?: string;
   id: string;
   assignmentId: string;
   enrollmentId: string;

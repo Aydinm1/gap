@@ -3,39 +3,24 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SubmissionReviewWorkspace } from "@/components/program/submission-review-workspace";
 import { PageContainer } from "@/components/ui/container";
-import {
-  MOCK_NOW,
-  mockCohorts,
-  mockEnrollments,
-  mockSubmissions,
-  mockWeeks,
-} from "@/lib/program/mock-data";
-import { buildWeekDetail } from "@/lib/program/week-detail";
+import { readWeek } from '@/lib/supabase/data';
+
 
 type SubmissionReviewPageProps = {
   params: Promise<{ weekNumber: string }>;
 };
 
-function getDetail(weekNumber: string) {
-  return buildWeekDetail({
-    weeks: mockWeeks,
-    weekNumber,
-    cohortId: mockCohorts.fall2026.id,
-    enrollmentId: mockEnrollments[0].id,
-    submissions: mockSubmissions,
-    now: MOCK_NOW,
-  });
-}
+const getDetail = readWeek;
 
 export async function generateMetadata({ params }: SubmissionReviewPageProps): Promise<Metadata> {
   const { weekNumber } = await params;
-  const detail = getDetail(weekNumber);
+  const detail = await getDetail(weekNumber);
   return { title: detail?.assignment ? `${detail.assignment.title} Review | GAP` : "Submission not found | GAP" };
 }
 
 export default async function SubmissionReviewPage({ params }: SubmissionReviewPageProps) {
   const { weekNumber } = await params;
-  const detail = getDetail(weekNumber);
+  const detail = await getDetail(weekNumber);
   if (!detail?.assignment) notFound();
 
   const attempts = detail.assignment.attempts;
@@ -56,7 +41,7 @@ export default async function SubmissionReviewPage({ params }: SubmissionReviewP
         <div className="mt-10 lg:mt-12">
           <SubmissionReviewWorkspace
             assignmentId={detail.assignment.id}
-            enrollmentId={mockEnrollments[0].id}
+            enrollmentId={detail.enrollmentId}
             initialAttempts={attempts}
           />
         </div>

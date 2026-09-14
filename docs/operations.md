@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-09-14
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -48,6 +48,37 @@ one naming convention consistently. Never commit `.env.local` or a service-role 
 - Add the two initial professional-development leads to `approved_members` as admins.
 - Verify all table and Storage policies with distinct member and admin accounts.
 
+## Enrollment foundation — Local database validation
+
+Two ordered migrations in `supabase/migrations/` create the enrollment-only foundation
+and private Monday linking operation. They assume the Supabase roles `anon`,
+`authenticated`, and `service_role` exist. Apply them in filename order to a fresh
+Supabase database as the migration owner. Existing manually created tables require a
+schema reconciliation first; these migrations deliberately do not silently skip conflicts.
+Hosted migration application and Supabase Auth/PostgREST verification remain **Pending**.
+Do not expose the `private` schema or grant browser roles access to its functions.
+
+For isolated SQL verification, start Docker and run:
+
+```bash
+docker run --detach --rm --network none --name gap-enrollment-tests --label gap.test=enrollment -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17
+docker exec gap-enrollment-tests pg_isready -U postgres
+GAP_TEST_CONTAINER=gap-enrollment-tests npm run test:enrollment
+docker stop gap-enrollment-tests
+```
+
+Wait until `pg_isready` succeeds before running the suite. The container publishes no
+ports. The suite verifies its label, creates a uniquely named empty database, supplies
+Supabase role fixtures, applies migrations, runs transaction/concurrency/permission tests,
+and deletes only that test database. Stopping this `--rm` container removes its disposable
+data. Do not point the suite at an existing project database.
+
+Local PostgreSQL tests validate SQL behavior, not Google login, hosted RLS setup, or
+Monday permissions. Normal `npm test` runs without Docker; `test:enrollment` is an
+explicit additional gate. Generated Supabase client types and regeneration tooling remain
+part of the unfinished P5 client layer; this change has no database client or TypeScript
+schema mirror. The SQL signature in the data model is the current operation contract.
+
 ## Google OAuth configuration — Pending
 
 1. In Google Cloud, configure an OAuth consent screen for the appropriate audience.
@@ -78,6 +109,28 @@ Supabase project when configuration is performed.
 3. Deploy and update Supabase URL configuration with the final production origin.
 4. Run the production build and smoke-test both roles.
 5. Verify private files cannot be opened without authorization.
+
+## Monday.com integration — Pending
+
+- Confirm the application form, recruiting board, club roster, cohort records, and their
+  owners. Monday form intake is the expected direction, not verified configuration.
+- Configure an unchecked-by-default “Enroll in GAP” checkbox on applicant records and
+  restrict enrollment approval to authorized GAP leads. Acceptance alone must not trigger
+  provisioning. Verify the permission mechanism before enabling the integration.
+- Configure separate enrollment result/timestamp/error fields and map the target cohort.
+  Verify invalid requests grant no access, successful requests provision member access,
+  retries preserve history/roles, and unchecking does not revoke or delete anything.
+- Confirm which leaders can see individual progress and where aggregate club reports go.
+- Map approved fields using [the product reporting scope](product-spec.md#mondaycom-recruiting-and-club-reporting--planned)
+  and [the data contract](data-model.md#monday-reporting-contract--planned).
+- Select and verify server-side credentials, transport, sync frequency, external-record
+  mapping, retries, and reconciliation before adding exact environment/setup instructions.
+- Verify duplicate delivery, returning applicants, prior-cohort retention, email changes,
+  unavailable Monday service, stale reports, and enrollment/access boundaries.
+- Verify exported summaries exclude files, submitted URLs, written feedback, reviewer
+  notes, private file links, and credentials. Confirm GAP links require authorization.
+
+No Monday form, board, automation, credential, or sync has been configured by this work.
 
 ## Validation commands
 

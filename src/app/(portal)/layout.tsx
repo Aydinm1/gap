@@ -1,22 +1,23 @@
 import type { ReactNode } from "react";
 import { AppHeader } from "@/components/shell/app-header";
-import { mockCohorts, mockUsers, mockSubmissions, mockEnrollments } from "@/lib/program/mock-data";
+import { readMember } from '@/lib/supabase/data';
 import { MemberWorkspace } from "@/components/program/member-workspace";
 import { formatCohortLabel } from "@/lib/program/state";
 
 const navigation = [] as const;
 const profileLinks = [] as const;
 
-export default function PortalLayout({ children }: { children: ReactNode }) {
+export default async function PortalLayout({ children }: { children: ReactNode }) {
+  const data = await readMember();
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <AppHeader
-        user={mockUsers.member}
+        user={data.user}
         navigation={navigation}
-        profileLinks={profileLinks}
-        cohortLabel={formatCohortLabel(mockCohorts.fall2026)}
+        profileLinks={data.user.role === 'admin' ? [{ label:'Admin workspace',href:'/admin' }] : profileLinks}
+        cohortLabel={data.cohort ? formatCohortLabel(data.cohort) : undefined}
       />
-      <MemberWorkspace initialAttempts={mockSubmissions.filter((attempt) => attempt.enrollmentId === mockEnrollments[0].id)}>{children}</MemberWorkspace>
+      <MemberWorkspace key={data.enrollment?.id ?? data.user.id} initialAttempts={data.submissions}>{children}</MemberWorkspace>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { saveLink } from "@/lib/supabase/actions";
+
 import { useRef, useState } from "react";
 import { useMemberAttempts } from "./member-workspace";
 import { StateMessage } from "@/components/ui/state-message";
@@ -10,7 +12,6 @@ import { SubmittedWorkRecord } from "@/components/program/submitted-work-record"
 import type { SubmissionAttempt, SubmissionPayload } from "@/lib/program/types";
 import {
   canReplaceSubmission,
-  replaceSubmission,
   submissionDisplayName,
 } from "@/lib/program/submission";
 import { formatSubmissionTime } from "@/lib/program/state";
@@ -58,7 +59,7 @@ export function SubmissionReviewWorkspace({
   enrollmentId: string;
   initialAttempts: readonly SubmissionAttempt[];
 }) {
-  const [attempts, setAttempts] = useMemberAttempts(initialAttempts);
+  const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
   const [replacing, setReplacing] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -71,19 +72,12 @@ export function SubmissionReviewWorkspace({
   const replacementAllowed = canReplaceSubmission(current);
   const actionLabel = current.status === "revision_requested" ? "Revise submission" : "Replace submission";
 
-  function submit(payload: SubmissionPayload) {
-    if (!replacementAllowed) return;
-    const now = new Date().toISOString();
-    setAttempts((existing) => replaceSubmission({
-      attempts: existing,
-      assignmentId,
-      enrollmentId,
-      payload,
-      submittedAt: now,
-      id: `mock-${crypto.randomUUID()}`,
-    }));
+  async function submit(payload: SubmissionPayload) {
+    if (payload.type !== 'link') throw new Error('File uploads are not available yet. Submit a link instead.');
+    const result = await saveLink(assignmentId, payload.submittedUrl, current?.id, current?.updatedAt);
+    if (result.error) throw new Error(result.error);
     setReplacing(false);
-    setAnnouncement(`Submission received ${formatSubmissionTime(now)}.`);
+    setAnnouncement('Submission received.');
   }
 
   return (

@@ -8,7 +8,7 @@ import { PageContainer } from "@/components/ui/container";
 import { StateMessage } from "@/components/ui/state-message";
 import { filterSubmissionRows, getAdminQueueCounts, getCurrentAdminWeek, getSubmissionRows, type AdminQueueFilter } from "@/lib/program/admin";
 import { calculateCohortMetrics } from "@/lib/program/cohorts";
-import { MOCK_NOW } from "@/lib/program/mock-data";
+
 import { formatDeadline } from "@/lib/program/state";
 import { useAdminWorkspace } from "./admin-workspace";
 
@@ -29,7 +29,7 @@ export function AdminOverview() {
   const requestedFilter = params.get("status") as AdminQueueFilter | null;
   const filter = filters.some((item) => item.value === requestedFilter) ? requestedFilter! : "awaiting_review";
   const search = params.get("q") ?? "";
-  const rows = selectedWeek ? getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: selectedWeek.id, now: MOCK_NOW }) : [];
+  const rows = selectedWeek ? getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: selectedWeek.id, now: new Date() }) : [];
   const visibleRows = filterSubmissionRows(rows, filter, search);
   const counts = getAdminQueueCounts(rows);
   const cohortEnrollments = workspace.enrollments.filter((item) => item.cohortId === workspace.selectedCohortId);

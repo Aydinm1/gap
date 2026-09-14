@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-08-13
+**Last updated:** 2026-09-14
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -57,13 +57,11 @@ The dashboard answers, in order:
 4. What feedback did I receive?
 5. How far through the program am I?
 
-It includes the program term, one featured week-and-assignment overview, completion progress beside
-the module list, and all six modules. Combine learning and assignment context when they
-refer to the same week. The primary Continue Week action opens the current learning week;
-when the priority assignment belongs to another week, label its week in the secondary
-assignment summary.
-Revision actions open feedback directly; the dashboard summarizes feedback availability.
-Unsubmitted actions open the week assignment.
+It includes the program term, a thin Continue where you left off header attached to the
+module panel, completion progress
+beside the module list, and all six modules. The bar contains the current learning week's
+number, title, and one Continue action opening that week. Assignment details, deadlines,
+and feedback summaries belong on the week and submission pages, not the dashboard.
 Awaiting-review work remains visible in module status but is not a next-step priority.
 Submitted and completed work still both count toward progress.
 
@@ -133,14 +131,68 @@ and does not count as complete.
 - View restrained cohort counts plus advancement, offer-yield, and end-to-end conversion
   percentages with transparent denominators.
 
+## Monday.com recruiting and club reporting — Planned
+
+Monday.com is the intended home for club applications, recruiting stages, acceptance
+decisions, and club member records. Application intake is expected to use a Monday form;
+the actual form and boards have not been selected or verified.
+
+Supabase remains authoritative for GAP enrollment, access, program content, private
+files, submissions, feedback, participation, advancement, and promotion responses.
+The intended flow is application in Monday → recruiting review and acceptance in Monday
+→ lead checks “Enroll in GAP” → participant enrolled in GAP → GAP progress and outcomes
+summarized back in Monday.
+Acceptance into GAP, completion of GAP, promotion, and joining the club are separate
+milestones. An application alone never grants portal access.
+
+The planned initial reporting set is:
+
+| Level | Information |
+| --- | --- |
+| Person per cohort | Name/email linkage, cohort, participation status, submissions versus assignments due, approved count, awaiting-review count, outstanding revisions, advancement decision, promotion response, authenticated GAP record link, last successful sync time |
+| Cohort | Applicants, accepted applicants, starters, completed participants, withdrawals, promoted participants, joined participants, pending decisions/responses, assignment submission rate for work due, advancement rate, offer yield, starter-to-member conversion |
+
+Applicant and acceptance counts come from Monday. GAP supplies program progress and
+outcomes. Preserve each application cycle and cohort participation when a person returns;
+do not overwrite a previous cohort's history.
+
+Individual progress is intended for relevant club leadership; broader club reporting
+uses cohort totals. Keep original files, submitted document URLs, submission history,
+written feedback, and reviewer notes inside GAP. Monday links to authorized GAP pages,
+not directly to private files.
+
+### Enrollment approval — Approved, not implemented
+
+The underlying private database enrollment operation is implemented and locally tested;
+the checkbox workflow described here is not configured or connected to the portal.
+
+Add an “Enroll in GAP” checkbox to each Monday applicant record, unchecked by default.
+An authorized GAP lead checks it once the accepted applicant and target cohort are ready.
+“Accepted” alone does not enroll someone or grant portal access. The checkbox requests
+enrollment; a separate result must show pending, enrolled, or failed, with a successful
+enrollment timestamp or an actionable error. Do not treat a checked box as proof of access.
+
+Enrollment requires Accepted status, a valid target cohort, and an eligible UC Davis
+identity under the existing roster rules. Invalid requests grant no new access. Successful
+processing creates or links the person, cohort enrollment, and approved member access;
+it does not grant administrator privileges. Repeated requests must not duplicate records
+or reset existing participation/outcome history.
+
+Unchecking the box does not withdraw someone, revoke access, or delete history. Those
+remain explicit GAP administration actions. See [ADR 0005](decisions/0005-explicit-gap-enrollment.md).
+
+Open decisions before implementation: exact Monday boards/columns and audience,
+synchronization timing, and final field mappings.
+
 ## Explicitly out of scope
 
 Do not add grades, scores, quizzes, rubrics, discussion boards, chat, email, attendance,
 certificates, announcements, peer review, teams, calendars, notifications, analytics,
 leaderboards, study metrics, Google Drive editing, live documents, or AI features.
 
-The cohort outcome summaries above are the sole approved operational-reporting exception;
-do not expand them into charts, engagement analytics, or a full-club CRM.
+The cohort outcome summaries and planned Monday reporting set above are the approved
+operational-reporting exceptions. Do not expand GAP into charts, engagement analytics,
+or a full-club CRM.
 
 ## MVP acceptance criteria
 
