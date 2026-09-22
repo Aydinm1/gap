@@ -31,11 +31,14 @@ submission state.
 
 ## Tables
 
-Implementation boundary: the enrollment-foundation migrations currently create only
-people, approved members, cohorts, enrollments, and private Monday application links.
-Profiles, content, submissions, and their member/admin policies below remain planned.
-The implemented tables have RLS enabled and no browser-role grants or policies yet;
-only trusted server provisioning is available. This is not the completed RLS matrix.
+Implementation boundary: committed migrations now include profiles, program content,
+submissions, authenticated read policies, and authorized transactional mutation functions.
+Full Supabase authorization/concurrency verification is still pending; schema presence
+does not establish that the P5 acceptance gate has passed. Storage remains P6.
+
+Demo cohorts and participants are optional development fixtures, not required baseline
+records. Local startup no longer seeds them automatically; an empty program with an
+independently approved admin is valid. Keep real identities out of committed seeds.
 
 ### `people`
 
@@ -135,7 +138,7 @@ Order by `sort_order`, then `created_at` for deterministic rendering.
 ### `assignments`
 
 - `id uuid primary key`
-- `week_id uuid not null references program_weeks(id) on delete cascade`
+- `week_id uuid not null references program_weeks(id) on delete restrict`
 - `title text not null`
 - `instructions text not null`
 - `due_at timestamptz not null`
@@ -149,7 +152,7 @@ submissions.
 ### `submissions`
 
 - `id uuid primary key`
-- `assignment_id uuid not null references assignments(id) on delete cascade`
+- `assignment_id uuid not null references assignments(id) on delete restrict`
 - `enrollment_id uuid not null references cohort_enrollments(id) on delete restrict`
 - `submission_type submission_type not null`
 - `original_filename text`
@@ -159,7 +162,7 @@ submissions.
 - `feedback text`
 - `reviewed_by uuid references profiles(id) on delete set null`
 - `reviewed_at timestamptz`
-- `supersedes_submission_id uuid references submissions(id) on delete set null`
+- `supersedes_submission_id uuid references submissions(id) on delete restrict`
 - `is_current boolean not null default true`
 - `submitted_at timestamptz not null`
 - `updated_at timestamptz not null`
@@ -189,9 +192,20 @@ returns only `week_number`, `title`, and `published`. Direct member SELECT polic
 | Own submissions/history/feedback | Read and create; replace through authorized mutation | Read/write all |
 | Other members' submissions | No access | Read/write |
 
-Admin policies derive authority from the active roster/profile through a hardened private
-helper; do not trust `raw_user_meta_data` for authorization. Mutation code and RLS both
-enforce access.
+Authority comes from `auth.uid()`, a confirmed UC Davis email with a Google identity in
+Auth, and the current active approved roster joined to its person. Profiles are mirrors,
+not authorization authorities; editable user metadata never grants roles. Member learning
+requires enrolled participation in an active cohort. Direct authenticated table access is
+read-only under RLS; writes use explicitly granted, role-checking functions with empty
+search paths. Monday mappings have no authenticated read grant.
+
+`submit_link` locks the enrollment and current attempt, checks the expected attempt ID
+and update timestamp, rejects completed work, and supersedes/inserts atomically. It accepts
+links only in P5. `admin_mutate` authorizes against the live roster before editing program
+records or invoking private enrollment. `review_submission` returns the saved timestamp
+inside the same transaction, so a later review cannot silently advance the caller's
+optimistic-concurrency token. Missing/stale tokens fail closed. Resource rows currently
+receive new IDs on a week save; they are not external identifiers.
 
 ## Cohort reporting
 
@@ -206,6 +220,15 @@ Always show pending-decision, pending-response, and withdrawal counts with these
 their denominators remain clear.
 
 ## Monday reporting contract — Planned
+
+Manual intake now uses the accepted-members board. The historical application-link
+table name remains, but its triple identifies one member item/cohort participation.
+`private.monday_import_batches` stores owner Auth ID, account/board IDs, trusted source
+rows, mappings, results, and creation/15-minute expiry timestamps. RLS has no direct
+browser or service table grants. Service-only `public.monday_import` stages, reads,
+maps, and processes batches, rechecking live admin authority and ownership each time.
+Per-row enrollment and receipt are atomic; batch locking serializes confirmations.
+Expiry blocks processing but does not purge audit records; retention is not automated.
 
 The [planned reporting set](product-spec.md#mondaycom-recruiting-and-club-reporting--planned)
 is a projection of GAP records, not a second authoritative store. Monday remains the
@@ -240,9 +263,10 @@ p_account_id text default null, p_board_id text default null, p_item_id text def
 returns one row: `person_id uuid`, `enrollment_id uuid`, and `created boolean` (whether the
 enrollment itself was newly created, not whether a mapping was added).
 
-Only `service_role` and the database owner can execute this private SQL function; it is
-not an exposed PostgREST RPC. A future trusted server caller must authenticate the GAP
-admin, or verify Monday acceptance and lead approval, before invoking it. Caller-provided
+Only `service_role` and the database owner can execute this private SQL function directly;
+it is not an exposed PostgREST RPC. The authenticated admin mutation wrapper checks the
+current roster role before invoking it. A future Monday caller must verify acceptance
+and lead approval before invoking it. Caller-provided
 claims cannot substitute for database execution privileges. It never trusts mock identity.
 
 The transaction validates a nonempty name, normalized UC Davis email, existing cohort,

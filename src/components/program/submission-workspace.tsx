@@ -45,7 +45,8 @@ export function SubmissionWorkspace({
 
   async function submit(payload: SubmissionPayload) {
     if (payload.type !== 'link') throw new Error('File uploads are not available yet. Submit a link instead.');
-    const result = await saveLink(assignmentId, payload.submittedUrl, current?.id, current?.updatedAt);
+    // This form only creates a first attempt; never silently replace a newer one.
+    const result = await saveLink(assignmentId, payload.submittedUrl);
     if (result.error) throw new Error(result.error);
     setSubmitting(false);
     setAnnouncement('Submission received.');
@@ -65,7 +66,7 @@ export function SubmissionWorkspace({
           <p id="submission-status-heading" className="text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">Submission</p>
           <div className="mt-3"><Badge tone={presentation.tone}>{presentation.label}</Badge></div>
 
-          {current ? (
+          {current && !submitting ? (
             <div className="mt-5">
               {current.status === "revision_requested" ? (
                 <p className="mb-5 text-sm leading-6 text-ink-soft">Changes were requested. Review the feedback before updating your work.</p>

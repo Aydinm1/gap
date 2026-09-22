@@ -8,12 +8,16 @@ export async function saveAdmin(action: string, data: Record<string, unknown>) {
   await requireUser(true);
   if (!['review','week','enrollment','enroll','roster','cohort_create','cohort_state'].includes(action)) return { error:'Unknown operation.' };
   const db = await createClient();
-  const { data:id,error } = await db.rpc('admin_mutate',{ p_action:action,p_data:JSON.parse(JSON.stringify(data)) });
+  const payload = JSON.parse(JSON.stringify(data));
+  const result = action === 'review'
+    ? await db.rpc('review_submission', { p_data: payload }).single()
+    : await db.rpc('admin_mutate', { p_action: action, p_data: payload });
+  const { error } = result;
   if (error) return { error:error.code==='40001' ? 'This record changed. Refresh before saving again.' : 'Could not save. Check the entered values and try again. Existing submissions and inactive access are protected.' };
-  const reviewed = action === 'review' ? await db.from('submissions').select('updated_at').eq('id',id).single() : null;
+  const receipt = typeof result.data === 'object' && result.data !== null ? result.data : null;
   revalidatePath('/admin','layout');
   revalidatePath('/','layout');
-  return { id:id as string, updatedAt:reviewed?.data?.updated_at };
+  return { id:receipt?.id ?? result.data as string, updatedAt:receipt?.updated_at };
 }
 
 export async function saveLink(assignmentId: string, url: string, expectedId?: string, expectedUpdatedAt?: string) {

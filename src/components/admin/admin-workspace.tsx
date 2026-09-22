@@ -8,7 +8,7 @@ import type { AdminWeek, AdminWorkspaceState } from "@/lib/program/admin";
 import { saveAdmin } from "@/lib/supabase/actions";
 
 import type { ApprovedMember, CohortEnrollment, ProgramCohort, ProgramUser, SubmissionStatus } from "@/lib/program/types";
-import { compareCohorts, formatCohortLabel } from "@/lib/program/state";
+import { CohortSwitcher } from "@/components/admin/cohort-switcher";
 import { PageContainer } from "@/components/ui/container";
 
 type AdminWorkspaceContextValue = AdminWorkspaceState & {
@@ -86,6 +86,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
     updateApprovedMember: member => persist('roster', member),
     addApprovedMember: input => persist('roster', input),
     async createCohort(cohort) {
+      setSaving(true);
       try {
         const data = { quarter:cohort.quarter,year:cohort.year,startsOn:cohort.startsOn,endsOn:cohort.endsOn,state:cohort.state };
         const result = await saveAdmin('cohort_create', data);
@@ -93,6 +94,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
         setStoredCohortId(result.id!);
         router.push('/admin/members?cohort=' + result.id);
       } catch { return "Could not create cohort. Please try again."; }
+      finally { setSaving(false); }
     },
     archiveSelectedCohort: () => persist('cohort_state', { id:selectedCohortId,state:'archived' }),
     setSelectedCohortState: state => persist('cohort_state', { id:selectedCohortId,state }),
@@ -112,9 +114,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
         <AppHeader user={user} navigation={navigation} profileLinks={[{ label: "Return to program", href: "/" }]} />
         <div className="border-b border-border bg-surface-subtle">
           <PageContainer className="flex min-h-14 flex-wrap items-center justify-between gap-3 py-2">
-            <div className="flex flex-wrap items-center gap-3"><label className="text-sm font-bold text-ink" htmlFor="admin-cohort">Managing cohort</label><select id="admin-cohort" value={selectedCohortId} onChange={(event) => changeCohort(event.target.value)} className="min-h-10 rounded-lg border border-border-strong bg-surface px-3 text-sm font-semibold text-ink">
-              {(["active", "draft", "archived"] as const).map((state) => <optgroup key={state} label={state[0].toUpperCase() + state.slice(1)}>{cohorts.filter((cohort) => cohort.state === state).toSorted(compareCohorts).reverse().map((cohort) => <option key={cohort.id} value={cohort.id}>{formatCohortLabel(cohort)}</option>)}</optgroup>)}
-            </select></div>
+            <CohortSwitcher cohorts={cohorts} selectedId={selectedCohortId} onChange={changeCohort} />
             <Link className="inline-flex min-h-10 items-center text-sm font-bold text-action hover:text-action-hover" href="/">Member portal →</Link>
           </PageContainer>
         </div>

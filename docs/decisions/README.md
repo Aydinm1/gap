@@ -11,6 +11,8 @@ not need ADRs.
 
 ## Naming
 
+- [0008 — Manual accepted-member intake](0008-monday-member-import.md)
+
 Use sequential filenames:
 
 ```text
@@ -58,3 +60,4 @@ do not override a later source-of-truth update and superseding ADR.
 - [ADR 0004: Monday recruiting and GAP reporting](0004-monday-recruiting-and-gap-reporting.md)
 - [ADR 0005: Explicit GAP enrollment approval](0005-explicit-gap-enrollment.md)
 - [ADR 0006: Monday-ready enrollment foundation](0006-monday-ready-enrollment-foundation.md)
+- [ADR 0007: Bring authentication into P5](0007-authentication-in-p5.md)

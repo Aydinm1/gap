@@ -5,6 +5,48 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added a manual Monday accepted-member import panel, paginated read-only adapter,
+  explicit cohort mapping, and private expiring batches with service-only processing
+  and atomic enrollment receipts. Extended acceptance testing remains pending.
+
+- Added empty, server-only Monday token and board/column mapping placeholders to the
+  environment example. Configuration preparation only; no live integration is enabled.
+
+- Replaced the admin cohort dropdown with a compact grouped switcher, state badge,
+  mobile-sized targets, and keyboard/outside-click dismissal; navigation guards remain.
+
+- Refreshed login as a centered branded sign-in card with a full-width Google button,
+  pending feedback, and inline error styling. Authentication and access rules are unchanged.
+
+- Recorded a deferred phone-friendly admin attendance tracker: tap-to-mark presence,
+  undo, search, and persistent meeting records. Planning only; no attendance code or
+  schema changes were made.
+
+- Removed verified local demo program records with a private recoverable backup while
+  preserving real admin access. Disabled automatic demo seeding, retained explicit
+  demo/test fixtures, and documented the remaining private-file P6 backlog.
+
+- Enabled the local Google provider with private `OAUTH_CLIENT_ID`/`OAUTH_CLIENT_SECRET`
+  references; local Supabase startup now explicitly loads `.env.local`. Real Google
+  sign-in acceptance remains pending.
+
+- Recorded passing local P5 database, enrollment, generated-type, and automated checks;
+  kept interactive browser/session-expiry and real Google OAuth acceptance open.
+  Documented local Google provider setup and the disabled-provider error separately
+  from hosted configuration. Updated Next.js and audited dependencies, and added
+  paginated workspace reads with regression coverage.
+
+- Verified GAP's Apple Silicon development setup: native Docker, fnm/Node 24, refreshed
+  lockfile-installed dependencies, and a passing default Turbopack production build.
+  Preserved old tooling for rollback and left Docker data and unrelated Homebrew tools intact.
+
+- Added the in-progress P5 local Supabase content/submission schema, live-roster access
+  checks, Google sign-in routes, protected data reads, and transactional link/admin saves.
+  Files remain disabled until P6. Full local and Google OAuth acceptance is pending.
+- Preserved replacement version tokens while forms are open and added transactional
+  review receipts to prevent concurrent saves from silently adopting newer versions.
+  Fixed week-editor saved-state tracking and cohort-creation pending state.
+
 - Added the Monday-ready enrollment database foundation: private application links and
   atomic, duplicate-safe provisioning that preserves roles, inactive access, and cohort
   history. Added isolated SQL concurrency, rollback, and permission tests. No live Monday

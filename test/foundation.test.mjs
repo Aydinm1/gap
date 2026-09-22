@@ -6,6 +6,15 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
+test("demo seeding is opt-in and local backups are ignored", () => {
+  const config = readFileSync(join(root, "supabase/config.toml"), "utf8");
+  const seedSection = config.split("[db.seed]")[1].split("[db.network_restrictions]")[0];
+  assert.match(seedSection, /enabled = false/);
+  const scripts = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).scripts;
+  assert.match(scripts["db:seed:demo"], /supabase_db_gap.*supabase\/seed.sql/);
+  assert.match(readFileSync(join(root, ".gitignore"), "utf8"), /^\/\.local-backups\/$/m);
+});
+
 const requiredDocs = [
   "AGENTS.md",
   "CHANGELOG.md",
@@ -59,7 +68,7 @@ test("local Markdown links resolve", () => {
   assert.deepEqual(failures, []);
 });
 
-test("environment example documents only the public Phase 0 contract", () => {
+test("environment example documents public configuration and empty private OAuth placeholders", () => {
   const content = readFileSync(join(root, ".env.example"), "utf8");
   const keys = [...content.matchAll(/^([A-Z][A-Z0-9_]*)=/gm)].map(
     (match) => match[1],
@@ -69,6 +78,23 @@ test("environment example documents only the public Phase 0 contract", () => {
     "NEXT_PUBLIC_SUPABASE_URL",
     "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
     "NEXT_PUBLIC_SITE_URL",
+    "OAUTH_CLIENT_ID",
+    "OAUTH_CLIENT_SECRET",
+    "MONDAY_API_TOKEN",
+    "MONDAY_ACCOUNT_ID",
+    "MONDAY_APPLICANTS_BOARD_ID",
+    "MONDAY_MEMBERS_BOARD_ID",
+    "SUPABASE_SECRET_KEY",
+    "MONDAY_EMAIL_COLUMN_ID",
+    "MONDAY_ENROLL_IN_GAP_COLUMN_ID",
+    "MONDAY_COHORT_COLUMN_ID",
+    "MONDAY_MEMBER_STATUS_COLUMN_ID",
+    "MONDAY_REPORTING_BOARD_ID",
   ]);
-  assert.doesNotMatch(content, /service[_-]?role|secret/i);
+  assert.match(content, /^OAUTH_CLIENT_ID=\s*$/m);
+  assert.match(content, /^OAUTH_CLIENT_SECRET=\s*$/m);
+  assert.doesNotMatch(content, /service[_-]?role/i);
+  for (const key of keys.filter(key => key.startsWith("MONDAY_"))) {
+    assert.match(content, new RegExp(`^${key}=[ \\t]*$`, "m"));
+  }
 });

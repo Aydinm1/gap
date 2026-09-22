@@ -166,13 +166,14 @@ not directly to private files.
 The underlying private database enrollment operation is implemented and locally tested;
 the checkbox workflow described here is not configured or connected to the portal.
 
-Add an “Enroll in GAP” checkbox to each Monday applicant record, unchecked by default.
+Use an “Enroll in GAP” checkbox on the accepted-members board, unchecked by default.
 An authorized GAP lead checks it once the accepted applicant and target cohort are ready.
 “Accepted” alone does not enroll someone or grant portal access. The checkbox requests
 enrollment; a separate result must show pending, enrolled, or failed, with a successful
 enrollment timestamp or an actionable error. Do not treat a checked box as proof of access.
 
-Enrollment requires Accepted status, a valid target cohort, and an eligible UC Davis
+Enrollment requires presence on the accepted-members board, checked approval, explicit
+GAP admin confirmation, a mapped target cohort, and an eligible UC Davis
 identity under the existing roster rules. Invalid requests grant no new access. Successful
 processing creates or links the person, cohort enrollment, and approved member access;
 it does not grant administrator privileges. Repeated requests must not duplicate records
@@ -184,7 +185,24 @@ remain explicit GAP administration actions. See [ADR 0005](decisions/0005-explic
 Open decisions before implementation: exact Monday boards/columns and audience,
 synchronization timing, and final field mappings.
 
+The first adapter is manual and read-only toward Monday: admins preview checked members,
+map each dropdown choice to an active/draft GAP cohort, then confirm eligible rows.
+Membership Status is context only, never acceptance or automatic revocation. Results
+appear in GAP. Each external item represents one cohort participation; returning members
+use new items. Automatic sync, Monday result fields, and reporting remain deferred.
+
 ## Explicitly out of scope
+
+### Deferred exception: lightweight attendance
+
+A future, explicitly requested follow-up is an admin-only phone attendance list: select
+a cohort meeting/week and tap a large button for each person present. Include a clear
+marked state, undo, name search, a present/total count, and persistent Supabase records.
+Unmarked is not automatically absent. Meeting/date structure must be confirmed before
+implementation. This is planning only, outside current P6 work; no self-check-in, QR,
+geolocation, or Monday attendance sync is included. See the deferred tracker in `todo.md`.
+
+### Current implementation boundaries
 
 Do not add grades, scores, quizzes, rubrics, discussion boards, chat, email, attendance,
 certificates, announcements, peer review, teams, calendars, notifications, analytics,

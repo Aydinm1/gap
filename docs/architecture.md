@@ -1,5 +1,12 @@
 # GAP Application Architecture
 
+Monday manual intake uses server actions behind live admin authorization. A server-only
+Supabase secret invokes the service-only batch RPC; no browser has provisioning RPC
+access. Private owner-scoped previews store source rows and cohort mappings, expire in
+15 minutes, and recheck Monday before confirmation. Per-item transactions preserve
+successful receipts through retries. No background jobs or Monday writes are involved.
+See [ADR 0008](decisions/0008-monday-member-import.md).
+
 **Status:** Active
 **Last updated:** 2026-09-14
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
@@ -74,6 +81,19 @@ Use the installed documentation rather than legacy examples.
 
 ## Mock-to-Supabase progression
 
+### P5 implementation status
+
+Protected runtime pages now read through `src/lib/supabase/data.ts` using user-scoped
+cookie clients. Missing configuration routes to `/setup`; there is no runtime mock
+fallback. Fixtures remain for tests and development previews. The member cohort is the
+latest active cohort with enrolled participation. No qualifying cohort shows the empty
+program state. Server Actions save links and admin records, then revalidate protected
+views. Drafts remain session-local; saved attempts come from server reads.
+
+The following prototype history describes the earlier UI stages, not current persistence.
+P5 end-to-end acceptance remains pending. See
+[ADR 0007](decisions/0007-authentication-in-p5.md) for bringing authentication forward.
+
 The interface is built first against typed repository-local mock data. Page-level DTOs and
 status helpers should remain stable when mock repositories are replaced by Supabase data
 access. Do not maintain a production runtime switch between mock and live data unless a
@@ -138,9 +158,10 @@ enrollment operation are implemented in migrations; transport, scheduling, check
 results, and live synchronization remain pending.
 
 The [enrollment operation](data-model.md#enrollment-operation--implemented-not-connected-to-the-portal)
-is a private SQL entry point executable only by trusted server credentials. No HTTP route,
-public RPC, Supabase client, or mock-admin wiring is introduced. Future admin and Monday
-adapters must authorize their callers before using it. The function handles atomic
+remains a private SQL entry point. The P5 admin mutation wrapper verifies live roster
+authority before invoking it through a user-scoped client; no mock-admin wiring or
+Monday/public enrollment endpoint is added. Future Monday adapters must authorize their
+callers before using it. The function handles atomic
 provisioning and duplicate-safe linking; the adapter owns external approval checks and
 reporting failures back to Monday. See [ADR 0006](decisions/0006-monday-ready-enrollment-foundation.md).
 

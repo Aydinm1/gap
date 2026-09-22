@@ -16,19 +16,40 @@ export function AdminWeekEditor({ weekId }: { weekId: string }) {
   const workspace = useAdminWorkspace();
   const source = workspace.weeks.find((week) => week.id === weekId && week.cohortId === workspace.selectedCohortId);
   const [draft, setDraft] = useState<AdminWeek | undefined>(source ? structuredClone(source) : undefined);
+  const [savedDraft, setSavedDraft] = useState(source);
   const [message, setMessage] = useState("");
   const [deadlineLocal, setDeadlineLocal] = useState(source?.assignment?.dueAt ? formatPacificDateTimeInput(source.assignment.dueAt) : "");
   const [deadlineZone, setDeadlineZone] = useState<"PDT" | "PST" | undefined>();
   const [saving, startSaving] = useTransition();
-  const sourceDeadlineLocal = source?.assignment?.dueAt ? formatPacificDateTimeInput(source.assignment.dueAt) : "";
-  const dirty = Boolean(source && draft && (JSON.stringify(draft) !== JSON.stringify(source) || deadlineLocal !== sourceDeadlineLocal));
+  const sourceDeadlineLocal = savedDraft?.assignment?.dueAt ? formatPacificDateTimeInput(savedDraft.assignment.dueAt) : "";
+  const dirty = Boolean(savedDraft && draft && (JSON.stringify(draft) !== JSON.stringify(savedDraft) || deadlineLocal !== sourceDeadlineLocal));
   const setUnsavedChanges = workspace.setUnsavedChanges;
   useEffect(() => { setUnsavedChanges(dirty); return () => setUnsavedChanges(false); }, [dirty, setUnsavedChanges]);
   useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); }; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
   if (!source || !draft) return <PageContainer className="py-16"><StateMessage title="Week not found">Choose a week from the currently selected cohort.</StateMessage></PageContainer>;
 
   function patch(values: Partial<AdminWeek>) { setDraft((current) => current ? { ...current, ...values } : current); setMessage(""); }
-  function save(publicationState: AdminWeek["publicationState"]) { if (!draft) return; let candidate = { ...draft, publicationState }; if (candidate.assignment) { const converted = pacificWallTimeToUtc(deadlineLocal, deadlineZone); if (converted.error) return setMessage(converted.error); if (!converted.value) return setMessage("Enter a valid Pacific deadline."); candidate = { ...candidate, assignment: { ...candidate.assignment, dueAt: converted.value } }; } const error = validateAdminWeek(candidate, { forPublish: publicationState === "published" }); if (error) return setMessage(error); startSaving(async () => { const error = await workspace.updateWeek({ ...candidate, resources: candidate.resources.map((resource, index) => ({ ...resource, sortOrder: index + 1 })) }); if (error) return setMessage(error); setDraft(candidate); workspace.setUnsavedChanges(false); setMessage(publicationState === "published" ? "Week published." : "Draft saved."); }); }
+  function save(publicationState: AdminWeek["publicationState"]) {
+    if (!draft) return;
+    let candidate = { ...draft, publicationState, resources: draft.resources.map((resource, index) => ({ ...resource, sortOrder: index + 1 })) };
+    if (candidate.assignment) {
+      const converted = pacificWallTimeToUtc(deadlineLocal, deadlineZone);
+      if (converted.error) return setMessage(converted.error);
+      if (!converted.value) return setMessage("Enter a valid Pacific deadline.");
+      candidate = { ...candidate, assignment: { ...candidate.assignment, dueAt: converted.value } };
+    }
+    const error = validateAdminWeek(candidate, { forPublish: publicationState === "published" });
+    if (error) return setMessage(error);
+    startSaving(async () => {
+      const error = await workspace.updateWeek(candidate);
+      if (error) return setMessage(error);
+      // Compare edits with the successfully saved draft, not regenerated resource IDs.
+      setDraft(candidate);
+      setSavedDraft(candidate);
+      workspace.setUnsavedChanges(false);
+      setMessage(publicationState === "published" ? "Week published." : "Draft saved.");
+    });
+  }
   function updateResource(id: string, values: Partial<Resource>) { if (!draft) return; patch({ resources: draft.resources.map((resource) => resource.id === id ? { ...resource, ...values } : resource) }); }
   function moveResource(index: number, direction: -1 | 1) { if (!draft) return; const next = [...draft.resources]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; patch({ resources: next }); }
 

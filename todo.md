@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-09-14
+**Last updated:** 2026-09-21
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -144,6 +144,19 @@ by the mock-role test.
 
 ## Phase 5 — Supabase schema, seeds, and data access
 
+**Active, not accepted (2026-09-21):** Local migrations, repeatable seed execution,
+39 unit/documentation tests, 9 isolated enrollment tests, and the local Supabase suite
+(7 scenarios plus its parent test) pass. Generated-type consistency, typecheck, lint,
+and production build have passed on native Apple Silicon tooling. Protected interactive
+desktop/phone flows, session-expiry behavior, and real Google OAuth remain open.
+The local Google provider is now configured; real sign-in still needs verification.
+Fixture sessions do not verify Google login.
+
+- [x] Replace GAP's Intel-only Docker/fnm tooling and reinstall project dependencies for
+  Apple Silicon; verify native engine, shell runtime, build, lint, typecheck, and tests.
+- [x] Patch the audited Next.js critical and sharp/js-yaml high dependency advisories,
+  keeping Next.js and eslint-config-next aligned, then rerun full verification.
+
 ### Member refinement follow-up
 
 - [x] Attach continuation to the module panel and verify desktop, phone, and navigation.
@@ -163,22 +176,43 @@ by the mock-role test.
 - [x] Clarify awaiting-review status, file/link actions, validation help, and editor focus.
 - [ ] Browser-verify the member navigation and draft flow at 375px, 768px, and 1280px.
 
-- [ ] Install only current `@supabase/supabase-js` and `@supabase/ssr` dependencies.
-- [ ] Add ordered SQL migrations for people, Fall/Winter/Spring cohorts, enrollments,
+- [x] Install `@supabase/supabase-js` and `@supabase/ssr` dependencies.
+- [x] Add ordered SQL migrations for people, Fall/Winter/Spring cohorts, enrollments,
   outcomes, content, submissions, constraints, timestamps, indexes, and
   private authorization helpers defined in `docs/data-model.md`.
-- [ ] Add the safe authenticated week-catalog function for locked draft cards.
-- [ ] Add RLS grants and policies for profiles, roster, weeks, resources, assignments, and
+- [x] Add the safe authenticated week-catalog function for locked draft cards.
+- [x] Add RLS grants and policies for profiles, roster, weeks, resources, assignments, and
   submissions.
-- [ ] Add realistic idempotent seed data for six weeks and Week 2 details without shipping
+- [~] Add realistic idempotent seed data for six weeks and Week 2 details without shipping
   real personal data; include fictional active Fall and archived Spring cohorts.
-- [ ] Add generated database TypeScript types and a documented regeneration command.
-- [ ] Add cookie-aware server and browser clients using async Next.js 16 APIs.
-- [ ] Implement a narrow server-only data layer and DTOs for member and admin reads.
-- [ ] Replace mock page reads incrementally while preserving stable view-model contracts.
-- [ ] Implement validated Server Actions for content, roster, feedback, and status changes;
+- [x] Add generated database TypeScript types and a documented regeneration command.
+- [~] Add cookie-aware server and browser clients using async Next.js 16 APIs.
+- [~] Implement a narrow server-only data layer and DTOs for member and admin reads.
+- [~] Replace mock page reads incrementally while preserving stable view-model contracts.
+- [~] Implement validated Server Actions for content, roster, feedback, and status changes;
   authorize inside each action.
-- [ ] Implement atomic current-submission replacement that retains historical rows.
+- [x] Implement atomic link-submission replacement that retains historical rows.
+
+### Authentication brought forward from P7
+
+- [~] Add token-refresh proxy, Google initiation/callback, safe local redirects, denial,
+  and sign-out using cookie-aware Supabase clients.
+- [~] Require verified UC Davis Google identity and current active roster authority;
+  synchronize profiles without trusting editable metadata or stale profile roles.
+- [~] Protect layouts and every mutation, with independent database authorization and
+  no shared caching of protected responses or mock-auth fallback.
+- [x] Verify local database/RPC and HTTP layout boundaries for anonymous/member/admin,
+  inactive/wrong-domain/cross-user access, live role changes, draft isolation, rollback,
+  and SDK sign-out using isolated fixture sessions.
+- [ ] Verify expired-session refresh, browser sign-out/back navigation, and direct
+  unauthorized Server Action requests independently of layout and RPC checks.
+- [ ] Verify publish → enroll → submit link → review → feedback → reload at desktop
+  and phone widths, including duplicate requests, stale saves, and history retention.
+- [x] Regenerate types after the review-receipt migration and verify no schema drift.
+- [x] Paginate workspace reads; test histories beyond the PostgREST row limit and
+  fail rather than return partial data when a page fails.
+- [ ] Review member-specific query scoping before acceptance; workspace reads still
+  load all RLS-visible records before constructing the requested view models.
 
 ### Monday-ready enrollment foundation
 
@@ -187,34 +221,58 @@ by the mock-role test.
 - [x] Implement a shared, server-only enrollment operation with duplicate-safe processing
   and preservation of existing roles, access restrictions, and outcomes.
 
-Only the enrollment foundation is implemented in migrations. Content, profiles,
-submissions, browser/admin policies, generated client types, and client integration remain
-pending above. The operation is private SQL; it is not connected to the mock admin UI.
+The remaining P5 schema, policies, and client integration are implemented but awaiting
+full validation. The private enrollment operation is called by a live-roster-authorized
+admin wrapper, never by the mock identity. Monday remains disconnected.
 
 ### Phase 5 gate
 
 - [x] Enrollment migrations apply to a clean local PostgreSQL database; external-link
   uniqueness, repeat/concurrent requests, returning participants, rollback, inactive
   access, role/history preservation, and database authorization boundaries pass.
-- [ ] Verify enrollment migrations and authorization against the actual Supabase
+- [x] Verify enrollment migrations and authorization against the actual Supabase
   environment before connecting a real server adapter; no Monday configuration required.
-- [ ] Fresh project migration and seed execution succeeds.
-- [ ] Anonymous/member/admin/inactive/cross-user SQL and client policy tests match the RLS
+- [x] Fresh project migration and seed execution succeeds; rerunning fictional seeds
+  preserves counts (12 weeks, 2 assignments, 4 submissions).
+- [x] Anonymous/member/admin/inactive/cross-user SQL and client policy tests match the RLS
   matrix.
 - [ ] The portal remains runnable after each mock repository is replaced.
-- [ ] Lint, typecheck, tests, and production build pass.
+- [x] Lint, typecheck, tests, and production build pass.
 
 ## Phase 6 — Private Storage and live submissions
+
+### Clean live program / readiness
+
+- [x] Disable automatic demo seeding; retain an explicit local demo-seed command and
+  test/UI-preview fixtures.
+- [x] Inventory and back up untouched demo records, remove them transactionally, preserve
+  the real admin, and verify a repeated cleanup is a no-op. Recovery is in operations docs.
+- [ ] Visually verify dashboard/admin empty states after reload in a real browser.
+- [x] Verify normal startup keeps demo records absent and backup restoration succeeds
+  inside a rolled-back transaction. Confirm the preserved real admin passes authorization.
+- [x] Cleanup validation: 40 tests (including documentation links), lint, typecheck,
+  diff checks, and Webpack production build pass.
+- [ ] Recheck the default Turbopack build: this run hit a CSS-worker port-binding
+  permission error even with escalation; the Webpack fallback passed without code changes.
+
+### Ordered implementation backlog
+
+- [ ] Enable local `storage-api`, currently excluded by the startup script; verify health
+  before enabling upload controls. Do not change hosted services as part of local P6.
 
 - [ ] Add migration or exact setup for private `submissions` bucket, 20 MB limit, and
   allowed MIME types.
 - [ ] Add Storage INSERT/SELECT policies for owner paths and admin access.
+- [ ] Require current active-roster authority and valid owner/assignment associations;
+  reject anonymous, inactive, and cross-user access, including overwrite/delete attempts.
 - [ ] Generate collision-resistant sanitized paths matching the documented contract while
   retaining original filenames in Postgres.
 - [ ] Implement live file upload, metadata insert, and safe cleanup on partial failure.
-- [ ] Implement live URL submissions and transactional resubmission behavior.
+- Link submissions and transactional replacement moved into P5; P6 adds private files.
 - [ ] Implement authenticated download or short-lived signed URL access.
 - [ ] Ensure historical submission files remain accessible to their owner and admins.
+- [ ] Preserve stale-save protection and completed-work restrictions for file replacement;
+  verify failed saves clean up only new orphan uploads, never historical files.
 - [ ] Add upload progress/disabled UI, retryable errors, invalid-type, oversize, and network
   failure handling.
 
@@ -223,27 +281,24 @@ pending above. The operation is private SQL; it is not connected to the mock adm
 - [ ] A member cannot list, read, overwrite, or delete another member's files.
 - [ ] An admin can review all files; unauthenticated URLs cannot access private objects.
 - [ ] File and link submission/resubmission work end to end.
+- [ ] Invalid type/oversize, interrupted upload, retry, failed metadata save, and historical
+  download scenarios pass alongside admin/member access tests.
 - [ ] Lint, typecheck, tests, and production build pass.
 
 ## Phase 7 — Google authentication and roster authorization
 
-- [ ] Add root `proxy.ts` using current Supabase SSR token refresh and `getClaims()`.
-- [ ] Add `/login`, Google OAuth initiation, `/auth/callback`, and sign-out.
-- [ ] Add canonical site URL handling for local, preview, and production redirects.
-- [ ] Validate normalized verified email, `@ucdavis.edu`, active roster membership, and
-  roster role on the server.
-- [ ] Synchronize profiles from roster data without trusting user-editable metadata.
-- [ ] Protect member and admin layouts server-side and redirect to safe denial/login pages.
-- [ ] Repeat authorization in every mutation and retain RLS as the final boundary.
-- [ ] Prevent authenticated pages that refresh sessions from unsafe shared caching.
-- [ ] Add denied states for wrong domain, missing roster entry, inactive member, and
-  insufficient role without leaking roster data.
+Authentication implementation and local authorization testing moved into P5. The manual
+Google configuration and real sign-in acceptance below remain required; fixture sessions
+do not satisfy them. See ADR 0007.
 
 ### Manual configuration — not complete until verified
 
 - [ ] Configure Google Cloud OAuth consent and Web client.
 - [ ] Copy the exact Supabase Google callback URI into Google authorized redirect URIs.
-- [ ] Enable Google provider in Supabase with the client ID and secret.
+- [~] Enable Google in local `supabase/config.toml` using ignored `.env.local` credentials,
+  restart local Supabase, and verify real sign-in. See the local OAuth recipe in
+  `docs/operations.md`; enabling a hosted project's provider does not configure local Auth.
+- [ ] Separately enable Google in the hosted Supabase project when deploying.
 - [ ] Set Supabase Site URL and localhost/production callback allowlist.
 - [ ] Add the two real development leads to the roster as admins through a safe seed or
   admin procedure.
@@ -258,7 +313,31 @@ pending above. The operation is private SQL; it is not connected to the mock adm
 
 ## Phase 8 — Final responsive and usability polish
 
+### Mobile attendance tracker — Deferred, planning only
+
+Requested follow-up, not part of P6 and not authorized for implementation yet.
+
+- [ ] Add an admin-only, phone-friendly attendance view: choose a cohort and meeting/week,
+  see its enrolled people, and tap a large “Mark here” button beside each person.
+- [ ] Show marked people clearly, allow undo for accidental taps, and offer name search
+  plus a compact present/total count. Unmarked means not recorded, not automatically absent.
+- [ ] Persist attendance per person and meeting in Supabase; show saving/saved/error
+  feedback, preserve records after reload, and prevent duplicate marks.
+- [ ] Before implementation, confirm whether meetings map one-to-one to weeks or need
+  separate dates; specify admin authorization and retained cohort attendance history.
+- [ ] Verify one-handed phone use, accessible tap targets, undo, failed saves, duplicate
+  taps, and reload persistence. No self-check-in, QR codes, geolocation, or Monday sync
+  in this initial follow-up.
+
 ### Monday recruiting and club reporting — Planned integration
+
+- [x] Verify configured Monday account, accepted-members board, and column types read-only.
+- [~] Implement manual preview/map/confirm intake with private 15-minute batches and
+  service-only enrollment receipts; reader and rollback SQL smoke checks pass.
+- [x] Configure server-only local Supabase secret for the adapter in ignored `.env.local`.
+- [ ] Verify real admin import UI (no real enrollments without deliberate confirmation).
+- [ ] Complete extended import tests: concurrent confirms, cross-admin batches, duplicates,
+  returning members, inactive access, retries, stale source, and phone/desktop browser flows.
 
 Live enrollment and synchronization depend on P5 database/client work and P7 real
 authentication/authorization. A configured Monday board is not a P5 completion gate.
@@ -276,6 +355,16 @@ authentication/authorization. A configured Monday board is not a P5 completion g
   visibility, and continued GAP operation when Monday is unavailable.
 
 ### Responsive and usability work
+
+- [x] Replace the native cohort select with a grouped, badge-labeled cohort switcher
+  using existing navigation and unsaved-change safeguards.
+- [ ] Browser-verify cohort switcher phone layout, keyboard dismissal, grouping, and
+  canceled unsaved-change navigation with multiple cohorts.
+
+- [x] Implement the centered login card with approved logo, shared tokens, full-width
+  Google action, pending state, and accessible inline OAuth error; preserve auth logic.
+- [ ] Browser-verify login normal/pending/error states on phone/desktop, short screens,
+  200% zoom, and keyboard navigation. Do not count HTTP checks as visual verification.
 
 - [ ] Verify assignment-state precedence and consistency across dashboard, week, and admin
   screens.

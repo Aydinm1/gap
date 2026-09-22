@@ -6,16 +6,21 @@ import type { AdminWorkspaceState, AdminWeek } from '@/lib/program/admin';
 import type { CohortEnrollment, ProgramWeek, Resource, SubmissionAttempt } from '@/lib/program/types';
 import { compareCohorts } from '@/lib/program/state';
 import { buildWeekDetail } from '@/lib/program/week-detail';
+import { readPages } from './pagination';
 
 export const readWorkspace = cache(async (admin = false) => {
   const user = await requireUser(admin);
   const db = await createClient();
   const [people, roster, cohorts, enrollments, weeks, resources, assignments, submissions] = await Promise.all([
-    db.from('people').select('*'), db.from('approved_members').select('*'), db.from('program_cohorts').select('*'),
-    db.from('cohort_enrollments').select('*'), db.from('program_weeks').select('*'), db.from('resources').select('*').order('sort_order').order('created_at'),
-    db.from('assignments').select('*'), db.from('submissions').select('*').order('submitted_at', { ascending: false }),
+    readPages((from, to) => db.from('people').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('approved_members').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('program_cohorts').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('cohort_enrollments').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('program_weeks').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('resources').select('*').order('sort_order').order('created_at').order('id').range(from, to)),
+    readPages((from, to) => db.from('assignments').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('submissions').select('*').order('submitted_at', { ascending: false }).order('id').range(from, to)),
   ]);
-  if ([people,roster,cohorts,enrollments,weeks,resources,assignments,submissions].some(result => result.error)) throw new Error('GAP data could not be loaded. Please try again.');
   const state: AdminWorkspaceState = {
     people: (people.data ?? []).map(r => ({ id:r.id,email:r.email,fullName:r.full_name })),
     approvedMembers: (roster.data ?? []).map(r => ({ id:r.id,personId:r.person_id,email:r.email,fullName:r.full_name,role:r.role,active:r.active })),

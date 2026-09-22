@@ -62,6 +62,7 @@ export function SubmissionReviewWorkspace({
   const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
   const [replacing, setReplacing] = useState(false);
+  const [replacementBase, setReplacementBase] = useState<{ id: string; updatedAt?: string }>();
   const [announcement, setAnnouncement] = useState("");
   const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId);
 
@@ -74,7 +75,8 @@ export function SubmissionReviewWorkspace({
 
   async function submit(payload: SubmissionPayload) {
     if (payload.type !== 'link') throw new Error('File uploads are not available yet. Submit a link instead.');
-    const result = await saveLink(assignmentId, payload.submittedUrl, current?.id, current?.updatedAt);
+    if (!replacementBase) throw new Error('Reopen the replacement form before submitting.');
+    const result = await saveLink(assignmentId, payload.submittedUrl, replacementBase.id, replacementBase.updatedAt);
     if (result.error) throw new Error(result.error);
     setReplacing(false);
     setAnnouncement('Submission received.');
@@ -120,7 +122,7 @@ export function SubmissionReviewWorkspace({
               onFileView={() => setAnnouncement("Private file preview will be available after Supabase Storage is connected.")}
             />
             {replacementAllowed && !replacing ? (
-              <Button ref={actionRef} className="w-full" size="compact" variant={current.status === "revision_requested" ? "primary" : "secondary"} onClick={() => setReplacing(true)}>
+              <Button ref={actionRef} className="w-full" size="compact" variant={current.status === "revision_requested" ? "primary" : "secondary"} onClick={() => { setReplacementBase({ id: current.id, updatedAt: current.updatedAt }); setReplacing(true); }}>
                 {actionLabel}
               </Button>
             ) : null}

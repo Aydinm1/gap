@@ -74,6 +74,19 @@ descriptive filenames.
 
 ## Core UI patterns
 
+- **Cohort switcher:** quiet label above a 44px trigger showing cohort, state badge,
+  and chevron. A bordered disclosure groups choices by Active, Draft, Archived (newest
+  first). Use native buttons with Tab/Enter/Space, selected-state semantics, Escape with
+  focus return, and outside-click dismissal. Fill available phone width and bound list
+  height. Preserve the existing unsaved-change confirmation before switching.
+
+- **Sign-in:** one centered white card capped at 420px on the neutral canvas, using the
+  shared border, radius, and minimal shadow. Place the approved dark full UC Davis logo,
+  welcome heading, concise access note, and full-width Google action inside. Use 24px
+  phone/32px desktop padding and 16px outer gutters. Auto vertical margins center when
+  space permits without clipping on short screens. Keep OAuth errors above the button
+  as alerts; disable the button with “Connecting…” while pending. No extra login methods.
+
 - **Application shell:** compact brand header, clear page title, profile control, and
   minimal navigation. Use one vertically centered row for logo, navigation, and profile
   on large screens. Below that breakpoint, keep logo and profile together with navigation

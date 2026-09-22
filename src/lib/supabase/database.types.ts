@@ -39,6 +39,42 @@ export type Database = {
         }
         Relationships: []
       }
+      monday_import_batches: {
+        Row: {
+          account_id: string
+          board_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          mappings: Json
+          owner_id: string
+          results: Json
+          rows: Json
+        }
+        Insert: {
+          account_id: string
+          board_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mappings?: Json
+          owner_id: string
+          results?: Json
+          rows: Json
+        }
+        Update: {
+          account_id?: string
+          board_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mappings?: Json
+          owner_id?: string
+          results?: Json
+          rows?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -490,6 +526,22 @@ export type Database = {
         Args: { p_action: string; p_data: Json }
         Returns: string
       }
+      monday_import: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_batch?: string
+          p_data?: Json
+        }
+        Returns: Json
+      }
+      review_submission: {
+        Args: { p_data: Json }
+        Returns: {
+          id: string
+          updated_at: string
+        }[]
+      }
       submit_link: {
         Args: {
           p_assignment_id: string
@@ -678,5 +730,4 @@ export const Constants = {
     },
   },
 } as const
-
 
