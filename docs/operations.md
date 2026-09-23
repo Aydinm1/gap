@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-09-20
+**Last updated:** 2026-09-22
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -9,8 +9,9 @@ been configured or verified.
 
 P5 now has Supabase-backed reads, server mutations, and Google sign-in code. Full local
 workflow and authorization acceptance is still pending. Missing configuration shows a
-setup error, not mock data. Only unsaved drafts are session-local. File uploads are disabled
-until P6; Google provider configuration has not been verified.
+setup error, not mock data. Only unsaved drafts are session-local. Local P6 enables private
+file uploads. Local Google callback/admin access and analyst access were user-confirmed;
+the remaining session-security acceptance checks stay open in `todo.md`.
 
 ## Local development
 
@@ -37,9 +38,9 @@ until P6; Google provider configuration has not been verified.
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public | Current publishable browser key |
 | `NEXT_PUBLIC_SITE_URL` | Public | Environment-specific canonical application origin used for OAuth redirects |
 
-The legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` name may be documented as a compatibility
-alternative if the project exposes only a legacy anon key, but implementation should use
-one naming convention consistently. Never commit `.env.local` or a service-role key.
+The runtime reads the exact names above, not `NEXT_PUBLIC_SUPABASE_ANON_KEY` or other
+integration aliases. Never commit `.env.local` or a privileged Supabase key. See the
+[deferred Vercel setup guide](#vercel-environment-variable-cleanup--deferred) for mappings.
 
 ## Supabase project configuration — Pending
 
@@ -147,12 +148,59 @@ Recovery runs transactionally and fails on conflicts; do not truncate or overwri
 work to force a restore. The backup contains local data: keep it private and uncommitted.
 Normal startup does not reinsert demo data. Create the real cohort through admin.
 
-## P6 prerequisites
+## P6 local Storage
 
-Local startup still excludes `storage-api`. P6 must enable Storage and add the private
-bucket/policies before enabling file UI. Link submissions already persist. File uploads,
-historical downloads, retries, orphan cleanup, and Storage authorization tests remain
-pending; see the ordered Phase 6 checklist. No hosted Storage is configured.
+`npm run db:start` now includes `storage-api`; no hosted services were changed. For an
+already-running stack, run `npx supabase stop` (without `--no-backup`), then
+`npm run db:start`. Apply new migrations with `npx supabase migration up --local`; never
+reset a database containing real work. The migrations configure the private bucket,
+20,971,520-byte limit, four MIME types, exact-intent INSERT and committed-file SELECT
+policies. `SUPABASE_SECRET_KEY` is required server-side for inspection/lifecycle RPCs;
+it is the same private local key used by Monday, never a `NEXT_PUBLIC_` variable.
+
+The application reports unavailable Storage without disabling link submission.
+Uploads expire after one hour. Failed transfers can resume in-page; after reload,
+reselect and start a new intent. A completed transfer whose save failed can retry
+finalization without uploading again. Invalid or stale work must be canceled/restarted.
+
+Run `npm run db:clean:uploads` periodically in local development. This command obtains
+only local CLI credentials, claims expired/abandoned intents, and removes objects via
+the Storage API. It never deletes committed/history objects or edits Storage metadata
+directly. Failed cleanup remains in the private ledger for retry after five minutes;
+successful tombstones are also revisited to catch late transfers. Deletion of abandoned
+objects is permanent; their source files must be reselected if needed. There is no
+hosted scheduler or malware scanner; arrange those separately before production rollout.
+
+Use `npm run db:clean:uploads -- --owner <fixture-auth-uuid>` for fixture-only checks;
+the scope is passed to both claims and failure receipts. Each invocation handles at
+most 100 batches; rerun for larger backlogs. API/network/receipt failures remain retryable.
+The test suite exercises the actual scoped command and simulates late-arriving objects;
+failure injection also covers the command's shared cleanup runner without touching real work.
+
+Recovery hardening (2026-09-23): cancellation transport failures now give an actionable
+message without losing the selected file or blocking a switch to links. Replaying a
+committed finalization refreshes views and returns the original receipt. Malformed
+descriptor inputs fail validation, and Office parser exceptions reject the upload rather
+than escaping its asynchronous validation boundary.
+
+Validation commands (isolated fictional Auth/program records, not real Google accounts):
+
+```sh
+npm run test:storage
+GAP_TEST_APP_URL=http://localhost:3000 npm run test:storage
+GAP_TEST_APP_URL=http://localhost:3000 GAP_TEST_BROWSER=1 npm run test:storage
+```
+
+Browser tests use installed Chrome through `playwright-core`; override `GAP_TEST_CHROME`
+on non-macOS machines. They exercise desktop (1280px) and phone (390px), create a unique
+fictional cohort/participants, and remove those records/files afterward. Do not run
+multiple copies of this suite concurrently (the fictional quarter/year is fixed).
+Screenshots go to a printed OS temporary directory. API tests cover RLS/intent boundaries,
+all formats, replacements/history, concurrency, cleanup, interrupted 20 MB resumable
+transfers and expired credentials. Unit tests cover malformed packages/type/size checks.
+Fixture sessions are not Google OAuth acceptance. Remaining browser session-refresh and
+Monday extended gates are tracked separately. Production build uses the established
+`npm run build -- --webpack` fallback while the local Turbopack environment issue remains.
 
 ## Google OAuth configuration — Pending
 
@@ -227,6 +275,92 @@ Supabase project when configuration is performed.
 3. Deploy and update Supabase URL configuration with the final production origin.
 4. Run the production build and smoke-test both roles.
 5. Verify private files cannot be opened without authorization.
+
+## Vercel environment-variable cleanup — deferred
+
+**Checkpoint (2026-09-22):** The user reports adding variables and connecting the
+Supabase integration in Vercel. Hosted values, configuration and deployment have not
+been verified. This is a resume guide, not authorization to remove settings or deploy.
+Only variable names/placeholders belong here; never paste credentials into this document.
+
+### Exact names GAP reads
+
+| Required variable | Production value/source |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Hosted project's HTTPS API URL; the integration's `SUPABASE_URL` value may be copied here after confirming the project |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Hosted project's publishable key; copy the integration's `SUPABASE_PUBLISHABLE_KEY` value into this exact name |
+| `NEXT_PUBLIC_SITE_URL` | Final deployed HTTPS application origin, not localhost and not the Supabase URL |
+| `SUPABASE_SECRET_KEY` | Same hosted project's server-only secret key from Supabase API Keys; required for Monday import and P6 file validation |
+
+Setting `SUPABASE_PUBLISHABLE_KEY` alone does not populate the browser variable.
+Likewise, `SUPABASE_SERVICE_ROLE_KEY` is not an automatic alias for
+`SUPABASE_SECRET_KEY`. Prefer the hosted project's current secret key; legacy
+`service_role` keys are also privileged, never publishable keys or JWT signing secrets.
+Never give any privileged key a `NEXT_PUBLIC_` prefix. See
+[Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys).
+
+The Monday import also reads these exact server-side names:
+
+```dotenv
+MONDAY_API_TOKEN=
+MONDAY_ACCOUNT_ID=
+MONDAY_MEMBERS_BOARD_ID=
+MONDAY_EMAIL_COLUMN_ID=
+MONDAY_ENROLL_IN_GAP_COLUMN_ID=
+MONDAY_COHORT_COLUMN_ID=
+MONDAY_MEMBER_STATUS_COLUMN_ID=
+```
+
+These are empty placeholders, not values to deploy. Use the accepted-members board's
+verified IDs and a token with appropriate read permissions. Board membership establishes
+acceptance; membership status is context only, not an acceptance gate.
+
+### Extras to review later
+
+GAP currently does not read the integration-added `POSTGRES_URL`, `POSTGRES_PRISMA_URL`,
+`POSTGRES_URL_NON_POOLING`, `POSTGRES_USER`, `POSTGRES_HOST`, `POSTGRES_PASSWORD`, or
+`POSTGRES_DATABASE`; it uses Supabase clients rather than direct Postgres connections.
+It also does not read `SUPABASE_URL`, `SUPABASE_JWT_SECRET`, `SUPABASE_ANON_KEY`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or
+`SUPABASE_PUBLISHABLE_KEY` under those names.
+
+After the required names are populated and other consumers are checked, these unused
+Vercel variables may be removed. Deleting a variable is not revoking its underlying key:
+do not rotate/revoke Supabase keys, disconnect the integration, or delete the database
+as part of this cleanup. Leave integration-managed extras alone if removal is restricted.
+
+- `MONDAY_REPORTING_BOARD_ID` is optional preparation only; reporting is not implemented.
+- `MONDAY_APPLICANTS_BOARD_ID` is a supported legacy alias. Prefer
+  `MONDAY_MEMBERS_BOARD_ID`; remove the legacy variable only after the preferred one is
+  configured. Conflicting nonempty values are rejected.
+- `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` configure local Supabase startup, not Vercel
+  runtime. Hosted Google credentials belong in the hosted Supabase provider settings.
+
+### Ordered resume checklist
+
+1. Verify the intended Vercel project and Production scope. Match the hosted Supabase
+   URL, publishable key and secret key to the same hosted project; set the exact GAP
+   names above and confirm the production site origin and Monday mappings. Do not copy
+   local `127.0.0.1` URLs/local keys into Vercel or overwrite the working `.env.local`.
+   Keep Preview/Development scopes separate from production data.
+2. Review redundant variables using the list above; remove only confirmed-unused,
+   user-managed entries after preserving the required mappings. Leaving extras is fine.
+3. Separately verify hosted prerequisites: ordered schema/authorization/Storage migrations,
+   private bucket policies, approved roster/admin access, and Google provider setup.
+   Copy the exact hosted Supabase provider callback into Google Cloud; set Supabase's
+   Site URL and allow the deployed app's `/auth/callback`. Local success does not prove
+   any of these hosted steps are complete. Do not seed demo data or reset a live database.
+4. Redeploy the intended application revision after configuration changes; public values
+   are included in the build. Environment changes do not update an existing deployment.
+   See [Vercel environment variables](https://vercel.com/docs/environment-variables).
+5. Verify real approved member/admin sign-in, denied unapproved/inactive/non-UC-Davis
+   access, member-to-admin denial, sign-out, and protected file downloads. Verify Monday
+   preview read-only before deliberately authorizing any production enrollment. Record
+   demonstrated results; do not close hosted or session-security gates from env presence.
+
+P6 was subsequently closed out locally on 2026-09-23 with desktop/phone recovery flows,
+direct upload-action authorization checks and regression validation. That local acceptance
+does not verify hosted setup or alter this deferred environment/deployment checklist.
 
 ## Monday.com integration — Pending
 

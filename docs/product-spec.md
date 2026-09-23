@@ -88,7 +88,18 @@ revision controls, submitted work, and retained history.
 - A submission is either `file` or `link`, never both.
 - Links must be valid `http` or `https` URLs. Google Docs, Slides, Sheets, Canva, and
   other relevant providers are accepted without a provider allowlist.
-- Files may be PDF, DOCX, PPTX, or XLSX and must not exceed 20 MB.
+- Files may be PDF, DOCX, PPTX, or XLSX, must be nonempty, and must not exceed
+  20 × 1024 × 1024 bytes. Private downloads are available to the active owner and admins,
+  including previous attempts. Review is download-first, not an embedded viewer.
+- Uploads show progress, checking/saving, retryable errors, and cancellation. An uploaded
+  object is not a submission until validation and atomic finalization succeed. The
+  selected file is retained for recoverable failures only in the current page session;
+  after reload, reselect it. Link submission remains available if Storage is unhealthy.
+- If cancellation cannot be confirmed, explain the one-hour expiry and retain the file
+  selection; allow starting again or switching to a link. Retrying a lost save response
+  must return the existing submission rather than create another attempt.
+- Basic document-format validation is not malware scanning. No hosted cleanup schedule,
+  online document editing, or Monday file export is included.
 - Resubmitting creates a new submission record and supersedes the former current record.
   Historical records and timestamps are retained.
 - Members may replace work while it is awaiting review and must revise work when a

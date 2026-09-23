@@ -1,12 +1,29 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-23
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
 This file tracks approved work. Product and technical rules live in `docs/`; completion
 requires implementation, validation, documentation, and changelog agreement.
+
+## Current checkpoint — 2026-09-23
+
+- [x] Persistent local Supabase program, real Google sign-in, and a real approved admin
+  are operational; the user completed a real Monday enrollment import successfully.
+- [x] Login card and admin cohort switcher are implemented; detailed visual/accessibility
+  checks remain listed below rather than implied by implementation.
+- [x] P6 closeout: 48 unit/documentation test entries, 12 Storage entries with desktop/phone
+  browser coverage, 8 program and 9 enrollment entries pass; lint, typecheck, generated-type
+  consistency and Webpack production build pass. Test counts include suite/fixture entries.
+- [x] Committed/pushed implementation through `5362722` to `origin/main`; credentials
+  and recovery backups were excluded. P6, deferred deployment documentation, and this
+  checklist reconciliation remain uncommitted subsequent work.
+- [x] User confirmed imported-member reload persistence, repeated preview showing Already
+  linked without duplication, and real analyst program access/admin denial (2026-09-22).
+- [ ] Finish extended Monday and outstanding P5/P7 acceptance checks before claiming
+  those milestones complete. Local P6 is complete; hosted setup and attendance are deferred.
 
 ## Phase 0 — Documentation and repository foundation
 
@@ -102,7 +119,8 @@ requires implementation, validation, documentation, and changelog agreement.
 ### Phase 3 gate
 
 - [x] A mock member can learn, submit either method, replace, and view feedback end to end.
-- [ ] Mobile submission controls remain usable and accessible.
+- [x] Verify functional submission/replacement controls at 390px in the P6 browser flow.
+- [ ] Finish keyboard, screen-reader, and zoom accessibility checks for submission controls.
 - [x] Lint, typecheck, and production build pass.
 
 ## Phase 4 — Mock admin experience
@@ -130,9 +148,11 @@ requires implementation, validation, documentation, and changelog agreement.
 
 - [x] Automated admin checks cover mock-role rejection, queue selection/filtering,
   cohort/roster/publishing validation, and Pacific deadline edge cases (2026-09-14).
-- [ ] Browser-verify that a mock admin can complete content publishing, roster, and review
-  workflows at mobile and desktop widths.
-- [ ] Replace the hardcoded mock admin identity with server-side authorization before
+- [x] Browser-verify authenticated fixture-admin download/review and member feedback at
+  desktop and phone widths (P6, 2026-09-23).
+- [ ] Browser-verify content publishing and roster workflows at mobile and desktop widths
+  against the persistent authenticated implementation.
+- [x] Replace the hardcoded mock admin identity with server-side authorization before
   claiming members cannot reach or trigger admin behavior.
 - [x] Lint, typecheck, and production build pass.
 
@@ -144,13 +164,15 @@ by the mock-role test.
 
 ## Phase 5 — Supabase schema, seeds, and data access
 
-**Active, not accepted (2026-09-21):** Local migrations, repeatable seed execution,
-39 unit/documentation tests, 9 isolated enrollment tests, and the local Supabase suite
-(7 scenarios plus its parent test) pass. Generated-type consistency, typecheck, lint,
-and production build have passed on native Apple Silicon tooling. Protected interactive
-desktop/phone flows, session-expiry behavior, and real Google OAuth remain open.
-The local Google provider is now configured; real sign-in still needs verification.
-Fixture sessions do not verify Google login.
+**Active, not fully accepted (2026-09-23):** Local migrations, repeatable seed execution,
+and the regression suites pass; see the current checkpoint for test counts. P6 verified
+authenticated desktop/phone submission, review, feedback, reload, and replacement/history
+flows, plus rejected expired-session upload requests. Full publishing/roster browser
+workflows, successful session refresh, and browser sign-out/back navigation remain open.
+Real local Google/admin sign-in worked, and the user confirmed real analyst access and
+admin denial on 2026-09-22. Fixture sessions alone do not count as Google-login verification.
+Generated types, lint, typecheck, and the Webpack production build pass; the default
+Turbopack environment failure remains open below.
 
 - [x] Replace GAP's Intel-only Docker/fnm tooling and reinstall project dependencies for
   Apple Silicon; verify native engine, shell runtime, build, lint, typecheck, and tests.
@@ -186,9 +208,9 @@ Fixture sessions do not verify Google login.
 - [~] Add realistic idempotent seed data for six weeks and Week 2 details without shipping
   real personal data; include fictional active Fall and archived Spring cohorts.
 - [x] Add generated database TypeScript types and a documented regeneration command.
-- [~] Add cookie-aware server and browser clients using async Next.js 16 APIs.
+- [x] Add cookie-aware server and browser clients using async Next.js 16 APIs.
 - [~] Implement a narrow server-only data layer and DTOs for member and admin reads.
-- [~] Replace mock page reads incrementally while preserving stable view-model contracts.
+- [x] Replace mock page reads incrementally while preserving stable view-model contracts.
 - [~] Implement validated Server Actions for content, roster, feedback, and status changes;
   authorize inside each action.
 - [x] Implement atomic link-submission replacement that retains historical rows.
@@ -204,10 +226,15 @@ Fixture sessions do not verify Google login.
 - [x] Verify local database/RPC and HTTP layout boundaries for anonymous/member/admin,
   inactive/wrong-domain/cross-user access, live role changes, draft isolation, rollback,
   and SDK sign-out using isolated fixture sessions.
-- [ ] Verify expired-session refresh, browser sign-out/back navigation, and direct
-  unauthorized Server Action requests independently of layout and RPC checks.
-- [ ] Verify publish → enroll → submit link → review → feedback → reload at desktop
-  and phone widths, including duplicate requests, stale saves, and history retention.
+- [x] Verify direct upload Server Action rejection for anonymous, inactive, cross-user,
+  and expired-session callers independently of layout and RPC checks (P6).
+- [ ] Verify successful expired-session refresh, browser sign-out/back navigation, and
+  remaining non-upload mutation boundaries.
+- [x] Verify submit → review → feedback → reload and file/link replacement/history at
+  desktop and phone widths using isolated published-program fixtures; test duplicate
+  finalization, lost responses, and stale/concurrent saves (P6).
+- [ ] Complete the full publish → enroll → submit link → review → feedback → reload
+  browser story, including publishing and roster/enrollment UI steps at both widths.
 - [x] Regenerate types after the review-receipt migration and verify no schema drift.
 - [x] Paginate workspace reads; test histories beyond the PostgREST row limit and
   fail rather than return partial data when a page fails.
@@ -223,7 +250,8 @@ Fixture sessions do not verify Google login.
 
 The remaining P5 schema, policies, and client integration are implemented but awaiting
 full validation. The private enrollment operation is called by a live-roster-authorized
-admin wrapper, never by the mock identity. Monday remains disconnected.
+admin wrapper, never by the mock identity. Manual Monday preview/map/confirm intake is
+now connected and user-tested; automatic sync and reporting remain disconnected.
 
 ### Phase 5 gate
 
@@ -236,10 +264,18 @@ admin wrapper, never by the mock identity. Monday remains disconnected.
   preserves counts (12 weeks, 2 assignments, 4 submissions).
 - [x] Anonymous/member/admin/inactive/cross-user SQL and client policy tests match the RLS
   matrix.
-- [ ] The portal remains runnable after each mock repository is replaced.
+- [x] The portal remains runnable with persistent repositories; HTTP route checks and
+  user-operated local admin/Monday workflows provide evidence. Full browser matrix remains open.
 - [x] Lint, typecheck, tests, and production build pass.
 
 ## Phase 6 — Private Storage and live submissions
+
+**Local P6 accepted (2026-09-23):** Private uploads/downloads, retained history,
+authorization and recovery checks pass. Desktop (1280px) and phone (390px) browser tests
+cover file/link replacement, review/feedback, reload persistence, lost save responses,
+interrupted transfer, failed cancellation and link fallback. Direct upload actions reject
+anonymous/inactive/cross-user/expired-cookie requests. No hosted configuration or real
+analyst records were changed. P5/P7 broader session gates remain separate and open.
 
 ### Clean live program / readiness
 
@@ -247,6 +283,9 @@ admin wrapper, never by the mock identity. Monday remains disconnected.
   test/UI-preview fixtures.
 - [x] Inventory and back up untouched demo records, remove them transactionally, preserve
   the real admin, and verify a repeated cleanup is a no-op. Recovery is in operations docs.
+- [x] Subsequently restore only Fall 2026 and its six original week titles as drafts at
+  the user's request. Demo people, assignments, and submissions remain removed. The live
+  database is no longer empty; keep empty-state verification isolated from real cohorts.
 - [ ] Visually verify dashboard/admin empty states after reload in a real browser.
 - [x] Verify normal startup keeps demo records absent and backup restoration succeeds
   inside a rolled-back transaction. Confirm the preserved real admin passes authorization.
@@ -255,35 +294,32 @@ admin wrapper, never by the mock identity. Monday remains disconnected.
 - [ ] Recheck the default Turbopack build: this run hit a CSS-worker port-binding
   permission error even with escalation; the Webpack fallback passed without code changes.
 
-### Ordered implementation backlog
+### Implementation and recovery
 
-- [ ] Enable local `storage-api`, currently excluded by the startup script; verify health
-  before enabling upload controls. Do not change hosted services as part of local P6.
-
-- [ ] Add migration or exact setup for private `submissions` bucket, 20 MB limit, and
-  allowed MIME types.
-- [ ] Add Storage INSERT/SELECT policies for owner paths and admin access.
-- [ ] Require current active-roster authority and valid owner/assignment associations;
-  reject anonymous, inactive, and cross-user access, including overwrite/delete attempts.
-- [ ] Generate collision-resistant sanitized paths matching the documented contract while
-  retaining original filenames in Postgres.
-- [ ] Implement live file upload, metadata insert, and safe cleanup on partial failure.
-- Link submissions and transactional replacement moved into P5; P6 adds private files.
-- [ ] Implement authenticated download or short-lived signed URL access.
-- [ ] Ensure historical submission files remain accessible to their owner and admins.
-- [ ] Preserve stale-save protection and completed-work restrictions for file replacement;
-  verify failed saves clean up only new orphan uploads, never historical files.
-- [ ] Add upload progress/disabled UI, retryable errors, invalid-type, oversize, and network
-  failure handling.
+- [x] Enable and verify local Storage, private `submissions` bucket, 20 MB limit and four MIME types.
+- [x] Restrict inserts to exact unexpired owner intents; restrict reads to live owners/admins
+  and committed history. Deny anonymous, inactive and cross-user access and client overwrite/delete.
+- [x] Generate unique sanitized paths and preserve original filenames and validated metadata.
+- [x] Implement resumable progress/retry, bounded format inspection, atomic version-checked
+  finalization and stable receipts; no file bytes pass through Server Actions.
+- [x] Implement authenticated no-store attachment downloads for current and historical attempts.
+- [x] Preserve stale-save/completed-work restrictions across file/file, file/link and link/file replacement.
+- [x] Verify cancellation during transfer, failed cancellation messaging, retained file selection,
+  retry after failed/lost save responses and link fallback when transfer is unavailable.
+- [x] Add scoped, bounded local cleanup; verify late uploads and repeat runs through the actual
+  fixture-scoped command, plus API/network/receipt failure injection in its shared runner.
+- [x] Review concurrency, rollback, live authorization, server input validation and private boundaries.
 
 ### Phase 6 gate
 
-- [ ] A member cannot list, read, overwrite, or delete another member's files.
-- [ ] An admin can review all files; unauthenticated URLs cannot access private objects.
-- [ ] File and link submission/resubmission work end to end.
-- [ ] Invalid type/oversize, interrupted upload, retry, failed metadata save, and historical
-  download scenarios pass alongside admin/member access tests.
-- [ ] Lint, typecheck, tests, and production build pass.
+- [x] A member cannot list, read, overwrite, or delete another member's files.
+- [x] An admin can download committed files; unauthenticated URLs cannot access private objects.
+- [x] File and link submission/resubmission work end to end at desktop/phone widths.
+- [x] Invalid type/oversize, interrupted upload, retry, transactional rollback, lost save
+  response and historical download scenarios pass alongside admin/member access tests.
+- [x] Unit/docs, Storage, program and enrollment regressions, lint, typecheck, generated types,
+  Webpack production build and diff checks pass. Default Turbopack limitation remains above.
+- [x] Canonical documentation, upload ADR, changelog and checklist reflect tested local behavior.
 
 ## Phase 7 — Google authentication and roster authorization
 
@@ -293,23 +329,29 @@ do not satisfy them. See ADR 0007.
 
 ### Manual configuration — not complete until verified
 
-- [ ] Configure Google Cloud OAuth consent and Web client.
-- [ ] Copy the exact Supabase Google callback URI into Google authorized redirect URIs.
-- [~] Enable Google in local `supabase/config.toml` using ignored `.env.local` credentials,
+- [x] Configure Google Cloud OAuth consent/Web client for local login; successful user
+  login followed correction of the client ID and organization audience restriction.
+- [x] Configure the local Supabase Google callback URI; the real callback completed.
+- [x] Enable Google in local `supabase/config.toml` using ignored `.env.local` credentials,
   restart local Supabase, and verify real sign-in. See the local OAuth recipe in
   `docs/operations.md`; enabling a hosted project's provider does not configure local Auth.
 - [ ] Separately enable Google in the hosted Supabase project when deploying.
-- [ ] Set Supabase Site URL and localhost/production callback allowlist.
-- [ ] Add the two real development leads to the roster as admins through a safe seed or
-  admin procedure.
+- [x] Set local Supabase Site URL and localhost callback allowlist; verify real local login.
+- [ ] Configure and verify the production Site URL and callback allowlist when deploying.
+- [x] Provision the first real lead as an active local admin and verify profile synchronization.
+- [ ] Provision and verify the second development lead through a safe admin procedure.
 
 ### Phase 7 gate
 
-- [ ] Approved member and admin sign-in flows work from fresh and expired sessions.
+- [x] Real local admin sign-in and user-confirmed analyst access/admin denial work.
+- [ ] Verify approved member and admin sign-in from expired sessions, including refresh.
+- [x] P6 application boundaries reject anonymous, inactive, cross-user, and expired-session
+  upload requests; owner/admin downloads succeed and unauthorized downloads fail safely.
 - [ ] Anonymous, wrong-domain, unapproved, inactive, and member-to-admin escalation tests
   fail safely.
 - [ ] Sign-out invalidates protected navigation.
-- [ ] Lint, typecheck, auth/RLS tests, and production build pass.
+- [x] Local lint, typecheck, existing auth/RLS regressions, and Webpack production build
+  pass (2026-09-23); this does not close the remaining session/browser acceptance checks.
 
 ## Phase 8 — Final responsive and usability polish
 
@@ -329,13 +371,16 @@ Requested follow-up, not part of P6 and not authorized for implementation yet.
   taps, and reload persistence. No self-check-in, QR codes, geolocation, or Monday sync
   in this initial follow-up.
 
-### Monday recruiting and club reporting — Planned integration
+### Monday accepted-member intake — Implemented, acceptance in progress
 
 - [x] Verify configured Monday account, accepted-members board, and column types read-only.
-- [~] Implement manual preview/map/confirm intake with private 15-minute batches and
+- [x] Implement manual preview/map/confirm intake with private 15-minute batches and
   service-only enrollment receipts; reader and rollback SQL smoke checks pass.
 - [x] Configure server-only local Supabase secret for the adapter in ignored `.env.local`.
-- [ ] Verify real admin import UI (no real enrollments without deliberate confirmation).
+- [x] User reports successful real enrollment through the admin import UI (2026-09-22).
+  This confirms the happy path, not the full retry/concurrency/browser matrix.
+- [x] User confirmed reload persistence, Already linked on repeat import, and analyst
+  program access/admin denial; these are user reports, not expanded automated Monday tests.
 - [ ] Complete extended import tests: concurrent confirms, cross-admin batches, duplicates,
   returning members, inactive access, retries, stale source, and phone/desktop browser flows.
 
@@ -344,12 +389,17 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 
 - [x] Document Supabase/Monday ownership, expected form intake, reporting scope, and ADR.
 - [x] Record the lead-controlled “Enroll in GAP” checkbox decision and enrollment safeguards.
-- [ ] Confirm form/boards/columns, individual-report audience, and sync timing.
-- [ ] Configure the Monday enrollment checkbox, lead permissions, and separate enrollment result fields.
+- [x] Confirm accepted-members board and identity/checkbox/cohort/status columns; existing
+  Monday recruitment automation establishes acceptance. No application-form read is needed.
+- [x] Use the configured Enroll in GAP checkbox and explicit GAP-admin confirmation;
+  membership status is informational, not acceptance or automatic revocation.
+- [ ] Verify Monday-side lead-only checkbox permissions; separate Monday result fields
+  and individual-report audience/sync timing belong to the future outbound integration.
 - [x] Implement durable application-to-enrollment mapping and atomic server-only provisioning.
-- [ ] Finalize the live adapter, credentials, transport, and field mappings.
-- [ ] Implement checkbox-triggered accepted-participant intake under approved-roster
-  authorization rules; verify eligibility, retries, failure reporting, and non-destructive unchecking.
+- [x] Implement the read-only API adapter, private credentials, legacy board-name alias,
+  complete pagination, typed columns, and explicit preview-local cohort mappings.
+- [ ] Complete intake failure/retry/non-destructive-unchecking acceptance; background
+  checkbox-triggered processing remains deferred, not part of manual confirmation.
 - [ ] Export per-person due-work counts and cohort outcomes without private work or feedback.
 - [ ] Verify duplicate-safe retries, returning applicants, historical cohorts, stale-sync
   visibility, and continued GAP operation when Monday is unavailable.
@@ -382,7 +432,9 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 
 ### Phase 8 gate
 
-- [ ] Full learn → submit → review → feedback story passes on mobile and desktop.
+- [~] Full learn → submit → review → feedback story passes on mobile and desktop:
+  P6 submission/review/feedback/history is verified at 390px and 1280px; complete the
+  learning/resource-navigation portion and broader responsive/accessibility audit.
 - [ ] No known critical accessibility, authorization, data-loss, or responsive defects.
 - [ ] Lint, typecheck, complete tests, and production build pass.
 
@@ -396,6 +448,10 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 - [ ] Verify migrations and seed data against a clean Supabase project or documented test
   environment.
 - [ ] Configure Vercel environment variables and production deployment.
+- [ ] Resume [deferred Vercel environment-variable cleanup](docs/operations.md#vercel-environment-variable-cleanup--deferred):
+  verify exact hosted variable names/values, review unused aliases, verify hosted
+  prerequisites, then redeploy and test authorized access. No configuration changes
+  or hosted acceptance are implied by documenting this task.
 - [ ] Set final production redirect URLs and run member/admin smoke tests.
 - [ ] Review all living docs against the released implementation.
 - [ ] Move completed changelog entries from `Unreleased` into the first release section.

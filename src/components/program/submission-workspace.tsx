@@ -82,7 +82,8 @@ export function SubmissionWorkspace({
               <SubmissionEditor
                 actionLabel="Submit assignment"
                 assignmentId={assignmentId}
-                description="Submit a link the review team can open."
+                description="Upload a document or share a link the review team can open."
+                onFileSaved={() => { setSubmitting(false); setAnnouncement('Submission received.'); }}
                 onCancel={() => { setSubmitting(false); requestAnimationFrame(() => actionRef.current?.focus()); }}
                 onSubmit={submit}
               />

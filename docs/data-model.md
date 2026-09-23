@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-09-14
+**Last updated:** 2026-09-22
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -34,7 +34,8 @@ submission state.
 Implementation boundary: committed migrations now include profiles, program content,
 submissions, authenticated read policies, and authorized transactional mutation functions.
 Full Supabase authorization/concurrency verification is still pending; schema presence
-does not establish that the P5 acceptance gate has passed. Storage remains P6.
+does not establish that the P5 acceptance gate has passed. P6 adds private Storage,
+upload intents, file metadata, and service-only lifecycle operations.
 
 Demo cohorts and participants are optional development fixtures, not required baseline
 records. Local startup no longer seeds them automatically; an empty program with an
@@ -157,6 +158,8 @@ submissions.
 - `submission_type submission_type not null`
 - `original_filename text`
 - `file_path text`
+- `file_size bigint` (required for files; 1–20,971,520 bytes)
+- `mime_type text` (required for files; null for links)
 - `submitted_url text`
 - `status submission_status not null default 'submitted'`
 - `feedback text`
@@ -308,12 +311,45 @@ not an inference that every submitted assignment was approved.
 - Allowed types: PDF, DOCX, PPTX, XLSX MIME types
 - Object path: `{user_id}/{assignment_id}/{submission_id}-{sanitized_filename}`
 - Filenames are sanitized for paths while `original_filename` is stored for display.
-- Members may insert/read only objects in their own first path segment and associated
-  submissions.
-- Admins may read all objects.
+- INSERT requires an exact pending, unexpired upload intent owned by `auth.uid()`,
+  live active-roster authority, enrolled participation in an active cohort, and a
+  published assignment. A path prefix alone never authorizes an upload.
+- SELECT requires a committed submission associated with the live active owner or
+  admin. This includes historical attempts regardless of current cohort participation.
+  Uncommitted objects cannot be read by members or reviewers. No browser UPDATE or
+  DELETE policy exists. Admins cannot upload on behalf of members.
 - Replacement creates a new uniquely named object; old objects remain available with
   historical submissions.
-- Downloads use an authenticated request or short-lived signed URL, never a public URL.
+- Downloads use `/api/submissions/[id]/download`, with current user-scoped RLS and
+  private/no-store attachment streaming; the app does not generate signed or public URLs.
+
+### Private upload ledger
+
+`private.upload_intents` stores owner Auth UUID, assignment/enrollment, reserved unique
+submission UUID, unique generated path, original filename, expected bytes/MIME,
+expected current attempt ID/update timestamp, created/one-hour expiry timestamps,
+state (`pending`, `committed`, `abandoned`), and cleanup timestamp/failure flag.
+There are no direct anonymous/authenticated/service-role table grants.
+
+Service-only `file_upload(actor, action, intent, data)` checks the verified actor's live
+roster on every call. Prepare authorizes context and reserves the server-generated path;
+get exposes only that actor's intent; cancel irreversibly abandons uncommitted work.
+Only trusted server code may invoke finalize after bounded content inspection. It
+locks intent → enrollment → current submission, rechecks authorization and the original
+version, verifies Storage metadata, and atomically supersedes/inserts/commits. Link saves
+use enrollment → current submission and reviews lock the current submission, so no
+reverse intent dependency exists. Committed retries return the same receipt. Stale and
+invalid finalizations abandon the intent without changing submission history.
+
+`cleanup_uploads` is service-only. It locks and terminally abandons up to 100 expired or
+abandoned intents, marks a cleanup attempt, and returns paths to the local Storage API
+cleanup command. Optional owner scoping isolates test writes. Finalization cannot commit
+a claimed path. Cleanup rechecks tombstones after five minutes, including successful
+attempts, to remove late-finishing transfers; the ledger is not purged. Failure receipts
+remain retryable. Committed intents and historical objects are never cleanup candidates.
+The local command accepts an optional `--owner` Auth UUID to use that scope on every
+claim/receipt; tests never run unrestricted cleanup. Each invocation is bounded to 100 batches.
+See [ADR 0009](decisions/0009-private-upload-lifecycle.md).
 
 ## Migration rules
 

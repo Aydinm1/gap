@@ -18,23 +18,30 @@
     "test:db-types": "node scripts/check-db-types.mjs",
     "db:start": "node --env-file=.env.local scripts/start-supabase.mjs",
     "db:seed:demo": "docker exec -i supabase_db_gap psql -v ON_ERROR_STOP=1 --single-transaction -U postgres -d postgres < supabase/seed.sql",
-    "db:clean:demo": "node scripts/clean-demo.mjs"
+    "db:clean:demo": "node scripts/clean-demo.mjs",
+    "db:clean:uploads": "node scripts/cleanup-uploads.mjs",
+    "test:storage": "node --experimental-strip-types --test scripts/verify-storage.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
+    "fast-xml-parser": "^5.11.1",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "tus-js-client": "^4.3.1",
+    "yauzl": "^3.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/yauzl": "^3.4.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "playwright-core": "^1.63.0",
     "supabase": "^2.117.0",
     "tailwindcss": "^4",
     "typescript": "^5"

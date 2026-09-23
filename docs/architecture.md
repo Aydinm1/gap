@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-09-14
+**Last updated:** 2026-09-22
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -40,6 +40,7 @@ See [ADR 0008](decisions/0008-monday-member-import.md).
 | `/admin/weeks` | Admin | Week listing and publication state |
 | `/admin/weeks/[id]` | Admin | Week, assignment, and resource editing |
 | `/admin/members` | Admin | Approved-roster management |
+| `/api/submissions/[id]/download` | Active owner/admin | Private current/historical file attachment |
 
 In Next.js 16, dynamic `params`, `searchParams`, `cookies()`, and `headers()` are async.
 Use the installed documentation rather than legacy examples.
@@ -80,6 +81,33 @@ Use the installed documentation rather than legacy examples.
 - Surface safe, actionable errors to users while avoiding secrets or raw database errors.
 
 ## Mock-to-Supabase progression
+
+### P6 file flow
+
+The existing submission editor prepares an intent via an authenticated Server Action,
+then dynamically loads `tus-js-client` and sends file bytes directly to authenticated
+Storage using 6 MB chunks, progress, and bounded retries. It never sends file bytes
+through a Server Action. The task retains its TUS transfer and selected File only in
+the current page session; cancel aborts transfer and abandons the intent. Reload requires
+reselection. Upload failures do not alter the current attempt or block link submission.
+
+Finalization uses a server-only Supabase client to fetch the exact reserved object with
+a bounded 20 MB read. It verifies bytes/MIME/extension, PDF header/end marker, or a
+bounded Office ZIP/XML package (entry count, total expansion, required main-part type,
+relationships and valid XML; no DTD/entities). This is format validation, not malware
+scanning. Browser callers cannot invoke the service-only commit RPC to bypass inspection.
+The RPC repeats live authority/version checks and commits metadata/history atomically.
+Retryable infrastructure failures retain the upload; invalid/stale work is abandoned for
+cleanup. Success alone refreshes member/admin views.
+Committed retries also revalidate views when the original success response was lost.
+Cancellation owns its UI message after detaching the transfer, preventing a late transfer
+rejection from hiding cancellation failure. The selected File remains available and the
+user can switch to link submission even if abandonment could not be confirmed.
+
+Download routes resolve submission IDs under user-scoped RLS and stream the derived
+Storage path using the session credential. Responses are attachments with original
+filenames, private/no-store and nosniff headers. Downloading has no review side effect.
+There is no embedded viewer, persistent signed URL, or Monday file export.
 
 ### P5 implementation status
 

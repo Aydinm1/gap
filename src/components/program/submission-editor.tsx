@@ -9,6 +9,9 @@ import {
 } from "@/lib/program/submission";
 import type { SubmissionPayload } from "@/lib/program/types";
 import { cn } from "@/lib/ui";
+import { uploadTask } from '@/lib/uploads/client';
+import { fileError } from '@/lib/uploads/format';
+import { useRouter } from 'next/navigation';
 
 
 export function SubmissionEditor({
@@ -18,6 +21,8 @@ export function SubmissionEditor({
   layout = "rail",
   onCancel,
   onSubmit,
+  expected,
+  onFileSaved,
 }: {
   actionLabel: string;
   assignmentId: string;
@@ -25,7 +30,16 @@ export function SubmissionEditor({
   layout?: "rail" | "wide";
   onCancel?: () => void;
   onSubmit: (payload: SubmissionPayload) => void | Promise<void>;
+  expected?: { id: string; updatedAt?: string };
+  onFileSaved?: () => void;
 }) {
+  const router = useRouter();
+  const task = useRef<ReturnType<typeof uploadTask> | undefined>(undefined);
+  const busy = useRef(false);
+  const [progress, setProgress] = useState<number>();
+  const [finalizing, setFinalizing] = useState(false);
+  const [hasTask, setHasTask] = useState(false);
+  useEffect(() => () => { void task.current?.cancel(); }, []);
   const inputId = useId();
   const workspace = useMemberWorkspace();
   const [localDraft, setLocalDraft] = useState<SubmissionDraft>({ url: "" });
@@ -42,10 +56,35 @@ export function SubmissionEditor({
   }
   const [saving, setSaving] = useState(false);
   async function finish(payload: SubmissionPayload) {
+    if (busy.current) return;
+    busy.current = true;
     setSaving(true);
     try { await onSubmit(payload); clearDraft(); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not submit. Your draft has been kept.'); }
-    finally { setSaving(false); }
+    finally { busy.current = false; setSaving(false); }
+  }
+  async function sendFile() {
+    if (!file || busy.current) return;
+    const invalid = fileError(file); if (invalid) return setError(invalid);
+    busy.current = true; setSaving(true); setError(undefined); setFinalizing(false);
+    task.current ??= uploadTask(file, assignmentId, expected, setProgress, () => setFinalizing(true));
+    const currentTask = task.current;
+    setHasTask(true);
+    try { await task.current.run(); task.current = undefined; setHasTask(false); clearDraft(); router.refresh(); onFileSaved?.(); }
+    catch (cause) {
+      // Cancellation owns its message once the task has been detached.
+      if (task.current === currentTask) setError(cause instanceof Error ? cause.message : 'Could not upload. Retry or cancel.');
+    }
+    finally { busy.current = false; setSaving(false); setFinalizing(false); }
+  }
+  async function cancelTransfer() {
+    const current = task.current;
+    if (!current) return;
+    task.current = undefined;
+    setHasTask(false);
+    const result = await current.cancel();
+    setProgress(undefined);
+    setError(result?.error ?? 'Upload canceled. Your file is still selected.');
   }
   function cancel() {
     if ((file || url.trim()) && !window.confirm("Discard this submission draft?")) return;
@@ -57,7 +96,8 @@ export function SubmissionEditor({
 
   function submit() {
     if (method === "file") {
-      return setError('File uploads are not available yet. Submit a link instead.');
+      if (!file) return setError('Choose a file.');
+      return sendFile();
     }
 
     if (method === "link") {
@@ -81,7 +121,7 @@ export function SubmissionEditor({
           <button
             key={choice}
             type="button"
-            disabled={choice === 'file' || saving}
+            disabled={saving || hasTask}
             aria-pressed={method === choice}
             onClick={() => { patchDraft({ method: choice }); setError(undefined); }}
             className={cn(
@@ -96,7 +136,7 @@ export function SubmissionEditor({
             </span>
             <span className="mt-1 block text-xs leading-5 text-ink-soft">
               {choice === "file"
-                ? "Not available yet · Please submit a link"
+                ? "PDF, DOCX, PPTX, or XLSX · Up to 20 MB"
                 : "Google Docs, Slides, Sheets, Canva, or another web link"}
             </span>
           </button>
@@ -109,11 +149,13 @@ export function SubmissionEditor({
           <input
             id={inputId}
             type="file"
+            disabled={saving || hasTask}
             accept=".pdf,.docx,.pptx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             className="mt-2 block min-h-11 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-action file:px-3 file:py-2 file:font-bold file:text-white"
             onChange={(event) => { patchDraft({ file: event.target.files?.[0] }); setError(undefined); }}
           />
           {file ? <p className="mt-2 break-words text-sm text-ink-soft">{file.name} · {formatFileSize(file.size)}</p> : null}
+          <p className="mt-2 text-xs leading-5 text-ink-soft">Files are private to you and GAP reviewers. After reloading, select your file again to start a new upload.</p>
         </div>
       ) : null}
 
@@ -123,6 +165,7 @@ export function SubmissionEditor({
           <input
             id={`${inputId}-url`}
             type="url"
+            disabled={saving}
             value={url}
             onChange={(event) => { patchDraft({ url: event.target.value }); setError(undefined); }}
             placeholder="https://docs.google.com/..."
@@ -132,9 +175,11 @@ export function SubmissionEditor({
         </div>
       ) : null}
 
+      {progress !== undefined ? <div className="mt-4" role="status"><label className="text-sm" htmlFor={`${inputId}-progress`}>{finalizing ? 'Checking file and saving…' : `Uploaded ${progress}%`}</label><progress id={`${inputId}-progress`} className="mt-2 w-full accent-action" max={100} value={progress} /></div> : null}
       {error ? <p className="mt-4 text-sm font-bold text-danger-text" role="alert">{error}</p> : null}
       <div className="mt-6 flex flex-wrap gap-3">
         <Button disabled={saving} onClick={submit}>{saving ? 'Submitting…' : actionLabel}</Button>
+        {hasTask ? <Button disabled={finalizing} variant="quiet" onClick={() => void cancelTransfer()}>Cancel upload</Button> : null}
         {onCancel ? <Button disabled={saving} variant="quiet" onClick={cancel}>Cancel</Button> : null}
       </div>
     </div>

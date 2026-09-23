@@ -5,6 +5,23 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Hardened P6 recovery: safe malformed-input rejection, contained Office parsing errors,
+  reliable cancellation-failure messaging, and view refresh on idempotent save retries.
+  Added owner-scoped/bounded cleanup and regression coverage for late uploads, cleanup
+  failures, concurrent review/replacement, and browser save-response loss.
+
+- Documented deferred Vercel environment setup: required names, integration aliases,
+  optional settings, hosted prerequisites, and an ordered resume checklist. Preserved
+  the local P6 checkpoint; no credentials, configuration, or deployments changed.
+
+- Added private PDF/DOCX/PPTX/XLSX submissions up to 20 MB, resumable direct uploads,
+  progress/cancellation/retry, bounded file-format validation, atomic version-checked
+  finalization, and authenticated current/historical downloads. Local Storage is enabled;
+  abandoned uploads have an idempotent local cleanup command. No hosted changes or malware
+  scanning are included. Added isolated Storage/API/browser coverage and upload-lifecycle ADR.
+- Recorded user-confirmed Monday reload persistence, repeat-import linking, and analyst
+  access separately from still-open automated Monday/session-security acceptance checks.
+
 - Added a manual Monday accepted-member import panel, paginated read-only adapter,
   explicit cohort mapping, and private expiring batches with service-only processing
   and atomic enrollment receipts. Extended acceptance testing remains pending.

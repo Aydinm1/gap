@@ -54,6 +54,8 @@ do not override a later source-of-truth update and superseding ADR.
 
 ## Accepted decisions
 
+- [ADR 0009: Private upload lifecycle](0009-private-upload-lifecycle.md)
+
 - [ADR 0001: Documentation as product infrastructure](0001-documentation-as-product-infrastructure.md)
 - [ADR 0002: Stable runtime and framework channels](0002-stable-runtime-and-framework-channels.md)
 - [ADR 0003: Cohort history and advancement outcomes](0003-cohort-history-and-advancement-outcomes.md)

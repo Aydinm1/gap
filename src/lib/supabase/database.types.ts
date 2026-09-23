@@ -75,6 +75,63 @@ export type Database = {
         }
         Relationships: []
       }
+      upload_intents: {
+        Row: {
+          assignment_id: string
+          cleanup_at: string | null
+          cleanup_error: boolean
+          created_at: string
+          enrollment_id: string
+          expected_id: string | null
+          expected_size: number
+          expected_updated_at: string | null
+          expires_at: string
+          id: string
+          mime_type: string
+          original_filename: string
+          owner_id: string
+          path: string
+          state: string
+          submission_id: string
+        }
+        Insert: {
+          assignment_id: string
+          cleanup_at?: string | null
+          cleanup_error?: boolean
+          created_at?: string
+          enrollment_id: string
+          expected_id?: string | null
+          expected_size: number
+          expected_updated_at?: string | null
+          expires_at?: string
+          id?: string
+          mime_type: string
+          original_filename: string
+          owner_id: string
+          path: string
+          state?: string
+          submission_id?: string
+        }
+        Update: {
+          assignment_id?: string
+          cleanup_at?: string | null
+          cleanup_error?: boolean
+          created_at?: string
+          enrollment_id?: string
+          expected_id?: string | null
+          expected_size?: number
+          expected_updated_at?: string | null
+          expires_at?: string
+          id?: string
+          mime_type?: string
+          original_filename?: string
+          owner_id?: string
+          path?: string
+          state?: string
+          submission_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -107,6 +164,8 @@ export type Database = {
         }[]
       }
       is_admin: { Args: never; Returns: boolean }
+      may_download: { Args: { p_path: string }; Returns: boolean }
+      may_upload: { Args: { p_path: string }; Returns: boolean }
       my_person_id: { Args: never; Returns: string }
     }
     Enums: {
@@ -440,8 +499,10 @@ export type Database = {
           enrollment_id: string
           feedback: string | null
           file_path: string | null
+          file_size: number | null
           id: string
           is_current: boolean
+          mime_type: string | null
           original_filename: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -457,8 +518,10 @@ export type Database = {
           enrollment_id: string
           feedback?: string | null
           file_path?: string | null
+          file_size?: number | null
           id?: string
           is_current?: boolean
+          mime_type?: string | null
           original_filename?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -474,8 +537,10 @@ export type Database = {
           enrollment_id?: string
           feedback?: string | null
           file_path?: string | null
+          file_size?: number | null
           id?: string
           is_current?: boolean
+          mime_type?: string | null
           original_filename?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -525,6 +590,19 @@ export type Database = {
       admin_mutate: {
         Args: { p_action: string; p_data: Json }
         Returns: string
+      }
+      cleanup_uploads: {
+        Args: { p_failed?: boolean; p_id?: string; p_owner?: string }
+        Returns: Json
+      }
+      file_upload: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_data?: Json
+          p_intent?: string
+        }
+        Returns: Json
       }
       monday_import: {
         Args: {

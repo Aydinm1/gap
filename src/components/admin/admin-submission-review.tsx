@@ -18,7 +18,7 @@ import { useAdminWorkspace } from "./admin-workspace";
 
 function ViewAttempt({ attempt, announce }: { attempt: ReturnType<typeof useAdminWorkspace>["submissions"][number]; announce: (message: string) => void }) {
   const className = "inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-border-strong px-4 text-sm font-bold text-ink hover:bg-surface-subtle";
-  return attempt.payload.type === "link" ? <a className={className} href={attempt.payload.submittedUrl} target="_blank" rel="noreferrer">Open submitted link ↗</a> : <div><button className={className} type="button" onClick={() => announce("File download is represented in this prototype. Private storage is not connected yet.")}>Download original file</button><p className="mt-2 text-xs leading-5 text-ink-faint">Prototype file — download activates when private storage is connected.</p></div>;
+  return attempt.payload.type === "link" ? <a className={className} href={attempt.payload.submittedUrl} target="_blank" rel="noreferrer">Open submitted link ↗</a> : /^[0-9a-f-]{36}$/i.test(attempt.id) ? <a className={className} href={`/api/submissions/${attempt.id}/download`}>Download original file</a> : <button className={className} type="button" onClick={() => announce("This fictional preview file is not available to download.")}>Download original file</button>;
 }
 
 export function AdminSubmissionReview({ submissionId }: { submissionId: string }) {

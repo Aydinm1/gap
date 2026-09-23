@@ -45,6 +45,8 @@ function SubmissionLink({
     <a className={className} href={attempt.payload.submittedUrl} target="_blank" rel="noreferrer">
       {label ?? "Open submitted link"} <span className="ml-2" aria-hidden="true">↗</span>
     </a>
+  ) : /^[0-9a-f-]{36}$/i.test(attempt.id) ? (
+    <a className={className} href={`/api/submissions/${attempt.id}/download`}>{label ?? 'Download file'}</a>
   ) : (
     <div><button type="button" className={className} onClick={() => { setFileNotice(true); onFileView(); }}>{label ?? "Download file"}</button>{fileNotice ? <p className="mt-2 text-sm leading-6 text-ink-soft" role="status">This sample file is not available to download in the demo.</p> : null}</div>
   );
@@ -137,6 +139,8 @@ export function SubmissionReviewWorkspace({
             assignmentId={assignmentId}
             description="Choose one submission method. Your previous attempt remains in history."
             layout="wide"
+            expected={replacementBase}
+            onFileSaved={() => { setReplacing(false); setAnnouncement('Submission received.'); }}
             onCancel={() => { setReplacing(false); requestAnimationFrame(() => actionRef.current?.focus()); }}
             onSubmit={submit}
           />
