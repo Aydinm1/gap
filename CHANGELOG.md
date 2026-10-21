@@ -9,7 +9,7 @@ Keep a Changelog without assigning versions until the first release.
   PDF downloads and submission controls beneath the instructions. Added optional summaries
   and opt-in restricted brief formatting with an admin toolbar/preview. Existing prose,
   submission-review links and histories remain intact. Hosted migrations are applied
-  with unchanged content fingerprints; production code release is in progress.
+  with unchanged content fingerprints; the production deployment reached Vercel READY.
 
 - Added plain-text responses alongside files/links with inline review, retained history
   and version-checked replacement. Added local-only admin editor preview without

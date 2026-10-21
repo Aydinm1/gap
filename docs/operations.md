@@ -354,8 +354,9 @@ Hosted migration was applied on 2026-10-21, with the two written-response migrat
 after a dry run showing no seeds/role changes. Verified all three migration entries,
 new columns and text RPC. Counts remained two assignments, one PDF document and zero
 submissions; brief/work fingerprints were unchanged and no briefs were converted.
-Production code release is in progress; authenticated hosted acceptance and real SWOT
-content updates remain separate.
+Implementation commit `96f4da6` was pushed to `main`; its Vercel production deployment
+reached READY at `https://gap-khaki.vercel.app`. Authenticated hosted acceptance and
+real SWOT content updates remain separate.
 In Admin → Weeks → assignment, write a short Summary and use Instructions formatting
 buttons or select Formatted; Preview instructions shows the result. Save the week as
 usual. Members open View assignment from the week; admins follow the same path in
@@ -378,7 +379,8 @@ Apply `202610210003_submission_text_type.sql` then
 `202610210004_written_submissions.sql`. The enum addition must commit before use in the
 second migration. Existing attempts/attachments are retained; never reset or seed.
 Hosted migrations were applied and verified on 2026-10-21 with the formatting release
-above. Production code release is in progress; real member/admin acceptance is separate.
+above. The combined production deployment reached READY for `96f4da6`; real
+member/admin acceptance remains separate.
 
 Run `npm run test:written` against local Supabase, with `GAP_TEST_APP_URL` pointing to a
 local production server for HTTP-action and desktop/phone checks. Writes use exact

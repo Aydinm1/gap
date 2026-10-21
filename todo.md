@@ -433,7 +433,8 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 - [x] Apply the three written-response/assignment-format migrations to hosted GAP;
   verify migration history, columns/RPC and unchanged brief/work fingerprints, with
   no seeds or automatic content conversion (2026-10-21).
-- [~] Commit, push and verify the combined assignment/written-response production release.
+- [x] Commit and push the combined assignment/written-response release; Vercel production
+  deployment for implementation commit `96f4da6` reached READY (2026-10-21).
 - [ ] Verify the released assignment pages, formatting and text submissions using real
   authorized member/admin sessions.
 - [ ] Approve the proposed Notion SWOT text before replacing the live brief.
