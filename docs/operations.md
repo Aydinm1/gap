@@ -366,8 +366,9 @@ Hosted migration checkpoint (2026-10-21): applied only
 `202610210002_multiple_week_assignments.sql` after a dry run, with no seeds or role
 changes. Verified migration history, ordering column, collection-save function and
 removal of the old uniqueness constraint. Record counts remained one assignment and
-zero submissions. Production deployment is the next release step; authenticated live
-admin/member workflow acceptance remains a separate manual check.
+zero submissions. Implementation commit `cb4ef58` was pushed to `main` and its Vercel
+production deployment reached READY at `https://gap-khaki.vercel.app`. Authenticated
+live admin/member workflow acceptance remains a separate manual check.
 
 Local multi-assignment verification (2026-10-21): 56 unit/docs entries, four assignment
 suite entries, 12 program entries, five brief entries and 12 Storage entries pass.

@@ -429,7 +429,8 @@ authentication/authorization. A configured Monday board is not a P5 completion g
   consistency, Webpack build and diff checks pass.
 - [x] Apply the multi-assignment migration to hosted GAP without seeds; verify schema
   changes and unchanged assignment/submission counts (2026-10-21).
-- [~] Push and deploy multiple assignments to production; verify deployment readiness.
+- [x] Push and deploy multiple assignments to production; Vercel reported READY for
+  implementation commit `cb4ef58` (2026-10-21).
 - [ ] Verify authenticated live admin/member use of multiple assignments.
 
 - [x] Remove generic admin member-portal/profile return links; verify conditional
