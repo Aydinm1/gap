@@ -26,6 +26,7 @@ export function SubmissionWorkspace({
   enrollmentId,
   unsubmittedState,
   instructions,
+  document,
   initialAttempts,
   reviewPath,
 }: {
@@ -33,6 +34,7 @@ export function SubmissionWorkspace({
   enrollmentId: string;
   unsubmittedState: AssignmentDisplayState;
   instructions: string;
+  document?: { id: string; name: string };
   initialAttempts: readonly SubmissionAttempt[];
   reviewPath: string;
 }) {
@@ -60,6 +62,7 @@ export function SubmissionWorkspace({
         <section className="px-6 py-7 sm:px-8 sm:py-9 lg:px-10 lg:py-10" aria-labelledby="assignment-instructions-heading">
           <h3 id="assignment-instructions-heading" className="sr-only">Instructions</h3>
           <p className="max-w-3xl whitespace-pre-line text-base leading-8 text-ink-soft">{instructions}</p>
+          {document ? <a href={`/api/assignment-briefs/${document.id}/download`} className="mt-5 inline-flex min-h-11 items-center break-all text-sm font-bold text-action underline">Download assignment PDF · {document.name}</a> : null}
         </section>
 
         <aside className="border-t border-border bg-surface px-6 py-7 sm:px-8 sm:py-9 lg:border-l lg:border-t-0 lg:px-8 lg:py-10" aria-labelledby="submission-status-heading">

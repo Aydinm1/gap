@@ -23,6 +23,7 @@ type AdminWorkspaceContextValue = AdminWorkspaceState & {
   updateApprovedMember: (member: ApprovedMember) => Promise<string | undefined>;
   addApprovedMember: (input: { fullName: string; email: string; role: "member" | "admin" }) => Promise<string | undefined>;
   createCohort: (cohort: ProgramCohort) => Promise<string | undefined>;
+  updateCohortDates: (dates: { startsOn: string; endsOn: string }) => Promise<string | undefined>;
   archiveSelectedCohort: () => Promise<string | undefined>;
   setSelectedCohortState: (state: ProgramCohort["state"]) => Promise<string | undefined>;
 };
@@ -96,6 +97,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
       } catch { return "Could not create cohort. Please try again."; }
       finally { setSaving(false); }
     },
+    updateCohortDates: dates => persist('cohort_dates', { id:selectedCohortId,...dates }),
     archiveSelectedCohort: () => persist('cohort_state', { id:selectedCohortId,state:'archived' }),
     setSelectedCohortState: state => persist('cohort_state', { id:selectedCohortId,state }),
   };

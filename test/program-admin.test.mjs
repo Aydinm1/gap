@@ -11,6 +11,7 @@ import {
   requireAdmin,
   validateAdminWeek,
   validateCohort,
+  validateCohortDates,
   validateRosterMember,
 } from "../src/lib/program/admin.ts";
 import {
@@ -71,6 +72,15 @@ test("admin validation protects cohort, roster, and publishable week contracts",
   assert.match(validateRosterMember({ fullName: "Aydin Merchant", email: "aydin.merchant@ucdavis.edu" }, mockApprovedMembers) ?? "", /already/);
   assert.match(validateAdminWeek({ ...adminWeeks[2], publicationState: "published", description: "" }) ?? "", /description/);
   assert.equal(validateAdminWeek(adminWeeks[1]), undefined);
+});
+
+test("cohort date edits reject invalid calendar dates and reversed ranges", () => {
+  assert.equal(validateCohortDates({ startsOn: "2028-02-29", endsOn: "2028-03-01" }), undefined);
+  assert.equal(validateCohortDates({ startsOn: "2026-10-20", endsOn: "2026-10-20" }), undefined);
+  for (const startsOn of ["", "2026-02-29", "2026-13-01", "2026-2-01", "2026-10-20T00:00:00Z"]) {
+    assert.match(validateCohortDates({ startsOn, endsOn: "2026-12-01" }), /valid start and end/);
+  }
+  assert.match(validateCohortDates({ startsOn: "2026-12-01", endsOn: "2026-11-30" }), /End date/);
 });
 
 test("admin queue filters are mutually exclusive and select the next review", () => {

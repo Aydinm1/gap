@@ -5,6 +5,18 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added direct private PDF assignment briefs, protected downloads beside instructions,
+  and version-checked replacement. Added cohort start/end editing under Manage cohort
+  without changing assignment deadlines. Applied the new migration to hosted GAP;
+  real hosted workflow acceptance remains pending.
+
+- Diagnosed hosted Monday configuration as missing its API token.
+
+- Applied the eight existing migrations to the empty hosted GAP project without
+  demo seeds or reset. Verified RLS flags, private submissions bucket settings, and
+  preservation of the existing Auth user. Provisioned the owner-confirmed first hosted
+  admin; real admin login and hosted workflow acceptance remain pending.
+
 - Added minimal server-side OAuth callback diagnostics (SDK error code and status only)
   to investigate hosted session-exchange failures without logging credentials or URLs.
 

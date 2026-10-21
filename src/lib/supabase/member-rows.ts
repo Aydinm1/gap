@@ -15,7 +15,7 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
   }))).filter(row => row !== null);
   const cohort = cohorts.sort(compareCohorts).at(-1);
   const enrollment = enrollments.data.find(row => row.cohort_id === cohort?.id);
-  if (!cohort || !enrollment) return { cohort: undefined, enrollment: undefined, weeks: [], resources: [], assignments: [], submissions: [], catalog: [] };
+  if (!cohort || !enrollment) return { cohort: undefined, enrollment: undefined, weeks: [], resources: [], assignments: [], submissions: [], catalog: [], documents: [] };
   const [weeks, submissions, catalog] = await Promise.all([
     readPages((from, to) => db.from('program_weeks').select('*').eq('cohort_id', cohort.id).eq('published', true).order('id').range(from, to)),
     readPages((from, to) => db.from('submissions').select('*').eq('enrollment_id', enrollment.id).order('submitted_at', { ascending: false }).order('id').range(from, to)),
@@ -27,5 +27,7 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
     readPages((from, to) => db.from('resources').select('*').in('week_id', ids).order('sort_order').order('created_at').order('id').range(from, to)),
     readPages((from, to) => db.from('assignments').select('*').in('week_id', ids).order('id').range(from, to)),
   ]) : [{ data: [] }, { data: [] }];
-  return { cohort, enrollment, weeks: weeks.data, resources: resources.data, assignments: assignments.data, submissions: submissions.data, catalog: catalog.data ?? [] };
+  const assignmentIds = assignments.data.map(a => a.id);
+  const documents = assignmentIds.length ? await readPages((from, to) => db.from('assignment_documents').select('*').in('assignment_id', assignmentIds).eq('is_current', true).eq('state', 'ready').order('id').range(from, to)) : { data: [] };
+  return { cohort, enrollment, weeks: weeks.data, resources: resources.data, assignments: assignments.data, submissions: submissions.data, catalog: catalog.data ?? [], documents: documents.data };
 }

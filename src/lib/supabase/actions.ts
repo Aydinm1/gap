@@ -3,11 +3,22 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from './server';
 import { requireUser } from './auth';
 import { normalizeSubmissionUrl } from '@/lib/program/submission';
+import { validateCohortDates } from '@/lib/program/admin';
 
 export async function saveAdmin(action: string, data: Record<string, unknown>) {
   await requireUser(true);
-  if (!['review','week','enrollment','enroll','roster','cohort_create','cohort_state'].includes(action)) return { error:'Unknown operation.' };
+  if (!['review','week','enrollment','enroll','roster','cohort_create','cohort_state','cohort_dates'].includes(action)) return { error:'Unknown operation.' };
   if (!data || typeof data !== 'object' || Array.isArray(data)) return { error:'Invalid form data. Check the entered values and try again.' };
+  if (action === 'cohort_dates') {
+    if (typeof data.id !== 'string' || !/^[0-9a-f-]{36}$/i.test(data.id) || typeof data.startsOn !== 'string' || typeof data.endsOn !== 'string') return { error: 'Invalid cohort dates.' };
+    const invalid = validateCohortDates({ startsOn: data.startsOn, endsOn: data.endsOn });
+    if (invalid) return { error: invalid };
+    const db = await createClient();
+    const result = await db.rpc('update_cohort_dates', { p_id: data.id, p_starts_on: data.startsOn, p_ends_on: data.endsOn });
+    if (result.error) return { error: 'Could not save cohort dates. Your changes have been kept.' };
+    revalidatePath('/admin', 'layout'); revalidatePath('/', 'layout');
+    return { id: result.data };
+  }
   const db = await createClient();
   let payload;
   try { payload = JSON.parse(JSON.stringify(data)); }

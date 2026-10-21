@@ -105,6 +105,7 @@ export type Assignment = {
   weekNumber: number;
   title: string;
   instructions: string;
+  document?: { id: string; name: string };
   dueAt: string;
 };
 

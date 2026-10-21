@@ -24,6 +24,7 @@ export type WeekDetailViewModel = {
     id: string;
     title: string;
     instructions: string;
+    document?: { id: string; name: string };
     dueLabel: string;
     state: AssignmentDisplayState;
     unsubmittedState: AssignmentDisplayState;
@@ -93,6 +94,7 @@ export function buildWeekDetail({
       id: week.assignment.id,
       title: week.assignment.title,
       instructions: week.assignment.instructions,
+      document: week.assignment.document,
       dueLabel: formatDeadline(week.assignment.dueAt),
       state: deriveAssignmentState(week.assignment, current, now),
       unsubmittedState: deriveAssignmentState(week.assignment, undefined, now),

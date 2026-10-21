@@ -20,7 +20,8 @@
     "db:seed:demo": "docker exec -i supabase_db_gap psql -v ON_ERROR_STOP=1 --single-transaction -U postgres -d postgres < supabase/seed.sql",
     "db:clean:demo": "node scripts/clean-demo.mjs",
     "db:clean:uploads": "node scripts/cleanup-uploads.mjs",
-    "test:storage": "node --experimental-strip-types --test scripts/verify-storage.mjs"
+    "test:storage": "node --experimental-strip-types --test scripts/verify-storage.mjs",
+    "test:briefs": "node --experimental-strip-types --test scripts/verify-briefs.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

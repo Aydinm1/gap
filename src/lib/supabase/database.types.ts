@@ -165,7 +165,9 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       may_download: { Args: { p_path: string }; Returns: boolean }
+      may_download_brief: { Args: { p_path: string }; Returns: boolean }
       may_upload: { Args: { p_path: string }; Returns: boolean }
+      may_upload_brief: { Args: { p_path: string }; Returns: boolean }
       my_person_id: { Args: never; Returns: string }
     }
     Enums: {
@@ -214,6 +216,63 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: true
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assignment_documents: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          expected_id: string | null
+          expires_at: string
+          file_size: number
+          id: string
+          is_current: boolean
+          original_filename: string
+          owner_id: string
+          path: string
+          state: string
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          expected_id?: string | null
+          expires_at?: string
+          file_size: number
+          id?: string
+          is_current?: boolean
+          original_filename: string
+          owner_id: string
+          path: string
+          state?: string
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          expected_id?: string | null
+          expires_at?: string
+          file_size?: number
+          id?: string
+          is_current?: boolean
+          original_filename?: string
+          owner_id?: string
+          path?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_documents_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignment_documents_expected_id_fkey"
+            columns: ["expected_id"]
+            isOneToOne: false
+            referencedRelation: "assignment_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -591,6 +650,15 @@ export type Database = {
         Args: { p_action: string; p_data: Json }
         Returns: string
       }
+      assignment_brief: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_data?: Json
+          p_id?: string
+        }
+        Returns: Json
+      }
       cleanup_uploads: {
         Args: { p_failed?: boolean; p_id?: string; p_owner?: string }
         Returns: Json
@@ -646,6 +714,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      update_cohort_dates: {
+        Args: { p_ends_on: string; p_id: string; p_starts_on: string }
+        Returns: string
       }
       week_catalog: {
         Args: { p_cohort_id: string }

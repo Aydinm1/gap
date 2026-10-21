@@ -70,6 +70,20 @@ Use the installed documentation rather than legacy examples.
 
 ## Data access and mutations
 
+Assignment-brief preparation/finalization/cancellation lives in server-only actions;
+PDF bytes transfer directly to Storage through authenticated TUS with bounded retries
+and progress. Finalization uses the server credential to inspect the exact reserved
+object with bounded size and PDF signature checks, then a service-only transaction
+publishes the attachment. These checks are format validation, not malware scanning.
+`/api/assignment-briefs/[id]/download` resolves metadata with a user-scoped client and
+streams an authorized attachment with private/no-store/nosniff headers. Draft documents
+never appear in member DTOs. Member queries limit documents to their published
+assignment IDs; only current ID/name pairs reach rendering components.
+
+Cohort date edits pass through `saveAdmin('cohort_dates', ...)`, strict runtime calendar
+validation, and a dedicated authorized database function. Successful writes refresh
+member/admin views; failures retain the date input and existing navigation warnings.
+
 - Put server-only data access in a small `src/lib` layer and mark privileged modules with
   `server-only` where appropriate.
 - Return narrow DTOs to Client Components; never pass entire private rows unnecessarily.

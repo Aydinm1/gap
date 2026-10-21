@@ -74,6 +74,13 @@ descriptive filenames.
 
 ## Core UI patterns
 
+- **Assignment brief:** place a labeled PDF upload panel below the assignment editor.
+  Show current filename/download, selection, upload progress, retry/cancel after failure,
+  and immediate-save/publication guidance. Members get a quiet download action beside
+  instructions. Use existing controls and responsive wrapping.
+- **Cohort dates:** Members → Manage cohort shows start/end dates, Save dates, and a
+  cancel-edits action with the existing unsaved-change safeguards.
+
 - **Cohort switcher:** quiet label above a 44px trigger showing cohort, state badge,
   and chevron. A bordered disclosure groups choices by Active, Draft, Archived (newest
   first). Use native buttons with Tab/Enter/Space, selected-state semantics, Escape with

@@ -421,6 +421,19 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 
 ### Responsive and usability work
 
+- [x] Add private direct PDF assignment briefs and editable cohort dates. Local
+  Storage/RLS, concurrent replacements, invalid PDFs, expiry, role revocation,
+  protected downloads, and desktop/phone upload/date-edit reload flows pass.
+  52 unit/documentation tests, five brief-suite entries, lint, typecheck, generated
+  types and Webpack build pass. Program regressions: 11 pass, one optional browser
+  entry skipped (new-feature desktop/phone checks ran separately).
+- [x] Apply the assignment-brief/date-edit migration to hosted GAP; verify private
+  PDF-only 20 MB bucket, document RLS, and authorized date-edit function.
+- [ ] Verify deployed assignment PDF upload/download and cohort date edits using real
+  admin/member sessions. Add operational cleanup for expired/abandoned briefs.
+
+- [ ] Add missing Production `MONDAY_API_TOKEN`, redeploy, and verify hosted preview.
+
 - [x] Replace the native cohort select with a grouped, badge-labeled cohort switcher
   using existing navigation and unsaved-change safeguards.
 - [ ] Browser-verify cohort switcher phone layout, keyboard dismissal, grouping, and
@@ -463,6 +476,13 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 - [ ] Verify migrations and seed data against a clean Supabase project or documented test
   environment.
 - [ ] Configure Vercel environment variables and production deployment.
+- [x] Apply all eight migrations to the verified empty hosted GAP project without
+  seeds/reset; verify migration history, RLS flags, private bucket settings, and
+  preservation of its existing Auth user (2026-10-20 Pacific).
+- [x] Provision the explicitly confirmed first hosted admin after checking its verified
+  Google identity; create only person and active admin roster entries transactionally.
+- [ ] Verify the first hosted admin's real login/profile synchronization; run hosted
+  member/admin and private-file smoke tests before declaring production acceptance.
 - [ ] Resume [deferred Vercel environment-variable cleanup](docs/operations.md#vercel-environment-variable-cleanup--deferred):
   verify exact hosted variable names/values, review unused aliases, verify hosted
   prerequisites, then redeploy and test authorized access. No configuration changes

@@ -44,6 +44,29 @@ integration aliases. Never commit `.env.local` or a privileged Supabase key. See
 
 ## Supabase project configuration — Pending
 
+Hosted schema checkpoint (2026-10-20 Pacific): verified project
+`zyriqqhtgijvpecceosy` (GAP) had zero application tables/buckets and one Auth user.
+Applied all eight repository migrations through `202609220003` using the pinned CLI:
+
+```bash
+./node_modules/.bin/supabase db push --project-ref zyriqqhtgijvpecceosy --dry-run --skip-vault
+./node_modules/.bin/supabase db push --project-ref zyriqqhtgijvpecceosy --skip-vault --yes
+```
+
+No reset, demo seeds, Vault updates, or local data transfer were performed. Verified
+eight migration-history entries, the existing Auth user retained, zero people/roster/
+cohort records, no application tables without RLS, and `sync_profile()` present.
+The `submissions` bucket is private with a 20,971,520-byte limit and four allowed MIME
+types. First-admin provisioning and hosted member/admin/Storage behavior tests remain
+pending; schema checks alone are not full production acceptance.
+
+First-admin bootstrap follow-up: after explicit owner confirmation, verified the
+exact hosted account had confirmed email and a Google identity, then created its
+person and active `admin` roster entry together in one transaction. No cohort,
+enrollment, Auth metadata role, or profile was manually created. The next real login
+must synchronize the profile and verify admin access; that browser check remains
+pending. Keep real bootstrap identities out of committed seeds and SQL scripts.
+
 - Apply schema, functions, indexes, grants, and RLS migrations.
 - Use demo seeds only in a disposable local development database, never production.
 - Create a private `submissions` bucket with the documented size and MIME restrictions.
@@ -322,6 +345,40 @@ Deployment and a real failing-attempt log remain pending verification.
 
 ## Vercel deployment — Pending
 
+### Assignment briefs and cohort date editing
+
+Migration `202610210001_assignment_briefs_and_cohort_dates.sql` adds the private PDF
+bucket, metadata/RLS/Storage rules, authorized upload lifecycle and date-edit function.
+Apply locally with `./node_modules/.bin/supabase migration up --local`; hosted
+application of this new migration was verified on GAP (2026-10-20 Pacific); UI
+deployment follows this checkpoint. Existing
+`SUPABASE_SECRET_KEY` must belong to the same hosted project as the public URL/key.
+
+After deployment: edit cohort dates from Members → Manage cohort. For a PDF, save the
+week's assignment first, select a file under Assignment PDF, and upload. The attachment
+saves immediately. Verify admin download and enrolled-member download after publication.
+Keep text instructions/deadline filled. PDFs are up to 20 MB; after reload reselect any
+unfinished file. Cancel after an interrupted upload to abandon/delete its pending object.
+One-hour expiry revokes upload/finalization authority but does not itself delete bytes.
+Scheduled cleanup for abandoned briefs and malware scanning remain follow-up work;
+never delete ready/current or superseded document objects as unfinished uploads.
+
+Run `npm run test:briefs` against local Supabase for isolated Storage/database checks.
+With a local production server, `GAP_TEST_APP_URL=http://localhost:3004 npm run test:briefs`
+also exercises desktop/phone upload, persistence and downloads using disposable accounts.
+
+Local validation completed: five brief-suite entries pass, including invalid PDF
+rejection/cancel/retry, 1280px/390px transfer and protected download, inactive/anonymous
+download rejection, date-edit persistence, concurrent replacements and expiry. 52 unit/
+documentation tests, lint, typecheck, generated-type consistency, and Webpack build pass.
+Program regressions: 11 passed and the optional full-story browser entry was skipped;
+the brief/date browser checks ran separately. Fixture records/objects are cleaned using
+their exact generated assignment/cohort IDs. Hosted migration was applied after a dry run;
+verified the private PDF-only 20 MB bucket, document RLS and date-edit function. No seed,
+reset, or real participant changes were performed. Live upload/date-edit acceptance is
+pending. Vercel redacts sensitive key values from environment reads, so a metadata read
+alone cannot verify `SUPABASE_SECRET_KEY`; verify it through the authenticated upload flow.
+
 1. Connect the repository to Vercel.
 2. Add all public environment values separately for Development, Preview, and Production
    as appropriate.
@@ -330,6 +387,12 @@ Deployment and a real failing-attempt log remain pending verification.
 5. Verify private files cannot be opened without authorization.
 
 ## Vercel environment-variable cleanup — deferred
+
+Production Monday check (2026-10-20 Pacific): account, legacy board alias, and all
+required column settings are populated, but `MONDAY_API_TOKEN` is absent. Add the
+server-only token to Vercel Production and redeploy before retrying import. The
+legacy `MONDAY_APPLICANTS_BOARD_ID` remains supported; missing the preferred board
+name alone is not an error. No Monday connection or import is verified by this check.
 
 **Checkpoint (2026-09-22):** The user reports adding variables and connecting the
 Supabase integration in Vercel. Hosted values, configuration and deployment have not

@@ -57,6 +57,7 @@ export default async function WeekDetailPage({ params }: WeekPageProps) {
                     enrollmentId={detail.enrollmentId}
                     unsubmittedState={detail.assignment.unsubmittedState}
                     instructions={detail.assignment.instructions}
+                    document={detail.assignment.document}
                     initialAttempts={detail.assignment.attempts}
                     reviewPath={`/week/${detail.week.weekNumber}/submission`}
                   />

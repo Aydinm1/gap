@@ -1,16 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
 import { calculateCohortMetrics } from "@/lib/program/cohorts";
-import { validateCohort, validateRosterMember } from "@/lib/program/admin";
-import type { ApprovedMember, AppRole, CohortEnrollment, ProgramQuarter } from "@/lib/program/types";
+import { validateCohort, validateCohortDates, validateRosterMember } from "@/lib/program/admin";
+import type { ApprovedMember, AppRole, CohortEnrollment, ProgramCohort, ProgramQuarter } from "@/lib/program/types";
 import { formatCohortLabel } from "@/lib/program/state";
 import { useAdminWorkspace } from "./admin-workspace";
 
 const control = "min-h-11 rounded-lg border border-border-strong bg-surface px-3 text-sm text-ink";
+
+function CohortDates({ cohort, onDirtyChange }: { cohort: ProgramCohort; onDirtyChange: (dirty: boolean) => void }) {
+  const { updateCohortDates, setUnsavedChanges } = useAdminWorkspace();
+  const [dates, setDates] = useState({ startsOn: cohort.startsOn, endsOn: cohort.endsOn });
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const dirty = dates.startsOn !== cohort.startsOn || dates.endsOn !== cohort.endsOn;
+  useEffect(() => {
+    setUnsavedChanges(dirty);
+    onDirtyChange(dirty);
+    function beforeUnload(event: BeforeUnloadEvent) {
+      if (dirty) event.preventDefault();
+    }
+    window.addEventListener("beforeunload", beforeUnload);
+    return () => {
+      setUnsavedChanges(false);
+      onDirtyChange(false);
+      window.removeEventListener("beforeunload", beforeUnload);
+    };
+  }, [dirty, setUnsavedChanges, onDirtyChange]);
+
+  async function save() {
+    const error = validateCohortDates(dates);
+    if (error) return setMessage(error);
+    setSaving(true);
+    try {
+      const saveError = await updateCohortDates(dates);
+      setMessage(saveError ?? "Cohort dates saved.");
+      if (!saveError) setUnsavedChanges(false);
+    } finally { setSaving(false); }
+  }
+  return <section aria-label="Cohort dates">
+    <h2 className="font-bold">Cohort dates</h2>
+    <p className="mt-2 text-sm text-ink-soft">Update the program dates. Assignment deadlines stay as set in each week.</p>
+    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <label className="text-sm font-bold">Start date<input type="date" required className={`mt-2 w-full ${control}`} value={dates.startsOn} onChange={event => { setDates({ ...dates, startsOn: event.target.value }); setMessage(""); }} /></label>
+      <label className="text-sm font-bold">End date<input type="date" required min={dates.startsOn} className={`mt-2 w-full ${control}`} value={dates.endsOn} onChange={event => { setDates({ ...dates, endsOn: event.target.value }); setMessage(""); }} /></label>
+    </div>
+    <div className="mt-4 flex flex-wrap gap-3">
+      <Button size="compact" disabled={!dirty || saving} onClick={save}>{saving ? "Saving dates…" : "Save dates"}</Button>
+      {dirty ? <Button size="compact" variant="secondary" disabled={saving} onClick={() => { setDates({ startsOn: cohort.startsOn, endsOn: cohort.endsOn }); setMessage(""); }}>Cancel changes</Button> : null}
+    </div>
+    {message ? <p className={`mt-3 text-sm font-bold ${message === "Cohort dates saved." ? "text-success-text" : "text-danger-text"}`} role="status">{message}</p> : null}
+  </section>;
+}
 
 function ParticipantRow({ enrollment, name, email, announce }: { enrollment: CohortEnrollment; name?: string; email?: string; announce: (value: string) => void }) {
   const workspace = useAdminWorkspace();
@@ -33,6 +78,7 @@ function RosterRow({ member, announce }: { member: ApprovedMember; announce: (va
 
 export function AdminMembers() {
   const workspace = useAdminWorkspace();
+  const [dateDirty, setDateDirty] = useState(false);
   const [view, setView] = useState<"participants" | "access">("participants"); const [message, setMessage] = useState(""); const [search, setSearch] = useState(""); const [showAdd, setShowAdd] = useState(false); const [showCohorts, setShowCohorts] = useState(false); const [newPersonId, setNewPersonId] = useState("");
   const [rosterForm, setRosterForm] = useState({ fullName: "", email: "", role: "member" as AppRole }); const [cohortForm, setCohortForm] = useState({ quarter: "winter" as ProgramQuarter, year: 2027, startsOn: "2027-01-04", endsOn: "2027-03-19" });
   const cohort = workspace.cohorts.find((item) => item.id === workspace.selectedCohortId); const enrollments = workspace.enrollments.filter((item) => item.cohortId === workspace.selectedCohortId); const enrolledIds = new Set(enrollments.map((item) => item.personId)); const eligible = workspace.people.filter((person) => !enrolledIds.has(person.id)); const metrics = calculateCohortMetrics(enrollments); const query = search.trim().toLowerCase();
@@ -40,7 +86,9 @@ export function AdminMembers() {
   async function createCohort() { const error = validateCohort(cohortForm, workspace.cohorts); if (error) return setMessage(error); const saveError = await workspace.createCohort({ id: crypto.randomUUID(), ...cohortForm, state: "draft" }); if (saveError) return setMessage(saveError); setMessage(`${formatCohortLabel(cohortForm)} created with six draft weeks.`); }
   async function addRoster() { const error = validateRosterMember(rosterForm, workspace.approvedMembers); if (error) return setMessage(error); const saveError = await workspace.addApprovedMember(rosterForm); if (saveError) return setMessage(saveError); setRosterForm({ fullName: "", email: "", role: "member" }); setShowAdd(false); setMessage("Roster member added."); }
   const success = /saved|added|created|updated/.test(message.toLowerCase());
-  return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">People and access</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">Members</h1><p className="mt-3 max-w-3xl text-base leading-7 text-ink-soft">Manage cohort participation separately from permission to enter the portal.</p></div><Button variant="secondary" onClick={() => setShowCohorts((value) => !value)}>Manage cohort</Button></div>
+  const cohortDateEditor = showCohorts && cohort ? <Card className="mt-5 p-6"><CohortDates key={cohort.id} cohort={cohort} onDirtyChange={setDateDirty} /></Card> : null;
+  return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">People and access</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">Members</h1><p className="mt-3 max-w-3xl text-base leading-7 text-ink-soft">Manage cohort participation separately from permission to enter the portal.</p></div><Button variant="secondary" onClick={() => { if (showCohorts && dateDirty && !window.confirm("Close cohort settings? Any unsaved date changes will be discarded.")) return; setShowCohorts((value) => !value); }}>Manage cohort</Button></div>
+    {cohortDateEditor}
     {showCohorts ? <Card className="mt-6 p-6"><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="font-bold">{cohort ? formatCohortLabel(cohort) : "Selected cohort"}</p><p className="mt-1 text-sm capitalize text-ink-soft">{cohort?.state}</p></div><div className="flex flex-wrap gap-2">{cohort?.state === "draft" ? <Button size="compact" onClick={async () => { const error = await workspace.setSelectedCohortState("active"); setMessage(error ?? "Cohort activated."); }}>Activate</Button> : null}{cohort?.state === "active" ? <Button size="compact" variant="danger" onClick={async () => { if (!window.confirm("Archive this cohort? Members will lose access to its active program.")) return; const error = await workspace.setSelectedCohortState("archived"); setMessage(error ?? "Cohort archived."); }}>Archive</Button> : null}</div></div><details className="mt-5 border-t border-border pt-5"><summary className="cursor-pointer font-bold">Create another cohort</summary><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><label className="text-sm font-bold">Quarter<select className={`mt-2 w-full ${control}`} value={cohortForm.quarter} onChange={(event) => setCohortForm({ ...cohortForm, quarter: event.target.value as ProgramQuarter })}>{["winter", "spring", "fall"].map((value) => <option key={value}>{value}</option>)}</select></label><label className="text-sm font-bold">Year<input className={`mt-2 w-full ${control}`} type="number" value={cohortForm.year} onChange={(event) => setCohortForm({ ...cohortForm, year: Number(event.target.value) })} /></label><label className="text-sm font-bold">Starts<input className={`mt-2 w-full ${control}`} type="date" value={cohortForm.startsOn} onChange={(event) => setCohortForm({ ...cohortForm, startsOn: event.target.value })} /></label><label className="text-sm font-bold">Ends<input className={`mt-2 w-full ${control}`} type="date" value={cohortForm.endsOn} onChange={(event) => setCohortForm({ ...cohortForm, endsOn: event.target.value })} /></label></div><Button className="mt-5" onClick={createCohort}>Create cohort</Button></details></Card> : null}
     <div className="mt-8 flex gap-2 border-b border-border">{(["participants", "access"] as const).map((item) => <button key={item} onClick={() => { setView(item); setMessage(""); setShowAdd(false); }} className={`min-h-11 border-b-2 px-4 text-sm font-bold ${view === item ? "border-action text-action" : "border-transparent text-ink-soft"}`}>{item === "participants" ? "Cohort participants" : "Portal access"}</button>)}</div>{message ? <p className={`mt-5 text-sm font-bold ${success ? "text-success-text" : "text-danger-text"}`} role="status">{message}</p> : null}
     <section className="mt-8"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-2xl font-bold">{view === "participants" ? "Cohort participants" : "Portal access"}</h2><p className="mt-2 text-sm text-ink-soft">{view === "participants" ? "Permanent participation and advancement outcomes." : "Approved identities, roles, and portal availability."}</p></div><Button onClick={() => setShowAdd((value) => !value)}>{showAdd ? "Close" : view === "participants" ? "Add participant" : "Add roster member"}</Button></div>

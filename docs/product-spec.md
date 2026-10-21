@@ -67,6 +67,18 @@ Submitted and completed work still both count toward progress.
 
 ### Week detail
 
+Admins may attach one current PDF assignment brief (up to 20 MB) directly in the week
+editor after saving its assignment. Uploading saves the attachment immediately,
+independently of text edits; replacing a published brief updates what members download.
+Members download the current brief beside the instructions only when the week is
+published and their active cohort enrollment grants access. Draft briefs stay private.
+The text instructions and submission deadline remain required. Briefs are separate from
+member submissions and do not affect review/completion state.
+
+On Members → Manage cohort, admins may edit start/end dates after creation. Dates must
+be valid calendar dates with end on or after start. Changing these dates does not change
+the cohort's quarter/year, participation history, or assignment deadlines.
+
 A published week provides:
 
 - number, title, and description;

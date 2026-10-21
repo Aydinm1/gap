@@ -51,8 +51,19 @@ export function isWebUrl(value: string) {
 
 export function validateCohort(input: Pick<ProgramCohort, "quarter" | "year" | "startsOn" | "endsOn">, cohorts: readonly ProgramCohort[]) {
   if (!Number.isInteger(input.year) || input.year < 2020 || input.year > 2100) return "Enter a valid cohort year.";
-  if (!input.startsOn || !input.endsOn || input.endsOn < input.startsOn) return "End date must be on or after the start date.";
+  const dateError = validateCohortDates(input);
+  if (dateError) return dateError;
   if (cohorts.some((cohort) => cohort.quarter === input.quarter && cohort.year === input.year)) return "That cohort already exists.";
+}
+
+export function validateCohortDates(input: { startsOn: string; endsOn: string }) {
+  const validDate = (value: string) => {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  };
+  if (!validDate(input.startsOn) || !validDate(input.endsOn)) return "Enter valid start and end dates.";
+  if (input.endsOn < input.startsOn) return "End date must be on or after the start date.";
 }
 
 export function validateRosterMember(input: Pick<ApprovedMember, "email" | "fullName">, members: readonly ApprovedMember[], excludeId?: string) {
