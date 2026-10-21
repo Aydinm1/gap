@@ -1,7 +1,7 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-08-12
+**Last updated:** 2026-10-21
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
@@ -73,6 +73,13 @@ descriptive filenames.
   when nearby text repeats the complete name.
 
 ## Core UI patterns
+
+- **Multiple assignments:** the week editor has an “Assignments” section and one
+  repeated assignment card per item, with its own title, instructions, Pacific deadline
+  and PDF panel. Keep a visible Add assignment action and the common week save bar.
+  Members see one instruction/submission workspace per assignment, followed by shared
+  materials. Module rows show approved counts such as “1 of 3 assignments complete.”
+  Queue dropdown labels include week number and assignment title.
 
 - **Admin member preview:** expose “Preview as member” beside the cohort switcher.
 - **Admin navigation:** “Preview as member” is the default program-facing action.

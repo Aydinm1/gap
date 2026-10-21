@@ -283,6 +283,7 @@ export type Database = {
           due_at: string
           id: string
           instructions: string
+          sort_order: number
           title: string
           updated_at: string
           week_id: string
@@ -292,6 +293,7 @@ export type Database = {
           due_at: string
           id?: string
           instructions: string
+          sort_order?: number
           title: string
           updated_at?: string
           week_id: string
@@ -301,6 +303,7 @@ export type Database = {
           due_at?: string
           id?: string
           instructions?: string
+          sort_order?: number
           title?: string
           updated_at?: string
           week_id?: string
@@ -309,7 +312,7 @@ export type Database = {
           {
             foreignKeyName: "assignments_week_id_fkey"
             columns: ["week_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "program_weeks"
             referencedColumns: ["id"]
           },
@@ -688,6 +691,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      save_program_week: { Args: { p_data: Json }; Returns: string }
       submit_link: {
         Args: {
           p_assignment_id: string

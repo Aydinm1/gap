@@ -275,7 +275,7 @@ test('private Storage lifecycle using isolated local accounts',async t=>{
             }
             return route.continue();
           };
-          await page.route('**/week/1/submission',intercept);
+          await page.route('**/week/1/submission*',intercept);
           await page.getByRole('button',{name:'Replace submission',exact:true}).click();
           await page.locator('p[role="alert"]').waitFor(); assert.ok(failedSave,await page.locator('p[role="alert"]').innerText());
           assert.equal((await current(learner)).submission_type,'link');
@@ -285,7 +285,7 @@ test('private Storage lifecycle using isolated local accounts',async t=>{
           await page.getByRole('button',{name:'Replace submission',exact:true}).click();
           await page.getByRole('link',{name:'Download file',exact:true}).waitFor();
           assert.equal((await current(learner)).id,receipt.id); paths.push(receipt.file_path);
-          await page.unroute('**/week/1/submission',intercept);
+          await page.unroute('**/week/1/submission*',intercept);
           if(width===1280) {
             async function replay(jar) {
               const response=await fetch(`${process.env.GAP_TEST_APP_URL}/week/1/submission`,{method:'POST',headers:{

@@ -6,7 +6,7 @@ import type {
   ProgramWeek,
   SubmissionAttempt,
 } from "./types.ts";
-import { isPublishedWeek } from "./types.ts";
+import { assignmentsForWeek, isPublishedWeek } from "./types.ts";
 import {
   countCompletedModules,
   deriveAssignmentState,
@@ -29,6 +29,8 @@ export type DashboardModule = {
   state: ModulePresentationState;
   href?: string;
   assignmentState?: AssignmentDisplayState;
+  completedAssignments?: number;
+  totalAssignments?: number;
 };
 
 export type ProgramDashboardViewModel = {
@@ -103,11 +105,11 @@ export function buildProgramDashboard({
         };
       }
 
-      const submission = week.assignment
-        ? submissionsByAssignment.get(week.assignment.id)
-        : undefined;
-      const complete =
-        submission?.status === "submitted" || submission?.status === "completed";
+      const assignments = assignmentsForWeek(week);
+      const completedAssignments = assignments.filter((item) => submissionsByAssignment.get(item.id)?.status === "completed").length;
+      const complete = assignments.length > 0 && completedAssignments === assignments.length;
+      const states = assignments.map((item) => deriveAssignmentState(item, submissionsByAssignment.get(item.id), now));
+      const assignmentState = complete ? "completed" : (["revision_requested", "overdue", "due_soon", "upcoming", "submitted"] as const).find((state) => states.includes(state));
 
       return {
         id: week.id,
@@ -119,9 +121,9 @@ export function buildProgramDashboard({
             ? "current"
             : "available",
         href: `/week/${week.weekNumber}`,
-        assignmentState: week.assignment
-          ? deriveAssignmentState(week.assignment, submission, now)
-          : undefined,
+        assignmentState,
+        completedAssignments,
+        totalAssignments: assignments.length,
       };
     });
 
@@ -129,7 +131,7 @@ export function buildProgramDashboard({
     user,
     term: formatCohortLabel(cohort),
     currentWeekNumber: currentWeek?.weekNumber,
-    completedModules: countCompletedModules(currentSubmissions),
+    completedModules: countCompletedModules(currentSubmissions, cohortWeeks),
     totalModules: cohortWeeks.length,
     continueLearning: currentWeek
       ? {
@@ -143,7 +145,7 @@ export function buildProgramDashboard({
       ? {
           weekNumber: priorityAssignment.weekNumber,
           actionLabel: prioritySubmission?.status === "revision_requested" ? "View feedback" : prioritySubmission ? "View submission" : "View assignment",
-          actionHref: prioritySubmission ? `/week/${priorityAssignment.weekNumber}/submission` : `/week/${priorityAssignment.weekNumber}#assignment`,
+          actionHref: prioritySubmission ? `/week/${priorityAssignment.weekNumber}/submission?assignment=${encodeURIComponent(priorityAssignment.id)}` : `/week/${priorityAssignment.weekNumber}#assignment-${priorityAssignment.id}`,
           title: priorityAssignment.title,
           dueLabel: formatDeadline(priorityAssignment.dueAt),
           state: deriveAssignmentState(

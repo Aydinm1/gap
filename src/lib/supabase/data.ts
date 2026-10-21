@@ -18,7 +18,7 @@ export const readWorkspace = cache(async (admin = true) => {
     readPages((from, to) => db.from('cohort_enrollments').select('*').order('id').range(from, to)),
     readPages((from, to) => db.from('program_weeks').select('*').order('id').range(from, to)),
     readPages((from, to) => db.from('resources').select('*').order('sort_order').order('created_at').order('id').range(from, to)),
-    readPages((from, to) => db.from('assignments').select('*').order('id').range(from, to)),
+    readPages((from, to) => db.from('assignments').select('*').order('sort_order').order('id').range(from, to)),
     readPages((from, to) => db.from('submissions').select('*').order('submitted_at', { ascending: false }).order('id').range(from, to)),
     readPages((from, to) => db.from('assignment_documents').select('*').eq('is_current', true).eq('state', 'ready').order('id').range(from, to)),
   ]);
@@ -28,11 +28,13 @@ export const readWorkspace = cache(async (admin = true) => {
     cohorts: (cohorts.data ?? []).map(r => ({ id:r.id,quarter:r.quarter,year:r.year,startsOn:r.starts_on,endsOn:r.ends_on,state:r.state })),
     enrollments: (enrollments.data ?? []).map(r => ({ id:r.id,cohortId:r.cohort_id,personId:r.person_id,participationStatus:r.participation_status,advancementStatus:r.advancement_status,...(r.promotion_response ? { promotionResponse:r.promotion_response } : {}) }) as CohortEnrollment),
     weeks: (weeks.data ?? []).map((r): AdminWeek => {
-      const a = assignments.data?.find(a => a.week_id === r.id);
-      const document = documents.data.find(d => d.assignment_id === a?.id);
+      const weekAssignments = assignments.data.filter(a => a.week_id === r.id).map(a => {
+        const document = documents.data.find(d => d.assignment_id === a.id);
+        return { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
+      });
       return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:r.title,description:r.description,publicationState:r.published?'published':'draft',slidesUrl:r.slides_url ?? undefined,
         resources:(resources.data ?? []).filter(a => a.week_id === r.id).map(a => ({ id:a.id,title:a.title,description:a.description ?? undefined,type:a.resource_type as Resource['type'],url:a.url,sortOrder:a.sort_order })),
-        assignment:a ? { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined } : undefined };
+        assignments:weekAssignments };
     }),
     submissions:(submissions.data ?? []).map((r): SubmissionAttempt => ({ id:r.id,assignmentId:r.assignment_id,enrollmentId:r.enrollment_id,status:r.status,submittedAt:r.submitted_at,updatedAt:r.updated_at,isCurrent:r.is_current,feedback:r.feedback ?? undefined,reviewedAt:r.reviewed_at ?? undefined,reviewedByUserId:r.reviewed_by ?? undefined,supersedesSubmissionId:r.supersedes_submission_id ?? undefined,
       payload:r.submission_type==='link' ? { type:'link',submittedUrl:r.submitted_url! } : { type:'file',filePath:r.file_path!,originalFilename:r.original_filename! } })),
@@ -49,11 +51,13 @@ export const readMember = cache(async () => {
   const enrollment: CohortEnrollment | undefined = e ? { id:e.id,cohortId:e.cohort_id,personId:e.person_id,participationStatus:e.participation_status,advancementStatus:e.advancement_status,...(e.promotion_response ? { promotionResponse:e.promotion_response } : {}) } as CohortEnrollment : undefined;
   const weeks: ProgramWeek[] = rows.catalog.map(r => {
     const full = rows.weeks.find(w => w.id===r.id);
-    const assignment = rows.assignments.find(a => a.week_id===r.id);
-    const document = rows.documents.find(d => d.assignment_id === assignment?.id);
+    const assignments = rows.assignments.filter(a => a.week_id===r.id).map(a => {
+      const document = rows.documents.find(d => d.assignment_id === a.id);
+      return { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
+    });
     if (r.published && full) return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:full.title,description:full.description,publicationState:'published',slidesUrl:full.slides_url ?? undefined,
       resources:rows.resources.filter(a => a.week_id===r.id).map(a => ({ id:a.id,title:a.title,description:a.description ?? undefined,type:a.resource_type as Resource['type'],url:a.url,sortOrder:a.sort_order })),
-      assignment:assignment ? { id:assignment.id,weekNumber:r.week_number,title:assignment.title,instructions:assignment.instructions,dueAt:assignment.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined } : undefined };
+      assignments };
     return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:r.title,publicationState:'draft' };
   });
   const submissions: SubmissionAttempt[] = rows.submissions.map(r => ({ id:r.id,assignmentId:r.assignment_id,enrollmentId:r.enrollment_id,status:r.status,submittedAt:r.submitted_at,updatedAt:r.updated_at,isCurrent:r.is_current,feedback:r.feedback ?? undefined,reviewedAt:r.reviewed_at ?? undefined,reviewedByUserId:r.reviewed_by ?? undefined,supersedesSubmissionId:r.supersedes_submission_id ?? undefined,

@@ -102,3 +102,20 @@ test("Pacific wall-clock deadlines reject gaps and disambiguate repeated times",
   assert.notEqual(daylight, standard);
   assert.equal(formatPacificDateTimeInput(daylight), "2026-11-01T01:30");
 });
+
+test("admin queues isolate two assignments in one week and reject unknown selections", () => {
+  const first = adminWeeks[1].assignment;
+  const second = { ...first, id: "second-assignment", title: "Independent exercise" };
+  const week = { ...adminWeeks[1], assignments: [first, second] };
+  const enrollment = mockEnrollments.find((item) => item.cohortId === week.cohortId && item.participationStatus === "enrolled");
+  const submission = { ...mockAdminSubmissions[0], id: "second-submission", assignmentId: second.id, enrollmentId: enrollment.id, isCurrent: true };
+  const state = { people: Object.values(mockPeople), approvedMembers: mockApprovedMembers, cohorts: Object.values(mockCohorts), enrollments: mockEnrollments, weeks: [week], submissions: [...mockAdminSubmissions, submission] };
+  const select = (assignmentId) => getSubmissionRows({ state, cohortId: week.cohortId, weekId: week.id, assignmentId, now: MOCK_NOW });
+  assert.ok(select(first.id).every((row) => row.assignment.id === first.id && row.submission?.id !== submission.id));
+  assert.equal(select(second.id).find((row) => row.enrollment.id === enrollment.id).submission.id, submission.id);
+  assert.deepEqual(select("outside-this-week"), []);
+  assert.equal(getCurrentAdminWeek([{ ...week, assignment: undefined }]).id, week.id);
+  assert.match(validateAdminWeek({ ...week, assignments: [first, { ...second, instructions: "" }] }), /every assignment/);
+  assert.match(validateAdminWeek({ ...week, assignments: [first, first] }), /unique/);
+  assert.equal(validateAdminWeek({ ...week, assignment: first, assignments: [] }), undefined);
+});

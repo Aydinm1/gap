@@ -10,6 +10,7 @@ import type {
   WeekPublicationState,
 } from "./types.ts";
 import { deriveAssignmentState } from "./state.ts";
+import { assignmentsForWeek } from "./types.ts";
 
 export type AdminWeek = {
   id: string;
@@ -20,6 +21,7 @@ export type AdminWeek = {
   slidesUrl?: string;
   publicationState: WeekPublicationState;
   resources: readonly Resource[];
+  assignments?: readonly Assignment[];
   assignment?: Assignment;
 };
 
@@ -78,10 +80,12 @@ export function validateAdminWeek(week: AdminWeek, options: { forPublish?: boole
   if (forPublish && !week.title.trim()) return "Enter a week title before publishing.";
   if (forPublish && !week.description.trim()) return "Add a description before publishing.";
   if (week.slidesUrl && !isWebUrl(week.slidesUrl)) return "Enter a valid presentation URL.";
-  if (week.assignment) {
-    if (forPublish && (!week.assignment.title.trim() || !week.assignment.instructions.trim())) return "Complete the assignment title and instructions before publishing.";
-    if (week.assignment.dueAt && Number.isNaN(new Date(week.assignment.dueAt).getTime())) return "Enter a valid assignment deadline.";
-    if (forPublish && !week.assignment.dueAt) return "Enter an assignment deadline before publishing.";
+  const assignments = assignmentsForWeek(week);
+  if (new Set(assignments.map((assignment) => assignment.id)).size !== assignments.length) return "Each assignment must have a unique identifier.";
+  for (const assignment of assignments) {
+    if (forPublish && (!assignment.title.trim() || !assignment.instructions.trim())) return "Complete every assignment title and instructions before publishing.";
+    if (assignment.dueAt && Number.isNaN(new Date(assignment.dueAt).getTime())) return "Enter a valid assignment deadline.";
+    if (forPublish && !assignment.dueAt) return "Enter every assignment deadline before publishing.";
   }
   if (week.resources.some((resource) => !resource.title.trim() || !isWebUrl(resource.url))) return "Every resource needs a title and valid URL.";
 }
@@ -151,20 +155,23 @@ export function pacificWallTimeToUtc(value: string, zone?: "PDT" | "PST") {
 
 export function getCurrentAdminWeek(weeks: readonly AdminWeek[]) {
   return weeks
-    .filter((week) => week.publicationState === "published" && week.assignment)
+    .filter((week) => week.publicationState === "published" && assignmentsForWeek(week).length)
     .toSorted((left, right) => right.weekNumber - left.weekNumber)[0];
 }
 
-export function getSubmissionRows({ state, cohortId, weekId, now }: { state: AdminWorkspaceState; cohortId: string; weekId: string; now: Date }) {
+export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now }: { state: AdminWorkspaceState; cohortId: string; weekId: string; assignmentId?: string; now: Date }) {
   const week = state.weeks.find((item) => item.id === weekId && item.cohortId === cohortId);
   const enrollments = state.enrollments.filter((item) => item.cohortId === cohortId && item.participationStatus === "enrolled");
-  if (!week?.assignment) return [];
-  const assignment = week.assignment;
+  if (!week) return [];
+  const assignments = assignmentsForWeek(week);
+  const assignment = assignmentId ? assignments.find((item) => item.id === assignmentId) : assignments[0];
+  if (!assignment) return [];
   return enrollments.map((enrollment) => {
     const person = state.people.find((item) => item.id === enrollment.personId);
     const submission = state.submissions.find((item) => item.assignmentId === assignment.id && item.enrollmentId === enrollment.id && item.isCurrent);
     return {
       enrollment,
+      assignment,
       person,
       submission,
       state: deriveAssignmentState(assignment, submission, now),

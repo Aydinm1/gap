@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-21
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -77,6 +77,17 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 7. Database and Storage RLS enforce the same policy independently.
 
 ## Data access and mutations
+
+Runtime weeks expose `assignments` arrays ordered by database `sort_order,id`.
+`assignmentsForWeek` accepts a legacy single field only for existing fixtures and
+development examples; live reads populate the collection. Week detail and preview
+render independent workspaces keyed by assignment ID. Review links use
+`/week/[weekNumber]/submission?assignment=<id>`; a missing selector keeps the historical
+first-assignment link behavior, and an unknown/cross-week selector is not found.
+Admin queue links retain both week and assignment selection. State selectors count a
+week once, only when every current assignment is approved; sibling submission/feedback
+history never merges. Full week saves call the authorized transactional collection
+operation through the existing server action interface.
 
 Assignment-brief preparation/finalization/cancellation lives in server-only actions;
 PDF bytes transfer directly to Storage through authenticated TUS with bounded retries

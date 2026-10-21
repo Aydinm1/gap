@@ -67,7 +67,7 @@ test("completion and actionable selectors follow the product rules", () => {
       .map((attempt) => [attempt.assignmentId, attempt]),
   );
 
-  assert.equal(countCompletedModules(mockSubmissions), 1);
+  assert.equal(countCompletedModules(mockSubmissions, mockWeeks), 1);
   assert.equal(findCurrentActionableWeek(mockWeeks, currentByAssignment)?.weekNumber, 2);
   assert.equal(
     findNearestActionableAssignment(mockWeeks, currentByAssignment)?.id,

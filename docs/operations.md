@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-21
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -344,6 +344,40 @@ Deployment and a real failing-attempt log remain pending verification.
 - Test sign-in, denied roster access, sign-out, and expired-session refresh.
 
 ## Vercel deployment — Pending
+
+### Multiple assignments per week
+
+Apply `202610210002_multiple_week_assignments.sql` before deploying collection-aware
+pages. This removes only the single-week uniqueness constraint and adds ordering and
+an authorized transactional week save; it preserves existing assignment IDs and work.
+Do not reset or seed the hosted database. Existing single-assignment clients remain
+compatible for single-item weeks, but must reload before saving a multi-item week.
+
+In Weeks, use Add assignment for each required deliverable. Set each title, instructions
+and Pacific deadline; save, then attach its own PDF. Select the exact assignment in the
+review queue. All assignments must be approved for weekly completion. Adding a new
+assignment to a published week changes member completion immediately after saving.
+
+Run `npm run test:assignments` against local Supabase; set `GAP_TEST_APP_URL` to a local
+production server to exercise admin collection editing and assignment-specific member
+review/progress at desktop/phone widths.
+
+Hosted migration checkpoint (2026-10-21): applied only
+`202610210002_multiple_week_assignments.sql` after a dry run, with no seeds or role
+changes. Verified migration history, ordering column, collection-save function and
+removal of the old uniqueness constraint. Record counts remained one assignment and
+zero submissions. Production deployment is the next release step; authenticated live
+admin/member workflow acceptance remains a separate manual check.
+
+Local multi-assignment verification (2026-10-21): 56 unit/docs entries, four assignment
+suite entries, 12 program entries, five brief entries and 12 Storage entries pass.
+Browser checks at 1280px/390px cover admin add/save/remove, assignment selection,
+independent member review, 1-of-2 → 2-of-2 approval progress, existing publication/
+roster/sign-out and file replacement/recovery/history. Database checks preserve an
+existing PDF and assignment IDs, reject unauthorized/forged/duplicate/stale collections,
+and roll back protected deletions. Lint, typecheck, generated types, Webpack build,
+documentation links and diff checks pass. All writes used isolated local fixtures;
+hosted program records were not changed by these tests.
 
 Local preview verification passed at 1280px/390px using an unenrolled fixture admin:
 dashboard → published week, disabled submission, locked/unknown routes, and unchanged

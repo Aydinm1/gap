@@ -16,7 +16,7 @@ test("resubmission updates the member journey without replacing other assignment
   assert.equal(detail.assignment.state, "submitted");
   assert.equal(detail.assignment.attempts[0].id, "new-revision");
   const dashboard = buildProgramDashboard({ user: mockUsers.member, cohort: mockCohorts.fall2026, enrollment, weeks: mockWeeks, submissions, now: MOCK_NOW });
-  assert.equal(dashboard.completedModules, 2);
+  assert.equal(dashboard.completedModules, 1);
   assert.equal(dashboard.priorityAssignment, undefined);
   assert.equal(dashboard.modules[1].assignmentState, "submitted");
 });

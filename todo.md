@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-21
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -420,6 +420,17 @@ authentication/authorization. A configured Monday board is not a P5 completion g
   visibility, and continued GAP operation when Monday is unavailable.
 
 ### Responsive and usability work
+
+- [x] Support multiple assignments per week with independent deadlines/PDFs/history,
+  assignment-specific review selection, and all-approved week completion; preserve
+  existing work and verify rollback, stale collection saves and desktop/phone workflows.
+  Local verification: 56 unit/docs, four assignment, 12 program, five brief and 12
+  Storage suite entries pass, including browser flows; lint, typecheck, generated-type
+  consistency, Webpack build and diff checks pass.
+- [x] Apply the multi-assignment migration to hosted GAP without seeds; verify schema
+  changes and unchanged assignment/submission counts (2026-10-21).
+- [~] Push and deploy multiple assignments to production; verify deployment readiness.
+- [ ] Verify authenticated live admin/member use of multiple assignments.
 
 - [x] Remove generic admin member-portal/profile return links; verify conditional
   “My program” for active enrolled admins and preview access for unenrolled admins

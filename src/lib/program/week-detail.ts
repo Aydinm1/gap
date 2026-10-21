@@ -5,11 +5,24 @@ import type {
   SubmissionAttempt,
 } from "./types.ts";
 import { findPublishedWeek } from "./catalog.ts";
+import { assignmentsForWeek } from "./types.ts";
 import {
   deriveAssignmentState,
   formatDeadline,
   formatSubmissionTime,
 } from "./state.ts";
+
+export type AssignmentDetail = {
+    id: string;
+    title: string;
+    instructions: string;
+    document?: { id: string; name: string };
+    dueLabel: string;
+    state: AssignmentDisplayState;
+    unsubmittedState: AssignmentDisplayState;
+    attempts: readonly SubmissionAttempt[];
+    submittedLabels: Readonly<Record<string, string>>;
+};
 
 export type WeekDetailViewModel = {
   week: {
@@ -20,17 +33,8 @@ export type WeekDetailViewModel = {
     slidesUrl?: string;
     resources: readonly Resource[];
   };
-  assignment?: {
-    id: string;
-    title: string;
-    instructions: string;
-    document?: { id: string; name: string };
-    dueLabel: string;
-    state: AssignmentDisplayState;
-    unsubmittedState: AssignmentDisplayState;
-    attempts: readonly SubmissionAttempt[];
-    submittedLabels: Readonly<Record<string, string>>;
-  };
+  assignments: readonly AssignmentDetail[];
+  assignment?: AssignmentDetail;
 };
 
 export function buildWeekDetail({
@@ -55,23 +59,11 @@ export function buildWeekDetail({
   const resources = week.resources.toSorted(
     (left, right) => left.sortOrder - right.sortOrder || left.title.localeCompare(right.title),
   );
-  if (!week.assignment) {
-    return {
-      week: {
-        id: week.id,
-        weekNumber: week.weekNumber,
-        title: week.title,
-        description: week.description,
-        slidesUrl: week.slidesUrl,
-        resources,
-      },
-    };
-  }
-
+  const assignments = assignmentsForWeek(week).map((assignment): AssignmentDetail => {
   const attempts = submissions
     .filter(
       (attempt) =>
-        attempt.assignmentId === week.assignment?.id &&
+        attempt.assignmentId === assignment.id &&
         attempt.enrollmentId === enrollmentId,
     )
     .toSorted(
@@ -82,26 +74,22 @@ export function buildWeekDetail({
   const current = attempts.find((attempt) => attempt.isCurrent);
 
   return {
-    week: {
-      id: week.id,
-      weekNumber: week.weekNumber,
-      title: week.title,
-      description: week.description,
-      slidesUrl: week.slidesUrl,
-      resources,
-    },
-    assignment: {
-      id: week.assignment.id,
-      title: week.assignment.title,
-      instructions: week.assignment.instructions,
-      document: week.assignment.document,
-      dueLabel: formatDeadline(week.assignment.dueAt),
-      state: deriveAssignmentState(week.assignment, current, now),
-      unsubmittedState: deriveAssignmentState(week.assignment, undefined, now),
+      id: assignment.id,
+      title: assignment.title,
+      instructions: assignment.instructions,
+      document: assignment.document,
+      dueLabel: formatDeadline(assignment.dueAt),
+      state: deriveAssignmentState(assignment, current, now),
+      unsubmittedState: deriveAssignmentState(assignment, undefined, now),
       attempts,
       submittedLabels: Object.fromEntries(
         attempts.map((attempt) => [attempt.id, formatSubmissionTime(attempt.submittedAt)]),
       ),
-    },
+  };
+  });
+  return {
+    week: { id: week.id, weekNumber: week.weekNumber, title: week.title, description: week.description, slidesUrl: week.slidesUrl, resources },
+    assignments,
+    assignment: assignments[0],
   };
 }

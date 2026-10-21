@@ -5,7 +5,7 @@ import type {
   PublishedWeek,
   SubmissionAttempt,
 } from "./types.ts";
-import { isPublishedWeek } from "./types.ts";
+import { assignmentsForWeek, isPublishedWeek } from "./types.ts";
 
 export const DUE_SOON_WINDOW_MS = 72 * 60 * 60 * 1000;
 export const PROGRAM_TIME_ZONE = "America/Los_Angeles";
@@ -42,25 +42,22 @@ export function deriveAssignmentState(
 }
 
 export function isModuleComplete(submission: SubmissionAttempt | undefined) {
-  return submission?.status === "submitted" || submission?.status === "completed";
+  return submission?.status === "completed";
 }
 
-export function countCompletedModules(submissions: readonly SubmissionAttempt[]) {
-  return new Set(
-    submissions
-      .filter((submission) => submission.isCurrent && isModuleComplete(submission))
-      .map((submission) => submission.assignmentId),
-  ).size;
+export function countCompletedModules(submissions: readonly SubmissionAttempt[], weeks: readonly ProgramWeek[]) {
+  const current = new Map(submissions.filter((item) => item.isCurrent).map((item) => [item.assignmentId, item]));
+  return weeks.filter((week) => isPublishedWeek(week) && assignmentsForWeek(week).length > 0 && assignmentsForWeek(week).every((item) => isModuleComplete(current.get(item.id)))).length;
 }
 
 export function findCurrentActionableWeek(
   weeks: readonly ProgramWeek[],
   submissionsByAssignment: ReadonlyMap<string, SubmissionAttempt>,
 ): PublishedWeek | undefined {
-  return weeks.find((week): week is PublishedWeek => {
+  return weeks.toSorted((a, b) => a.weekNumber - b.weekNumber).find((week): week is PublishedWeek => {
     if (!isPublishedWeek(week)) return false;
-    if (!week.assignment) return true;
-    return !isModuleComplete(submissionsByAssignment.get(week.assignment.id));
+    const assignments = assignmentsForWeek(week);
+    return !assignments.length || assignments.some((item) => !isModuleComplete(submissionsByAssignment.get(item.id)));
   });
 }
 
@@ -71,10 +68,12 @@ export function findNearestActionableAssignment(
   let nearest: Assignment | undefined;
 
   for (const week of weeks) {
-    if (!isPublishedWeek(week) || !week.assignment) continue;
-    const submission = submissionsByAssignment.get(week.assignment.id);
+    if (!isPublishedWeek(week)) continue;
+    for (const assignment of assignmentsForWeek(week)) {
+    const submission = submissionsByAssignment.get(assignment.id);
     if (submission?.status === "completed" || submission?.status === "submitted") continue;
-    if (!nearest || week.assignment.dueAt < nearest.dueAt) nearest = week.assignment;
+    if (!nearest || assignment.dueAt < nearest.dueAt) nearest = assignment;
+    }
   }
 
   return nearest;

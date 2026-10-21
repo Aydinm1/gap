@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-09-14
+**Last updated:** 2026-10-21
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -42,8 +42,8 @@ It should feel like a restrained consulting-firm training portal, not a school L
 - A week is either `draft` or `published`.
 - Members see all six week numbers and titles. Draft weeks appear as locked upcoming
   cards; their description, slides, resources, assignment, and deadline remain hidden.
-- Each week has at most one assignment in the MVP, while the data model permits multiple
-  assignments later.
+- Each week supports an ordered collection of assignments. Each has its own title,
+  instructions, PDF brief, deadline, submissions, feedback, and retained history.
 
 ## Member workflows
 
@@ -71,7 +71,10 @@ beside the module list, and all six modules. The bar contains the current learni
 number, title, and one Continue action opening that week. Assignment details, deadlines,
 and feedback summaries belong on the week and submission pages, not the dashboard.
 Awaiting-review work remains visible in module status but is not a next-step priority.
-Submitted and completed work still both count toward progress.
+Only approved (`completed`) assignments count toward completion. A week is complete
+when it has at least one assignment and all its assignments are approved. Show partial
+progress such as “1 of 3 assignments complete”; a no-assignment week has no automatic
+completion event. Draft assignments remain hidden with their draft week.
 
 ### Week detail
 
@@ -141,9 +144,15 @@ Evaluate display state in this precedence order:
 5. `due_soon`: no current submission and deadline is within 72 hours
 6. `upcoming`
 
-`Overdue` is derived and is never stored as a submission status. Submitted and completed
-assignments count toward module completion. Revision-requested work remains actionable
-and does not count as complete.
+`Overdue` is derived and is never stored as a submission status. Submitted work is awaiting
+review and does not count as approved. Missing, submitted, or revision-requested work
+keeps its week incomplete. Review and replacement operate on an individual assignment.
+
+The editor adds/removes assignments independently and saves the full week atomically.
+An assignment with submissions, upload intents or PDF references cannot be removed.
+Adding an assignment to a published week makes it required immediately and can return
+a formerly complete week to partial completion. The review queue explicitly selects an
+assignment, including when several belong to the same week.
 
 ## Admin workflows
 

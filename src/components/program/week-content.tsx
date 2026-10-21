@@ -31,24 +31,26 @@ export function WeekContent({ detail, programHref = '/', preview = false }: {
 
         <div className="mt-10 space-y-12 lg:mt-12">
           <section id="assignment" aria-labelledby="assignment-heading">
-            {detail.assignment ? (
-              <>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-deep">Assignment</p>
-                <h2 id="assignment-heading" className="mt-2 text-2xl font-bold tracking-[-0.025em] sm:text-3xl">{detail.assignment.title}</h2>
-                <p className="mt-2 text-sm font-bold leading-6 text-ink-soft">Due {detail.assignment.dueLabel}</p>
+            {detail.assignments.length ? (
+              <div className="space-y-10">
+                <h2 id="assignment-heading" className="text-xs font-bold uppercase tracking-[0.16em] text-brand-deep">{detail.assignments.length === 1 ? 'Assignment' : 'Assignments'}</h2>
+                {detail.assignments.map((assignment) => <article key={assignment.id} id={`assignment-${assignment.id}`} aria-labelledby={`title-${assignment.id}`}>
+                <h3 id={`title-${assignment.id}`} className="mt-2 text-2xl font-bold tracking-[-0.025em] sm:text-3xl">{assignment.title}</h3>
+                <p className="mt-2 text-sm font-bold leading-6 text-ink-soft">Due {assignment.dueLabel}</p>
                 <Card className="mt-5 overflow-hidden">
                   <SubmissionWorkspace
                     readOnly={preview}
-                    assignmentId={detail.assignment.id}
+                    assignmentId={assignment.id}
                     enrollmentId={detail.enrollmentId ?? "admin-preview"}
-                    unsubmittedState={detail.assignment.unsubmittedState}
-                    instructions={detail.assignment.instructions}
-                    document={detail.assignment.document}
-                    initialAttempts={detail.assignment.attempts}
-                    reviewPath={`/week/${detail.week.weekNumber}/submission`}
+                    unsubmittedState={assignment.unsubmittedState}
+                    instructions={assignment.instructions}
+                    document={assignment.document}
+                    initialAttempts={assignment.attempts}
+                    reviewPath={`/week/${detail.week.weekNumber}/submission?assignment=${encodeURIComponent(assignment.id)}`}
                   />
                 </Card>
-              </>
+                </article>)}
+              </div>
             ) : (
               <>
                 <h2 id="assignment-heading" className="text-2xl font-bold tracking-[-0.025em]">Assignment</h2>

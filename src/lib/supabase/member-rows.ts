@@ -25,7 +25,7 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
   const ids = weeks.data.map(row => row.id); // At most six published weeks.
   const [resources, assignments] = ids.length ? await Promise.all([
     readPages((from, to) => db.from('resources').select('*').in('week_id', ids).order('sort_order').order('created_at').order('id').range(from, to)),
-    readPages((from, to) => db.from('assignments').select('*').in('week_id', ids).order('id').range(from, to)),
+    readPages((from, to) => db.from('assignments').select('*').in('week_id', ids).order('sort_order').order('id').range(from, to)),
   ]) : [{ data: [] }, { data: [] }];
   const assignmentIds = assignments.data.map(a => a.id);
   const documents = assignmentIds.length ? await readPages((from, to) => db.from('assignment_documents').select('*').in('assignment_id', assignmentIds).eq('is_current', true).eq('state', 'ready').order('id').range(from, to)) : { data: [] };

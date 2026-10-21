@@ -126,6 +126,8 @@ export type PublishedWeek = WeekCatalogItem & {
   description: string;
   slidesUrl?: string;
   resources: readonly Resource[];
+  assignments?: readonly Assignment[];
+  /** Legacy development fixtures; persistent reads use assignments. */
   assignment?: Assignment;
 };
 
@@ -133,4 +135,8 @@ export type ProgramWeek = DraftWeek | PublishedWeek;
 
 export function isPublishedWeek(week: ProgramWeek): week is PublishedWeek {
   return week.publicationState === "published";
+}
+
+export function assignmentsForWeek(week: { assignments?: readonly Assignment[]; assignment?: Assignment }): readonly Assignment[] {
+  return week.assignments ?? (week.assignment ? [week.assignment] : []);
 }

@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-21
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -181,9 +181,22 @@ Order by `sort_order`, then `created_at` for deterministic rendering.
 - `created_at timestamptz not null`
 - `updated_at timestamptz not null`
 
-The MVP enforces one assignment per week with a unique constraint on `week_id`. The
-table remains separate so that constraint can be removed later without redesigning
-submissions.
+`week_id` is no longer unique. `sort_order integer not null default 1 check (>0)` and
+the `(week_id,sort_order,id)` index define deterministic assignment order. Existing
+assignment IDs, submissions and PDF metadata remain unchanged by the migration.
+
+`save_program_week(jsonb)` is a live-admin-authorized function called from the existing
+`admin_mutate('week', ...)` interface. It locks the week and its existing assignments,
+validates an assignment array (up to 100 items), rejects duplicate/missing IDs and
+cross-week reuse, and atomically saves the content, assignments, ordering and resources.
+Missing assignments are deleted only when foreign-key history protections permit it;
+a protected deletion rolls back the entire save. A stale editor snapshot cannot
+silently erase a newly added sibling: the editor
+sends `expectedAssignmentIds`, compared with the locked current collection. A mismatch
+returns `40001` before any writes. An older single-assignment payload
+remains supported only while the week has at most one assignment; otherwise it gets a
+stale-save error rather than deleting the collection. Ordinary RLS policies and
+per-assignment/enrollment uniqueness still govern submissions and upload operations.
 
 ### `submissions`
 

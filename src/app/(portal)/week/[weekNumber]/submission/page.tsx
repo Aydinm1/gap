@@ -8,22 +8,28 @@ import { readWeek } from '@/lib/supabase/data';
 
 type SubmissionReviewPageProps = {
   params: Promise<{ weekNumber: string }>;
+  searchParams: Promise<{ assignment?: string | string[] }>;
 };
 
 const getDetail = readWeek;
 
-export async function generateMetadata({ params }: SubmissionReviewPageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: SubmissionReviewPageProps): Promise<Metadata> {
   const { weekNumber } = await params;
   const detail = await getDetail(weekNumber);
-  return { title: detail?.assignment ? `${detail.assignment.title} Review | GAP` : "Submission not found | GAP" };
+  const selected = (await searchParams).assignment;
+  const assignment = selected === undefined ? detail?.assignments[0] : detail?.assignments.find((item) => item.id === selected);
+  return { title: assignment ? `${assignment.title} Review | GAP` : "Submission not found | GAP" };
 }
 
-export default async function SubmissionReviewPage({ params }: SubmissionReviewPageProps) {
+export default async function SubmissionReviewPage({ params, searchParams }: SubmissionReviewPageProps) {
   const { weekNumber } = await params;
   const detail = await getDetail(weekNumber);
-  if (!detail?.assignment) notFound();
+  if (!detail) notFound();
+  const selected = (await searchParams).assignment;
+  const assignment = selected === undefined ? detail.assignments[0] : detail.assignments.find((item) => item.id === selected);
+  if (!assignment) notFound();
 
-  const attempts = detail.assignment.attempts;
+  const attempts = assignment.attempts;
 
   return (
     <main className="pb-20 sm:pb-24">
@@ -34,13 +40,13 @@ export default async function SubmissionReviewPage({ params }: SubmissionReviewP
 
         <header className="mt-6">
           <p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {detail.week.weekNumber.toString().padStart(2, "0")} · Submission review</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-ink sm:text-4xl">{detail.assignment.title}</h1>
-          <p className="mt-3 text-sm font-bold leading-6 text-ink-soft">Due {detail.assignment.dueLabel}</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-ink sm:text-4xl">{assignment.title}</h1>
+          <p className="mt-3 text-sm font-bold leading-6 text-ink-soft">Due {assignment.dueLabel}</p>
         </header>
 
         <div className="mt-10 lg:mt-12">
           <SubmissionReviewWorkspace
-            assignmentId={detail.assignment.id}
+            assignmentId={assignment.id}
             enrollmentId={detail.enrollmentId}
             initialAttempts={attempts}
           />

@@ -5,6 +5,13 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added ordered multiple assignments per week with independent deadlines, PDFs,
+  submission histories and reviews. Weeks complete only after all assignments are
+  approved, with partial counts displayed. Added transactional collection saves and
+  retained-ID migration. Applied the hosted migration without seeds and verified
+  unchanged assignment/submission counts; production release and live acceptance tracked
+  separately.
+
 - Replaced the admin member-portal shortcut with conditional “My program” for enrolled
   admins; removed the duplicate profile return link and kept admin logo navigation in admin.
 
