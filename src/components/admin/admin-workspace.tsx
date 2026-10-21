@@ -45,6 +45,9 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
   const [hasUnsavedChanges, setUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const { people, approvedMembers, cohorts, enrollments, weeks, submissions } = initialState;
+  const hasMyProgram = enrollments.some(enrollment => enrollment.personId === user.personId
+    && enrollment.participationStatus === 'enrolled'
+    && cohorts.some(cohort => cohort.id === enrollment.cohortId && cohort.state === 'active'));
   const requestedCohortId = searchParams.get("cohort");
   const selectedCohortId = cohorts.some((cohort) => cohort.id === requestedCohortId) ? requestedCohortId! : storedCohortId;
 
@@ -113,11 +116,11 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
   return (
     <AdminWorkspaceContext.Provider value={value}>
       <div className="min-h-screen bg-canvas text-ink">
-        <AppHeader user={user} navigation={navigation} profileLinks={[{ label: "Return to program", href: "/" }]} />
+        <AppHeader user={user} navigation={navigation} profileLinks={[]} homeHref={`/admin${cohortQuery}`} />
         <div className="border-b border-border bg-surface-subtle">
           <PageContainer className="flex min-h-14 flex-wrap items-center justify-between gap-3 py-2">
             <CohortSwitcher cohorts={cohorts} selectedId={selectedCohortId} onChange={changeCohort} />
-            <Link className="inline-flex min-h-10 items-center text-sm font-bold text-action hover:text-action-hover" href="/">Member portal →</Link>
+            <div className="flex flex-wrap gap-4">{selectedCohortId ? <Link className="inline-flex min-h-10 items-center text-sm font-bold text-action hover:text-action-hover" href={`/admin/preview${cohortQuery}`} onClick={event => { if (!confirmNavigation()) event.preventDefault(); }}>Preview as member →</Link> : null}{hasMyProgram ? <Link className="inline-flex min-h-10 items-center text-sm font-bold text-action hover:text-action-hover" href="/" onClick={event => { if (!confirmNavigation()) event.preventDefault(); }}>My program →</Link> : null}</div>
           </PageContainer>
         </div>
         {saving ? <p role="status" className="px-6 py-2 text-sm text-ink-soft">Saving changes…</p> : null}

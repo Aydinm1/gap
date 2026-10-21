@@ -345,6 +345,24 @@ Deployment and a real failing-attempt log remain pending verification.
 
 ## Vercel deployment — Pending
 
+Local preview verification passed at 1280px/390px using an unenrolled fixture admin:
+dashboard → published week, disabled submission, locked/unknown routes, and unchanged
+enrollment counts. Ordinary members redirect to access-denied; PDF upload/download and
+date edits still pass. Next.js may stream a 200 shell before a not-found or redirect;
+browser destination/rendered behavior is checked rather than assuming status alone.
+53 unit/docs tests, lint, typecheck, and Webpack build pass. Preview deployment remains
+pending; no additional database migration is needed.
+
+Admin preview requires no migration: choose a cohort in admin and select “Preview as
+member.” Published weeks/PDFs can be inspected without adding an enrollment. Preview
+shows no learner submissions and does not change cohort metrics. Drafts stay locked.
+Admin navigation offers “My program” only with an enrolled participation in an active
+cohort; the profile has no duplicate program return link. The admin logo returns to
+admin with cohort context. Both enrolled/unenrolled navigation states pass local
+desktop/phone checks alongside the preview, PDF and date workflows.
+If the cohort is draft or archived, its warning explains why enrolled members would
+not have access. Preview code deployment is tracked separately from hosted schema.
+
 ### Assignment briefs and cohort date editing
 
 Migration `202610210001_assignment_briefs_and_cohort_dates.sql` adds the private PDF

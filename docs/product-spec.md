@@ -47,6 +47,14 @@ It should feel like a restrained consulting-firm training portal, not a school L
 
 ## Member workflows
 
+Admins can open “Preview as member” for the selected cohort without enrollment.
+Admin navigation shows “My program” only when the admin has enrolled participation in
+an active cohort, and omits the generic member-portal/profile return links otherwise.
+The read-only preview shares the member dashboard/week presentation, uses a sample
+member with no submissions, keeps drafts locked, and allows published assignment PDF
+downloads under existing admin authorization. It has no submit/review controls or
+participation side effects. Draft/archived cohorts show an explicit access warning.
+
 ### Dashboard
 
 The dashboard answers, in order:

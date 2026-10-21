@@ -54,6 +54,8 @@ do not override a later source-of-truth update and superseding ADR.
 
 ## Accepted decisions
 
+- [ADR 0011: Read-only admin preview](0011-read-only-admin-preview.md)
+
 - [ADR 0010: Separate private assignment briefs](0010-assignment-pdf-briefs.md)
 
 - [ADR 0009: Private upload lifecycle](0009-private-upload-lifecycle.md)

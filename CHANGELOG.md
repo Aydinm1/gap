@@ -5,6 +5,12 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Replaced the admin member-portal shortcut with conditional “My program” for enrolled
+  admins; removed the duplicate profile return link and kept admin logo navigation in admin.
+
+- Added admin-only member preview for a selected cohort, sharing dashboard/week layouts
+  with locked drafts and disabled submission controls, without enrollment or metric changes.
+
 - Added direct private PDF assignment briefs, protected downloads beside instructions,
   and version-checked replacement. Added cohort start/end editing under Manage cohort
   without changing assignment deadlines. Applied the new migration to hosted GAP;

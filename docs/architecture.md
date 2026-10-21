@@ -58,6 +58,14 @@ Use the installed documentation rather than legacy examples.
 
 ## Authentication and authorization flow
 
+`/admin/preview` and `/admin/preview/week/[weekNumber]` require live admin authorization
+at both layout and data boundaries. They reuse the user-scoped admin workspace read,
+then map only the selected cohort's catalog/published payload into member view models.
+An in-memory `admin-preview` enrollment context satisfies the existing pure selectors;
+it is never saved or passed to a mutation. Real enrollments, attempts and feedback do
+not enter preview DTOs. Shared week rendering disables submission controls in preview.
+Preview navigation retains its cohort query; normal member reads remain enrollment-scoped.
+
 1. The user initiates Google OAuth with an allowed callback URL.
 2. `/auth/callback` exchanges the code for a cookie-backed session.
 3. Server-side logic verifies identity, normalizes the authenticated email to lowercase,

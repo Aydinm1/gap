@@ -421,6 +421,16 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 
 ### Responsive and usability work
 
+- [x] Remove generic admin member-portal/profile return links; verify conditional
+  “My program” for active enrolled admins and preview access for unenrolled admins
+  at desktop/phone widths. Unit/docs, lint, typecheck and Webpack build pass.
+
+- [x] Add admin-only read-only member preview without enrollment; verify published/
+  locked weeks, cohort-preserving navigation, denied non-admins and unchanged counts
+  at 1280px/390px. 53 unit/docs tests, five brief/browser suite entries, lint,
+  typecheck and Webpack build pass.
+- [ ] Deploy member preview and verify it with the real hosted admin account.
+
 - [x] Add private direct PDF assignment briefs and editable cohort dates. Local
   Storage/RLS, concurrent replacements, invalid PDFs, expiry, role revocation,
   protected downloads, and desktop/phone upload/date-edit reload flows pass.

@@ -9,15 +9,16 @@ import { Progress } from "@/components/ui/progress";
 import { StateMessage } from "@/components/ui/state-message";
 
 type Input = Parameters<typeof buildProgramDashboard>[0];
-export function MemberDashboard({ input }: { input: Omit<Input, "now"> & { now: string } }) {
+export function MemberDashboard({ input, preview = false }: { input: Omit<Input, "now"> & { now: string }; preview?: boolean }) {
   const [attempts] = useMemberAttempts(input.submissions);
   const dashboard = buildProgramDashboard({ ...input, submissions: attempts, now: new Date(input.now) });
   const priority = dashboard.priorityAssignment;
   const learning = dashboard.continueLearning;
   const featured = learning ?? priority;
   const weekTitle = dashboard.modules.find((module) => module.weekNumber === featured?.weekNumber)?.title;
+  const destination = (href: string) => preview ? `/admin/preview${href}?cohort=${encodeURIComponent(input.cohort.id)}` : href;
   return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
-    <header><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">{dashboard.term}</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">Welcome back, {dashboard.user.fullName.split(" ")[0]}</h1></header>
+    <header><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">{dashboard.term}</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{preview ? 'Member preview' : `Welcome back, ${dashboard.user.fullName.split(" ")[0]}`}</h1>{preview && input.cohort.state !== 'active' ? <p className="mt-3 text-sm text-warning-text">This cohort is {input.cohort.state}. Members can access it only while it is active.</p> : null}</header>
     {dashboard.totalModules ? <section className="mt-11" aria-labelledby="modules-heading"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><h2 id="modules-heading" className="text-2xl font-bold tracking-[-0.025em]">Program modules</h2><div className="w-full sm:max-w-xs"><Progress value={dashboard.completedModules} max={dashboard.totalModules} label="Program progress" valueLabel={`${dashboard.completedModules} of ${dashboard.totalModules} complete`} /></div></div><div className="mt-5 overflow-hidden rounded-card border border-border bg-surface">
       <div className="border-b border-border bg-surface-subtle/60 px-5 py-4 sm:px-6">
         {featured ? <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -25,13 +26,13 @@ export function MemberDashboard({ input }: { input: Omit<Input, "now"> & { now: 
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-deep">Continue where you left off</p>
             <h3 className="mt-1 break-words text-base font-semibold leading-6">Week {featured.weekNumber} · {weekTitle ?? featured.title}</h3>
           </div>
-          <div className="shrink-0"><ButtonLink href={featured.href}>Continue <span aria-hidden="true">→</span></ButtonLink></div>
+          <div className="shrink-0"><ButtonLink href={destination(featured.href)}>Continue <span aria-hidden="true">→</span></ButtonLink></div>
         </div> : <div><h3 className="font-bold">You’re caught up</h3><p className="mt-1 text-sm leading-6 text-ink-soft">No work needs your attention right now. Revisit published weeks below.</p></div>}
       </div>
       <ol>{dashboard.modules.map((module) => {
       const iconState = module.state === "locked" ? "locked" : module.assignmentState === "completed" ? "complete" : module.assignmentState === "submitted" ? "waiting" : module.assignmentState === "revision_requested" ? "revision" : "available";
       const content = <><ModuleIcon state={iconState} /><span className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-[0.1em] text-ink-faint">Week {module.weekNumber}</span><span className="mt-1 block font-bold">{module.title}</span><span className="mt-1 block text-sm text-ink-soft">{module.assignmentState === "submitted" ? "Awaiting review" : module.assignmentState === "revision_requested" ? "Revision requested" : module.assignmentState === "completed" ? "Complete" : module.state === "locked" ? "Upcoming · Not yet available" : "Available"}</span></span>{module.href ? <span aria-hidden="true" className="text-action">→</span> : null}</>;
-      return <li key={module.id} className="border-b border-border last:border-0">{module.href ? <Link href={module.href} className="flex min-h-20 items-center gap-4 px-5 py-4 hover:bg-surface-subtle sm:px-6">{content}</Link> : <div className="flex min-h-20 items-center gap-4 px-5 py-4 sm:px-6">{content}</div>}</li>;
+      return <li key={module.id} className="border-b border-border last:border-0">{module.href ? <Link href={destination(module.href)} className="flex min-h-20 items-center gap-4 px-5 py-4 hover:bg-surface-subtle sm:px-6">{content}</Link> : <div className="flex min-h-20 items-center gap-4 px-5 py-4 sm:px-6">{content}</div>}</li>;
     })}</ol></div></section> : <div className="mt-8"><StateMessage title="Your program is not available yet">Your modules will appear here when the program is ready.</StateMessage></div>}
   </PageContainer></main>;
 }

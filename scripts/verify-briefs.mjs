@@ -16,7 +16,7 @@ const anon = createClient(config.API_URL,config.ANON_KEY,options);
 const ok = r => { assert.ifError(r.error); return r.data; };
 const q = s => `'${String(s).replaceAll("'","''")}'`;
 async function sql(s) {return (await exec('docker',['exec','supabase_db_gap','psql','-X','-U','postgres','-d','postgres','-At','-v','ON_ERROR_STOP=1','-c',s])).stdout.trim();}
-const cohort=randomUUID(),week=randomUUID(),assignment=randomUUID(),users=[];
+const cohort=randomUUID(),week=randomUUID(),draftWeek=randomUUID(),assignment=randomUUID(),users=[];
 async function fixture(role='member',enroll=true) {
   const email=`gap-brief-test-${randomUUID()}@ucdavis.edu`,person=randomUUID();
   const user=ok(await admin.auth.admin.createUser({email,email_confirm:true})).user;
@@ -44,7 +44,8 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
     await sql(`insert into public.program_cohorts(id,quarter,year,starts_on,ends_on,state) values(${q(cohort)},'spring',2997,'2997-04-01','2997-06-01','active');
     insert into public.program_weeks(id,cohort_id,week_number,title,description,published) values(${q(week)},${q(cohort)},1,'Brief test','Disposable',false);
     insert into public.assignments(id,week_id,title,instructions,due_at) values(${q(assignment)},${q(week)},'Brief test','Read the PDF',now());`);
-    const lead=await fixture('admin'),member=await fixture(),outsider=await fixture('member',false);
+    await sql(`insert into public.program_weeks(id,cohort_id,week_number,title,description,published) values(${q(draftWeek)},${q(cohort)},2,'Locked preview week','Draft content',false)`);
+    const lead=await fixture('admin',false),member=await fixture(),outsider=await fixture('member',false);
     let first;
     await t.test('live admin required and exact intent paths only',async()=>{
       assert.ok((await anon.rpc('assignment_brief',{p_actor:lead.id,p_action:'prepare'})).error);
@@ -106,6 +107,24 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
           await ctx.addCookies([...(await jar(lead))].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));
           const page=await ctx.newPage();
           page.setDefaultTimeout(15000);
+          const countBefore=await sql(`select count(*) from public.cohort_enrollments where cohort_id=${q(cohort)}`);
+          await page.goto(`${process.env.GAP_TEST_APP_URL}/admin/preview?cohort=${cohort}`);
+          await page.getByRole('heading',{name:'Member preview',exact:true}).waitFor();
+          assert.equal(await page.getByRole('link',{name:'Member portal →',exact:true}).count(),0);
+          assert.equal(await page.getByRole('link',{name:'My program →',exact:true}).count(),0);
+          assert.equal(await page.getByRole('link',{name:'180 Degrees Consulting UC Davis home',exact:true}).getAttribute('href'),`/admin?cohort=${cohort}`);
+          await page.getByRole('link',{name:/Week 1 Brief test/}).click();
+          await page.getByText('Submission controls are unavailable in admin preview.',{exact:true}).waitFor();
+          assert.equal(await page.getByRole('button',{name:'Submit assignment',exact:true}).isDisabled(),true);
+          assert.equal(await sql(`select count(*) from public.cohort_enrollments where cohort_id=${q(cohort)}`),countBefore);
+          await sql(`insert into public.cohort_enrollments(person_id,cohort_id) values(${q(lead.person)},${q(cohort)})`);
+          await page.reload();
+          await page.getByRole('link',{name:'My program →',exact:true}).waitFor();
+          await sql(`delete from public.cohort_enrollments where person_id=${q(lead.person)} and cohort_id=${q(cohort)}`);
+          await page.reload();
+          // Next may have started streaming the admin shell before notFound().
+          const locked=await ctx.request.get(`${process.env.GAP_TEST_APP_URL}/admin/preview/week/2?cohort=${cohort}`);assert.match(await locked.text(),/This page could not be found/);
+          const missing=await ctx.request.get(`${process.env.GAP_TEST_APP_URL}/admin/preview?cohort=${randomUUID()}`);assert.match(await missing.text(),/This page could not be found/);
           await page.goto(`${process.env.GAP_TEST_APP_URL}/admin/weeks/${week}?cohort=${cohort}`);
           await page.waitForFunction(() => { const input=document.querySelector('input[type="file"]');return input && Object.keys(input).some(key=>key.startsWith('__reactProps$')); });
           await page.getByLabel('Choose PDF',{exact:true}).setInputFiles({name:'invalid.pdf',mimeType:'application/pdf',buffer:Buffer.from('not a PDF')});
@@ -138,6 +157,9 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
           await memberCtx.addCookies([...(await jar(member))].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));
           const memberPage=await memberCtx.newPage();memberPage.setDefaultTimeout(15000);await memberPage.goto(`${process.env.GAP_TEST_APP_URL}/week/1`);
           await memberPage.getByRole('link',{name:`Download assignment PDF · Assignment ${width}.pdf`,exact:true}).waitFor();
+          await memberPage.goto(`${process.env.GAP_TEST_APP_URL}/admin/preview?cohort=${cohort}`);
+          await memberPage.waitForURL(url=>url.pathname==='/access-denied');
+          assert.equal(await memberPage.getByRole('heading',{name:'Member preview',exact:true}).count(),0);
           assert.equal((await memberCtx.request.get(new URL(href,process.env.GAP_TEST_APP_URL).toString())).status(),200);
           await sql(`update public.approved_members set active=false where person_id=${q(member.person)}`);
           assert.equal((await memberCtx.request.get(new URL(href,process.env.GAP_TEST_APP_URL).toString())).status(),404);
@@ -149,7 +171,7 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
   } finally {
     const paths=await sql(`select path from public.assignment_documents where assignment_id=${q(assignment)}`);
     if(paths) ok(await admin.storage.from('assignment-briefs').remove(paths.split('\n')));
-    await sql(`update public.assignment_documents set expected_id=null where assignment_id=${q(assignment)}; delete from public.assignment_documents where assignment_id=${q(assignment)}; delete from public.assignments where id=${q(assignment)}; delete from public.program_weeks where id=${q(week)}; delete from public.cohort_enrollments where cohort_id=${q(cohort)}; delete from public.program_cohorts where id=${q(cohort)};`);
+    await sql(`update public.assignment_documents set expected_id=null where assignment_id=${q(assignment)}; delete from public.assignment_documents where assignment_id=${q(assignment)}; delete from public.assignments where id=${q(assignment)}; delete from public.program_weeks where cohort_id=${q(cohort)}; delete from public.cohort_enrollments where cohort_id=${q(cohort)}; delete from public.program_cohorts where id=${q(cohort)};`);
     for(const u of users) {await sql(`delete from public.profiles where id=${q(u.id)}; delete from public.approved_members where person_id=${q(u.person)}; delete from public.people where id=${q(u.person)}`);ok(await admin.auth.admin.deleteUser(u.id));}
   }
 });

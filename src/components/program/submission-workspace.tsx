@@ -27,6 +27,7 @@ export function SubmissionWorkspace({
   unsubmittedState,
   instructions,
   document,
+  readOnly = false,
   initialAttempts,
   reviewPath,
 }: {
@@ -35,6 +36,7 @@ export function SubmissionWorkspace({
   unsubmittedState: AssignmentDisplayState;
   instructions: string;
   document?: { id: string; name: string };
+  readOnly?: boolean;
   initialAttempts: readonly SubmissionAttempt[];
   reviewPath: string;
 }) {
@@ -69,7 +71,7 @@ export function SubmissionWorkspace({
           <p id="submission-status-heading" className="text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">Submission</p>
           <div className="mt-3"><Badge tone={presentation.tone}>{presentation.label}</Badge></div>
 
-          {current && !submitting ? (
+          {readOnly ? <div className="mt-4"><p className="text-sm leading-6 text-ink-soft">Submission controls are unavailable in admin preview.</p><Button className="mt-6" disabled>Submit assignment</Button></div> : current && !submitting ? (
             <div className="mt-5">
               {current.status === "revision_requested" ? (
                 <p className="mb-5 text-sm leading-6 text-ink-soft">Changes were requested. Review the feedback before updating your work.</p>

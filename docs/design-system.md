@@ -74,6 +74,13 @@ descriptive filenames.
 
 ## Core UI patterns
 
+- **Admin member preview:** expose “Preview as member” beside the cohort switcher.
+- **Admin navigation:** “Preview as member” is the default program-facing action.
+  Show “My program” only for admins with enrolled participation in an active cohort.
+  Omit the duplicate profile return link; the admin logo returns to the admin workspace.
+  Keep a visible read-only banner across preview dashboard/week navigation. Reuse the
+  member layout and disabled submission rail, and retain the selected cohort in links.
+
 - **Assignment brief:** place a labeled PDF upload panel below the assignment editor.
   Show current filename/download, selection, upload progress, retry/cancel after failure,
   and immediate-save/publication guidance. Members get a quiet download action beside
