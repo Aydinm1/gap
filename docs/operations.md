@@ -302,6 +302,18 @@ Supabase project when configuration is performed.
 
 ## Supabase URL configuration — Pending
 
+### Callback diagnostics
+
+Failed code-to-session exchanges emit `[auth.callback] Session exchange failed` in
+server logs with only the SDK error code and HTTP status. Raw errors/messages,
+authorization codes, URLs, cookies, keys, and tokens are not logged. The existing
+generic login error and roster authorization remain unchanged.
+
+After deploying this change, start one fresh login and search Vercel runtime Logs
+for that marker. Match its timestamp to the Supabase Auth token request. A 401 alone
+does not establish the cause; inspect the diagnostic code before changing settings.
+Deployment and a real failing-attempt log remain pending verification.
+
 - Set Site URL to the production Vercel origin.
 - Allow `http://localhost:3000/auth/callback` for local development.
 - Allow the exact production `/auth/callback` URL.

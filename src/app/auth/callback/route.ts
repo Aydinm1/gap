@@ -9,6 +9,13 @@ export async function GET(request: NextRequest) {
   const db = await createClient();
   if (code) {
     const { error } = await db.auth.exchangeCodeForSession(code);
+    if (error) {
+      // Never log the request, OAuth code, cookies, or raw provider error/message.
+      console.error('[auth.callback] Session exchange failed', {
+        code: error.code,
+        status: error.status,
+      });
+    }
     if (!error) {
       const { error: accessError } = await db.rpc('sync_profile');
       if (!accessError) return NextResponse.redirect(new URL(safeReturnPath(request.nextUrl.searchParams.get('next')), origin));

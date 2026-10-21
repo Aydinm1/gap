@@ -5,6 +5,9 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added minimal server-side OAuth callback diagnostics (SDK error code and status only)
+  to investigate hosted session-exchange failures without logging credentials or URLs.
+
 - Scoped member reads to the signed-in person's selected active cohort and retained
   attempts instead of loading the admin workspace. Added malformed-input guards for
   non-upload actions and local regression coverage for direct action authorization,

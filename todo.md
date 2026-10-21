@@ -336,6 +336,11 @@ do not satisfy them. See ADR 0007.
 
 ### Manual configuration — not complete until verified
 
+- [x] Add code/status-only callback diagnostics; 51 unit/documentation tests, lint,
+  typecheck, and diff checks pass, including failure redirect and log-field coverage.
+- [ ] Deploy callback diagnostics and capture a fresh hosted failure before claiming
+  production sign-in is fixed.
+
 - [x] Configure Google Cloud OAuth consent/Web client for local login; successful user
   login followed correction of the client ID and organization audience restriction.
 - [x] Configure the local Supabase Google callback URI; the real callback completed.
