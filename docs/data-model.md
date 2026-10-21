@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-09-22
+**Last updated:** 2026-10-20
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -33,9 +33,16 @@ submission state.
 
 Implementation boundary: committed migrations now include profiles, program content,
 submissions, authenticated read policies, and authorized transactional mutation functions.
-Full Supabase authorization/concurrency verification is still pending; schema presence
-does not establish that the P5 acceptance gate has passed. P6 adds private Storage,
+Local program authorization/concurrency and core browser checks pass; hosted and extended
+Monday acceptance remain separate. P6 adds private Storage,
 upload intents, file metadata, and service-only lifecycle operations.
+
+Local program verification now additionally exercises direct non-upload Server Actions,
+live role removal, session refresh/revocation, and explicit member query scoping. These
+checks supplement rather than replace RLS: member-facing queries constrain person,
+participation, active cohort, published weeks, and enrollment history even when the
+caller is an admin. No schema or policy changes were required for this scoping update.
+Extended Monday and hosted acceptance remain separate checks in `todo.md`.
 
 Demo cohorts and participants are optional development fixtures, not required baseline
 records. Local startup no longer seeds them automatically; an empty program with an

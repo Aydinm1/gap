@@ -7,8 +7,11 @@ import { normalizeSubmissionUrl } from '@/lib/program/submission';
 export async function saveAdmin(action: string, data: Record<string, unknown>) {
   await requireUser(true);
   if (!['review','week','enrollment','enroll','roster','cohort_create','cohort_state'].includes(action)) return { error:'Unknown operation.' };
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return { error:'Invalid form data. Check the entered values and try again.' };
   const db = await createClient();
-  const payload = JSON.parse(JSON.stringify(data));
+  let payload;
+  try { payload = JSON.parse(JSON.stringify(data)); }
+  catch { return { error:'Invalid form data. Check the entered values and try again.' }; }
   const result = action === 'review'
     ? await db.rpc('review_submission', { p_data: payload }).single()
     : await db.rpc('admin_mutate', { p_action: action, p_data: payload });
@@ -22,6 +25,13 @@ export async function saveAdmin(action: string, data: Record<string, unknown>) {
 
 export async function saveLink(assignmentId: string, url: string, expectedId?: string, expectedUpdatedAt?: string) {
   await requireUser();
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (typeof assignmentId !== 'string' || !uuid.test(assignmentId) || typeof url !== 'string' ||
+    (expectedId !== undefined && (typeof expectedId !== 'string' || !uuid.test(expectedId))) ||
+    (expectedUpdatedAt !== undefined && (typeof expectedUpdatedAt !== 'string' || !Number.isFinite(Date.parse(expectedUpdatedAt)))) ||
+    ((expectedId === undefined) !== (expectedUpdatedAt === undefined))) {
+    return { error:'Invalid submission details. Refresh and try again. Your draft has been kept.' };
+  }
   const normalized = normalizeSubmissionUrl(url);
   if ('error' in normalized) return { error:normalized.error };
   const db = await createClient();

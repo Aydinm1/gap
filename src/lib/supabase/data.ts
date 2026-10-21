@@ -4,11 +4,11 @@ import { createClient } from './server';
 import { requireUser } from './auth';
 import type { AdminWorkspaceState, AdminWeek } from '@/lib/program/admin';
 import type { CohortEnrollment, ProgramWeek, Resource, SubmissionAttempt } from '@/lib/program/types';
-import { compareCohorts } from '@/lib/program/state';
+import { readMemberRows } from './member-rows';
 import { buildWeekDetail } from '@/lib/program/week-detail';
 import { readPages } from './pagination';
 
-export const readWorkspace = cache(async (admin = false) => {
+export const readWorkspace = cache(async (admin = true) => {
   const user = await requireUser(admin);
   const db = await createClient();
   const [people, roster, cohorts, enrollments, weeks, resources, assignments, submissions] = await Promise.all([
@@ -39,18 +39,23 @@ export const readWorkspace = cache(async (admin = false) => {
 });
 
 export const readMember = cache(async () => {
-  const { user, state } = await readWorkspace();
-  const cohort = state.cohorts.filter(c => c.state==='active' && state.enrollments.some(e => e.cohortId===c.id && e.personId===user.personId && e.participationStatus==='enrolled')).toSorted(compareCohorts).at(-1);
-  const enrollment = state.enrollments.find(e => e.cohortId===cohort?.id && e.personId===user.personId && e.participationStatus==='enrolled');
+  const user = await requireUser();
   const db = await createClient();
-  const catalog = cohort ? await db.rpc('week_catalog',{ p_cohort_id:cohort.id }) : null;
-  if (catalog?.error) throw new Error('Program modules could not be loaded.');
-  const weeks: ProgramWeek[] = (catalog?.data ?? []).map((r: { id:string;cohort_id:string;week_number:number;title:string;published:boolean }) => {
-    const full = state.weeks.find(w => w.id===r.id);
-    if (r.published && full) return { ...full,publicationState:'published' };
+  const rows = await readMemberRows(db, user.personId);
+  const c = rows.cohort, e = rows.enrollment;
+  const cohort = c ? { id:c.id,quarter:c.quarter,year:c.year,startsOn:c.starts_on,endsOn:c.ends_on,state:c.state } : undefined;
+  const enrollment: CohortEnrollment | undefined = e ? { id:e.id,cohortId:e.cohort_id,personId:e.person_id,participationStatus:e.participation_status,advancementStatus:e.advancement_status,...(e.promotion_response ? { promotionResponse:e.promotion_response } : {}) } as CohortEnrollment : undefined;
+  const weeks: ProgramWeek[] = rows.catalog.map(r => {
+    const full = rows.weeks.find(w => w.id===r.id);
+    const assignment = rows.assignments.find(a => a.week_id===r.id);
+    if (r.published && full) return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:full.title,description:full.description,publicationState:'published',slidesUrl:full.slides_url ?? undefined,
+      resources:rows.resources.filter(a => a.week_id===r.id).map(a => ({ id:a.id,title:a.title,description:a.description ?? undefined,type:a.resource_type as Resource['type'],url:a.url,sortOrder:a.sort_order })),
+      assignment:assignment ? { id:assignment.id,weekNumber:r.week_number,title:assignment.title,instructions:assignment.instructions,dueAt:assignment.due_at } : undefined };
     return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:r.title,publicationState:'draft' };
   });
-  return { user,cohort,enrollment,weeks,submissions:state.submissions.filter(s => s.enrollmentId===enrollment?.id),now:new Date().toISOString() };
+  const submissions: SubmissionAttempt[] = rows.submissions.map(r => ({ id:r.id,assignmentId:r.assignment_id,enrollmentId:r.enrollment_id,status:r.status,submittedAt:r.submitted_at,updatedAt:r.updated_at,isCurrent:r.is_current,feedback:r.feedback ?? undefined,reviewedAt:r.reviewed_at ?? undefined,reviewedByUserId:r.reviewed_by ?? undefined,supersedesSubmissionId:r.supersedes_submission_id ?? undefined,
+    payload:r.submission_type==='link' ? { type:'link',submittedUrl:r.submitted_url! } : { type:'file',filePath:r.file_path!,originalFilename:r.original_filename! } }));
+  return { user,cohort,enrollment,weeks,submissions,now:new Date().toISOString() };
 });
 
 export async function readWeek(weekNumber: string) {

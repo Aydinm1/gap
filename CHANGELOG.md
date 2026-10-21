@@ -5,6 +5,14 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Scoped member reads to the signed-in person's selected active cohort and retained
+  attempts instead of loading the admin workspace. Added malformed-input guards for
+  non-upload actions and local regression coverage for direct action authorization,
+  session refresh/revocation, and histories beyond the API page limit.
+- Completed local production-mode desktop/phone publishing, roster, submission/review,
+  recovery, and sign-out verification. Fixed browser-test selector/navigation races and
+  reconciled P5/P7 local acceptance separately from pending hosted configuration.
+
 - Hardened P6 recovery: safe malformed-input rejection, contained Office parsing errors,
   reliable cancellation-failure messaging, and view refresh on idempotent save retries.
   Added owner-scoped/bounded cleanup and regression coverage for late uploads, cleanup

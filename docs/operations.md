@@ -1,17 +1,17 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-09-22
+**Last updated:** 2026-10-20
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
 been configured or verified.
 
-P5 now has Supabase-backed reads, server mutations, and Google sign-in code. Full local
-workflow and authorization acceptance is still pending. Missing configuration shows a
+P5 has Supabase-backed reads, server mutations, and Google sign-in code. Local core
+workflow and session-authorization acceptance passed on 2026-10-20. Missing configuration shows a
 setup error, not mock data. Only unsaved drafts are session-local. Local P6 enables private
 file uploads. Local Google callback/admin access and analyst access were user-confirmed;
-the remaining session-security acceptance checks stay open in `todo.md`.
+hosted setup, second-lead provisioning, and extended Monday checks stay open in `todo.md`.
 
 ## Local development
 
@@ -119,6 +119,47 @@ lint, typecheck, and production build passed. Next.js/eslint-config-next were al
 16.3.5 and compatible sharp/js-yaml updates resolved the audit findings (zero reported).
 These results supersede the initial migration-day pending checks above; they do not
 verify protected interactive browser workflows, session expiry, or real Google OAuth.
+
+### Local P5/P7 verification — 2026-10-20
+
+Use the existing local stack and running application; do not reset a database containing
+real work. Program verification uses Auth-issued fictional sessions with fixture Google
+identities, not a production login bypass or evidence of a fresh real Google OAuth flow.
+
+```sh
+GAP_TEST_APP_URL=http://localhost:3000 npm run test:program
+GAP_TEST_APP_URL=http://localhost:3000 GAP_TEST_BROWSER=1 npm run test:program
+```
+
+The direct-action suite resolves compiled action IDs from the running development
+manifest. For a production server, set
+`GAP_TEST_ACTION_MANIFEST=.next/server/server-reference-manifest.json`. Keep the app URL
+local. Never run multiple copies of the program suite concurrently: its fixture calendar
+slots are fixed. Browser checks refuse to overwrite occupied Spring 2098/2099 cohorts,
+record their exact newly created IDs, and remove only their fixture records afterward.
+The existing API fixtures use Winter/Spring 2999. Screenshots go to an OS temporary
+directory printed by the test. Use `GAP_TEST_CHROME` to override the installed Chrome path.
+
+The suite checks all seven admin mutation operations and link submission through actual
+HTTP Server Actions, malformed/forged inputs, unchanged records after denial, and live
+role removal. Refresh checks use a locally signed expired access token paired with a
+real Auth refresh session; they verify the replacement cookie and identity, plus invalid
+and revoked refresh rejection. It also tests explicitly scoped member reads with 1,007
+historical attempts, multiple cohorts, empty participation, and an admin client.
+
+Final acceptance ran against a local Webpack production build on port 3002 with the
+production action manifest: all 12 program test entries passed, including 1280px/390px
+cohort creation, roster editing, publishing, draft isolation, failed-save input retention,
+link submission, review/feedback, reload, and member/admin sign-out with back/forward and
+direct-route checks. The 50 unit/documentation, 12 Storage, and 9 enrollment entries also
+passed, along with lint, typecheck, generated-type consistency, and the Webpack build.
+This does not configure or validate hosted Supabase, Vercel, or new real Google identities.
+
+Duplicate generated `cache-life.d 2.ts` and `routes.d 2.ts` files under `.next/dev/types`
+and `.next/types` interrupted build/type checks. They were moved to OS temporary recovery
+folders without application changes; the production build then passed. If these duplicate
+artifacts recur, inspect the local filesystem/tooling rather than weakening type checks.
+The existing default-Turbopack environment limitation remains separate.
 
 ## Demo data cleanup and recovery
 

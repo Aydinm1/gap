@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-09-22
+**Last updated:** 2026-10-20
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -118,8 +118,24 @@ latest active cohort with enrolled participation. No qualifying cohort shows the
 program state. Server Actions save links and admin records, then revalidate protected
 views. Drafts remain session-local; saved attempts come from server reads.
 
+Member reads do not reuse the admin workspace loader. After live authorization they
+query only the authenticated person's enrolled participation, choose the latest active
+cohort using the shared quarter ordering, and retrieve that cohort's published weeks,
+their resources/assignments, and the selected enrollment's complete attempt history.
+Draft cards still come only from `week_catalog`. This explicit scope also applies to
+admins opening the member portal, regardless of their broader RLS permissions. No
+qualifying enrollment short-circuits to the empty state without program-wide queries.
+All list reads retain deterministic pagination and fail on incomplete results.
+
+Non-upload actions reject malformed top-level payloads before database calls; link
+actions also validate identifiers and paired replacement-version fields. Live authority
+is checked before validation and again by the database functions. Invalid requests
+return the existing safe error contract without clearing client drafts.
+
 The following prototype history describes the earlier UI stages, not current persistence.
-P5 end-to-end acceptance remains pending. See
+Local P5 core and session-security acceptance passed on 2026-10-20, including
+production-mode desktop/phone publishing, enrollment, review, reload, and sign-out.
+Hosted setup and broader responsive/accessibility acceptance remain separate. See
 [ADR 0007](decisions/0007-authentication-in-p5.md) for bringing authentication forward.
 
 The interface is built first against typed repository-local mock data. Page-level DTOs and

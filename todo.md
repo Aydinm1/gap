@@ -1,14 +1,14 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-09-23
+**Last updated:** 2026-10-20
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
 This file tracks approved work. Product and technical rules live in `docs/`; completion
 requires implementation, validation, documentation, and changelog agreement.
 
-## Current checkpoint — 2026-09-23
+## Current checkpoint — 2026-10-20
 
 - [x] Persistent local Supabase program, real Google sign-in, and a real approved admin
   are operational; the user completed a real Monday enrollment import successfully.
@@ -17,13 +17,17 @@ requires implementation, validation, documentation, and changelog agreement.
 - [x] P6 closeout: 48 unit/documentation test entries, 12 Storage entries with desktop/phone
   browser coverage, 8 program and 9 enrollment entries pass; lint, typecheck, generated-type
   consistency and Webpack production build pass. Test counts include suite/fixture entries.
-- [x] Committed/pushed implementation through `5362722` to `origin/main`; credentials
-  and recovery backups were excluded. P6, deferred deployment documentation, and this
-  checklist reconciliation remain uncommitted subsequent work.
+- [x] Committed/pushed P6 and deferred deployment documentation through `7bd6e87` to
+  `origin/main`; credentials and recovery backups were excluded. Subsequent P5/P7
+  scoping, validation, tests, and checklist changes remain uncommitted.
 - [x] User confirmed imported-member reload persistence, repeated preview showing Already
   linked without duplication, and real analyst program access/admin denial (2026-09-22).
-- [ ] Finish extended Monday and outstanding P5/P7 acceptance checks before claiming
-  those milestones complete. Local P6 is complete; hosted setup and attendance are deferred.
+- [x] Local P5/P7 closeout (2026-10-20): 50 unit/documentation, 12 program, 12 Storage,
+  and 9 enrollment test entries pass; lint, typecheck, generated types, and Webpack build
+  pass. Production-mode desktop/phone program, refresh, sign-out, and mutation checks pass.
+- [ ] Finish extended Monday tests, responsive/accessibility polish, second-lead
+  provisioning, and hosted configuration. Local core P5/P6/session verification is
+  complete; this is not hosted-deployment acceptance. Attendance remains deferred.
 
 ## Phase 0 — Documentation and repository foundation
 
@@ -150,7 +154,7 @@ requires implementation, validation, documentation, and changelog agreement.
   cohort/roster/publishing validation, and Pacific deadline edge cases (2026-09-14).
 - [x] Browser-verify authenticated fixture-admin download/review and member feedback at
   desktop and phone widths (P6, 2026-09-23).
-- [ ] Browser-verify content publishing and roster workflows at mobile and desktop widths
+- [x] Browser-verify content publishing and roster workflows at mobile and desktop widths
   against the persistent authenticated implementation.
 - [x] Replace the hardcoded mock admin identity with server-side authorization before
   claiming members cannot reach or trigger admin behavior.
@@ -164,11 +168,12 @@ by the mock-role test.
 
 ## Phase 5 — Supabase schema, seeds, and data access
 
-**Active, not fully accepted (2026-09-23):** Local migrations, repeatable seed execution,
-and the regression suites pass; see the current checkpoint for test counts. P6 verified
-authenticated desktop/phone submission, review, feedback, reload, and replacement/history
-flows, plus rejected expired-session upload requests. Full publishing/roster browser
-workflows, successful session refresh, and browser sign-out/back navigation remain open.
+**Local core accepted (2026-10-20):** Migrations, repeatable seed execution, and regression
+suites pass; see the current checkpoint for counts. Authenticated desktop/phone publishing,
+roster editing, submission, review, feedback, reload, and replacement/history are verified.
+Successful expired-token refresh, revoked-refresh rejection, browser sign-out/back/forward
+navigation, and direct non-upload action authorization also pass. Broader responsive and
+accessibility checks below remain separate polish work; hosted setup is not verified.
 Real local Google/admin sign-in worked, and the user confirmed real analyst access and
 admin denial on 2026-09-22. Fixture sessions alone do not count as Google-login verification.
 Generated types, lint, typecheck, and the Webpack production build pass; the default
@@ -205,41 +210,42 @@ Turbopack environment failure remains open below.
 - [x] Add the safe authenticated week-catalog function for locked draft cards.
 - [x] Add RLS grants and policies for profiles, roster, weeks, resources, assignments, and
   submissions.
-- [~] Add realistic idempotent seed data for six weeks and Week 2 details without shipping
+- [x] Add realistic idempotent seed data for six weeks and Week 2 details without shipping
   real personal data; include fictional active Fall and archived Spring cohorts.
 - [x] Add generated database TypeScript types and a documented regeneration command.
 - [x] Add cookie-aware server and browser clients using async Next.js 16 APIs.
-- [~] Implement a narrow server-only data layer and DTOs for member and admin reads.
+- [x] Implement a narrow server-only data layer and DTOs for member and admin reads.
 - [x] Replace mock page reads incrementally while preserving stable view-model contracts.
-- [~] Implement validated Server Actions for content, roster, feedback, and status changes;
+- [x] Implement validated Server Actions for content, roster, feedback, and status changes;
   authorize inside each action.
 - [x] Implement atomic link-submission replacement that retains historical rows.
 
 ### Authentication brought forward from P7
 
-- [~] Add token-refresh proxy, Google initiation/callback, safe local redirects, denial,
+- [x] Add token-refresh proxy, Google initiation/callback, safe local redirects, denial,
   and sign-out using cookie-aware Supabase clients.
-- [~] Require verified UC Davis Google identity and current active roster authority;
+- [x] Require verified UC Davis Google identity and current active roster authority;
   synchronize profiles without trusting editable metadata or stale profile roles.
-- [~] Protect layouts and every mutation, with independent database authorization and
+- [x] Protect layouts and every mutation, with independent database authorization and
   no shared caching of protected responses or mock-auth fallback.
 - [x] Verify local database/RPC and HTTP layout boundaries for anonymous/member/admin,
   inactive/wrong-domain/cross-user access, live role changes, draft isolation, rollback,
   and SDK sign-out using isolated fixture sessions.
 - [x] Verify direct upload Server Action rejection for anonymous, inactive, cross-user,
   and expired-session callers independently of layout and RPC checks (P6).
-- [ ] Verify successful expired-session refresh, browser sign-out/back navigation, and
+- [x] Verify successful expired-session refresh, browser sign-out/back navigation, and
   remaining non-upload mutation boundaries.
 - [x] Verify submit → review → feedback → reload and file/link replacement/history at
   desktop and phone widths using isolated published-program fixtures; test duplicate
   finalization, lost responses, and stale/concurrent saves (P6).
-- [ ] Complete the full publish → enroll → submit link → review → feedback → reload
+- [x] Complete the full publish → enroll → submit link → review → feedback → reload
   browser story, including publishing and roster/enrollment UI steps at both widths.
 - [x] Regenerate types after the review-receipt migration and verify no schema drift.
 - [x] Paginate workspace reads; test histories beyond the PostgREST row limit and
   fail rather than return partial data when a page fails.
-- [ ] Review member-specific query scoping before acceptance; workspace reads still
-  load all RLS-visible records before constructing the requested view models.
+- [x] Scope member queries to their enrolled participation, selected active cohort,
+  published content, and retained attempts—even for admins using the member portal.
+  Verify multiple cohorts, empty participation, and 1,007 retained attempts.
 
 ### Monday-ready enrollment foundation
 
@@ -248,8 +254,8 @@ Turbopack environment failure remains open below.
 - [x] Implement a shared, server-only enrollment operation with duplicate-safe processing
   and preservation of existing roles, access restrictions, and outcomes.
 
-The remaining P5 schema, policies, and client integration are implemented but awaiting
-full validation. The private enrollment operation is called by a live-roster-authorized
+The local P5 schema, policies, and client integration have passed core validation.
+The private enrollment operation is called by a live-roster-authorized
 admin wrapper, never by the mock identity. Manual Monday preview/map/confirm intake is
 now connected and user-tested; automatic sync and reporting remain disconnected.
 
@@ -265,7 +271,8 @@ now connected and user-tested; automatic sync and reporting remain disconnected.
 - [x] Anonymous/member/admin/inactive/cross-user SQL and client policy tests match the RLS
   matrix.
 - [x] The portal remains runnable with persistent repositories; HTTP route checks and
-  user-operated local admin/Monday workflows provide evidence. Full browser matrix remains open.
+  user-operated local admin/Monday workflows provide evidence. Desktop/phone core workflows
+  pass; the broader responsive/accessibility matrix remains open.
 - [x] Lint, typecheck, tests, and production build pass.
 
 ## Phase 6 — Private Storage and live submissions
@@ -344,14 +351,17 @@ do not satisfy them. See ADR 0007.
 ### Phase 7 gate
 
 - [x] Real local admin sign-in and user-confirmed analyst access/admin denial work.
-- [ ] Verify approved member and admin sign-in from expired sessions, including refresh.
+- [x] Verify approved member and admin expired-session refresh with real local Auth-issued
+  fixture sessions; invalid/revoked refresh sessions return to login. This is not a new
+  real Google OAuth verification.
 - [x] P6 application boundaries reject anonymous, inactive, cross-user, and expired-session
   upload requests; owner/admin downloads succeed and unauthorized downloads fail safely.
-- [ ] Anonymous, wrong-domain, unapproved, inactive, and member-to-admin escalation tests
+- [x] Anonymous, wrong-domain, unapproved, inactive, and member-to-admin escalation tests
   fail safely.
-- [ ] Sign-out invalidates protected navigation.
+- [x] Sign-out invalidates protected navigation, including browser back/forward, reload,
+  direct protected URLs, and subsequent mutation attempts at 390px and 1280px.
 - [x] Local lint, typecheck, existing auth/RLS regressions, and Webpack production build
-  pass (2026-09-23); this does not close the remaining session/browser acceptance checks.
+  pass (2026-10-20); hosted configuration and second-lead provisioning remain open.
 
 ## Phase 8 — Final responsive and usability polish
 
