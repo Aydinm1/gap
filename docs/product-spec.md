@@ -52,8 +52,11 @@ Admin navigation shows “My program” only when the admin has enrolled partici
 an active cohort, and omits the generic member-portal/profile return links otherwise.
 The read-only preview shares the member dashboard/week presentation, uses a sample
 member with no submissions, keeps drafts locked, and allows published assignment PDF
-downloads under existing admin authorization. It has no submit/review controls or
-participation side effects. Draft/archived cohorts show an explicit access warning.
+downloads under existing admin authorization. “Preview submission” opens the shared
+editor with local typing/file selection/link entry and a visible preview-only notice.
+Saving and uploading are disabled; preview drafts are component-local, separate from
+member drafts. No attempts, uploads, enrollments or progress are created. Preview never
+impersonates a learner or shows real learner work. Draft/archived cohorts show an access warning.
 
 ### Dashboard
 
@@ -95,20 +98,35 @@ A published week provides:
 - number, title, and description;
 - workshop presentation link;
 - ordered resources with title, optional description, type, and URL;
-- assignment title, instructions, and localized deadline;
-- current submission state and history-relevant metadata;
-- file upload or URL submission;
-- replacement/resubmission;
-- admin feedback and review status.
+- compact, ordered assignment cards with title, localized deadline, optional summary,
+  status icon/text, and one View assignment action;
+- materials below the assignment cards.
 
-The week assignment workspace remains instruction-led in every state. A compact submission
-rail shows status, current-work metadata, and one next action without displacing the full
-instructions. Once work exists, a dedicated submission-review page contains feedback,
-revision controls, submitted work, and retained history.
+Each assignment opens its own page with back-to-week navigation, title, deadline,
+optional summary/PDF download, complete instructions and a submission workspace below
+the brief, not in a stretched side column. Existing submission-review URLs remain valid
+and link back to their assignment; feedback, revisions and history stay on that page.
+Admin preview uses the same assignment layout with non-mutating submission controls.
+
+Admins may write a separate optional summary (up to 300 Unicode characters), never an
+automatically truncated brief. Existing assignments without summaries show no teaser.
+Instructions remain plain text unless an admin explicitly chooses formatting or uses
+the toolbar. The restricted Markdown subset supports section headings, bold, flat
+bulleted/numbered lists and HTTP(S) links. Raw HTML, images, embeds, arbitrary styles,
+and unsupported syntax are not interpreted. Unsafe links remain inert literal text.
+The admin editor offers a toolbar, format choice and rendered preview; instructions
+are limited to 50,000 Unicode characters. This does not add rich text to member responses.
+See [proposed Notion SWOT formatting](examples/notion-swot-assignment.md); applying it
+to real content requires approval of the full brief, not an automatic migration.
 
 ### Submission rules
 
-- A submission is either `file` or `link`, never both.
+- A submission is exactly one of `text`, `file`, or `link`; no combined attachments.
+- Written responses are nonblank plain text, at most 20,000 Unicode characters. Preserve
+  paragraphs/line breaks; normalize CRLF/CR to LF. Render escaped text directly in
+  member/admin review and history, never HTML. No rich text or autosave is included.
+  Drafts survive in-app member navigation, switching methods and failed saves, but not
+  reload. Warn on unloading unsaved input and confirm explicit cancellation.
 - Links must be valid `http` or `https` URLs. Google Docs, Slides, Sheets, Canva, and
   other relevant providers are accepted without a provider allowlist.
 - Files may be PDF, DOCX, PPTX, or XLSX, must be nonempty, and must not exceed
@@ -117,7 +135,7 @@ revision controls, submitted work, and retained history.
 - Uploads show progress, checking/saving, retryable errors, and cancellation. An uploaded
   object is not a submission until validation and atomic finalization succeed. The
   selected file is retained for recoverable failures only in the current page session;
-  after reload, reselect it. Link submission remains available if Storage is unhealthy.
+  after reload, reselect it. Link/text submission remains available if Storage is unhealthy.
 - If cancellation cannot be confirmed, explain the one-hour expiry and retain the file
   selection; allow starting again or switching to a link. Retrying a lost save response
   must return the existing submission rather than create another attempt.

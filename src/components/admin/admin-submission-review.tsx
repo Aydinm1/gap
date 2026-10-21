@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AssignmentStatusBadge } from "@/components/program/assignment-status-badge";
 import { SubmittedWorkRecord } from "@/components/program/submitted-work-record";
+import { WrittenResponse } from '@/components/program/written-response';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
@@ -17,6 +18,7 @@ import { assignmentsForWeek, type SubmissionStatus } from "@/lib/program/types";
 import { useAdminWorkspace } from "./admin-workspace";
 
 function ViewAttempt({ attempt, announce }: { attempt: ReturnType<typeof useAdminWorkspace>["submissions"][number]; announce: (message: string) => void }) {
+  if (attempt.payload.type === 'text') return <WrittenResponse text={attempt.payload.submittedText} />;
   const className = "inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-border-strong px-4 text-sm font-bold text-ink hover:bg-surface-subtle";
   return attempt.payload.type === "link" ? <a className={className} href={attempt.payload.submittedUrl} target="_blank" rel="noreferrer">Open submitted link ↗</a> : /^[0-9a-f-]{36}$/i.test(attempt.id) ? <a className={className} href={`/api/submissions/${attempt.id}/download`}>Download original file</a> : <button className={className} type="button" onClick={() => announce("This fictional preview file is not available to download.")}>Download original file</button>;
 }
@@ -72,7 +74,7 @@ export function AdminSubmissionReview({ submissionId }: { submissionId: string }
     <header className="mt-6"><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {week.weekNumber.toString().padStart(2, "0")} · Submission review</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{person?.fullName ?? "Member submission"}</h1><p className="mt-3 text-base text-ink-soft">{assignment?.title} · Submitted {formatSubmissionTime(submission.submittedAt)}</p></header>
 
     <div className="mt-9 grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)] lg:gap-10">
-      <section aria-labelledby="submitted-work-heading"><h2 id="submitted-work-heading" className="text-2xl font-bold">Submitted work</h2><p className="mt-2 text-sm leading-6 text-ink-soft">Open the member’s current document or presentation before leaving feedback.</p><div className="mt-5"><SubmittedWorkRecord attempt={submission}><ViewAttempt attempt={submission} announce={setMessage} /></SubmittedWorkRecord></div>
+      <section aria-labelledby="submitted-work-heading"><h2 id="submitted-work-heading" className="text-2xl font-bold">Submitted work</h2><p className="mt-2 text-sm leading-6 text-ink-soft">Read the member’s response or open their submitted work before leaving feedback.</p><div className="mt-5"><SubmittedWorkRecord attempt={submission}><ViewAttempt attempt={submission} announce={setMessage} /></SubmittedWorkRecord></div>
         {history.length ? <details className="mt-5 rounded-card border border-border bg-surface p-5"><summary className="cursor-pointer font-bold">Previous submissions ({history.length})</summary><ol className="mt-5 space-y-4">{history.map((attempt) => <li key={attempt.id} className="border-t border-border pt-4 first:border-0 first:pt-0"><p className="font-bold">{submissionDisplayName(attempt)}</p><p className="mt-1 text-sm text-ink-soft">{formatSubmissionTime(attempt.submittedAt)} · {attempt.status.replace("_", " ")}</p>{attempt.feedback ? <p className="mt-2 text-sm leading-6 text-ink-soft">{attempt.feedback}</p> : null}<div className="mt-3"><ViewAttempt attempt={attempt} announce={setMessage} /></div></li>)}</ol></details> : null}
       </section>
       <section aria-labelledby="review-decision-heading"><Card className="p-6 sm:p-7"><div className="flex flex-wrap items-center gap-3"><h2 id="review-decision-heading" className="text-2xl font-bold">Feedback and decision</h2><AssignmentStatusBadge state={submission.status} /></div><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the next state for this submission.</p>

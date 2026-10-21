@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from './server';
 import { requireUser } from './auth';
-import { normalizeSubmissionUrl } from '@/lib/program/submission';
+import { normalizeSubmissionText, normalizeSubmissionUrl } from '@/lib/program/submission';
 import { validateCohortDates } from '@/lib/program/admin';
 
 export async function saveAdmin(action: string, data: Record<string, unknown>) {
@@ -47,6 +47,25 @@ export async function saveLink(assignmentId: string, url: string, expectedId?: s
   if ('error' in normalized) return { error:normalized.error };
   const db = await createClient();
   const { error } = await db.rpc('submit_link',{ p_assignment_id:assignmentId,p_url:normalized.value,p_expected_id:expectedId,p_expected_updated_at:expectedUpdatedAt });
+  if (error) return { error:error.code==='40001' ? 'Your submission changed. Refresh before submitting again.' : 'Could not submit. The assignment may be closed or unavailable. Your draft has been kept.' };
+  revalidatePath('/','layout');
+  revalidatePath('/admin','layout');
+  return { success:true };
+}
+
+export async function saveText(assignmentId: string, text: string, expectedId?: string, expectedUpdatedAt?: string) {
+  await requireUser();
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (typeof assignmentId !== 'string' || !uuid.test(assignmentId) ||
+    (expectedId !== undefined && (typeof expectedId !== 'string' || !uuid.test(expectedId))) ||
+    (expectedUpdatedAt !== undefined && (typeof expectedUpdatedAt !== 'string' || !Number.isFinite(Date.parse(expectedUpdatedAt)))) ||
+    ((expectedId === undefined) !== (expectedUpdatedAt === undefined))) {
+    return { error:'Invalid submission details. Refresh and try again. Your draft has been kept.' };
+  }
+  const normalized = normalizeSubmissionText(text);
+  if ('error' in normalized) return { error:normalized.error };
+  const db = await createClient();
+  const { error } = await db.rpc('submit_text', { p_assignment_id:assignmentId,p_text:normalized.value,p_expected_id:expectedId,p_expected_updated_at:expectedUpdatedAt });
   if (error) return { error:error.code==='40001' ? 'Your submission changed. Refresh before submitting again.' : 'Could not submit. The assignment may be closed or unavailable. Your draft has been kept.' };
   revalidatePath('/','layout');
   revalidatePath('/admin','layout');

@@ -30,14 +30,14 @@ export const readWorkspace = cache(async (admin = true) => {
     weeks: (weeks.data ?? []).map((r): AdminWeek => {
       const weekAssignments = assignments.data.filter(a => a.week_id === r.id).map(a => {
         const document = documents.data.find(d => d.assignment_id === a.id);
-        return { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
+        return { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,summary:a.summary ?? undefined,instructionsFormat:a.instructions_format as 'plain' | 'markdown',dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
       });
       return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:r.title,description:r.description,publicationState:r.published?'published':'draft',slidesUrl:r.slides_url ?? undefined,
         resources:(resources.data ?? []).filter(a => a.week_id === r.id).map(a => ({ id:a.id,title:a.title,description:a.description ?? undefined,type:a.resource_type as Resource['type'],url:a.url,sortOrder:a.sort_order })),
         assignments:weekAssignments };
     }),
     submissions:(submissions.data ?? []).map((r): SubmissionAttempt => ({ id:r.id,assignmentId:r.assignment_id,enrollmentId:r.enrollment_id,status:r.status,submittedAt:r.submitted_at,updatedAt:r.updated_at,isCurrent:r.is_current,feedback:r.feedback ?? undefined,reviewedAt:r.reviewed_at ?? undefined,reviewedByUserId:r.reviewed_by ?? undefined,supersedesSubmissionId:r.supersedes_submission_id ?? undefined,
-      payload:r.submission_type==='link' ? { type:'link',submittedUrl:r.submitted_url! } : { type:'file',filePath:r.file_path!,originalFilename:r.original_filename! } })),
+      payload:r.submission_type==='text' ? { type:'text',submittedText:r.submitted_text! } : r.submission_type==='link' ? { type:'link',submittedUrl:r.submitted_url! } : { type:'file',filePath:r.file_path!,originalFilename:r.original_filename! } })),
   };
   return { user, state };
 });
@@ -53,7 +53,7 @@ export const readMember = cache(async () => {
     const full = rows.weeks.find(w => w.id===r.id);
     const assignments = rows.assignments.filter(a => a.week_id===r.id).map(a => {
       const document = rows.documents.find(d => d.assignment_id === a.id);
-      return { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
+      return { id:a.id,weekNumber:r.week_number,title:a.title,instructions:a.instructions,summary:a.summary ?? undefined,instructionsFormat:a.instructions_format as 'plain' | 'markdown',dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
     });
     if (r.published && full) return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:full.title,description:full.description,publicationState:'published',slidesUrl:full.slides_url ?? undefined,
       resources:rows.resources.filter(a => a.week_id===r.id).map(a => ({ id:a.id,title:a.title,description:a.description ?? undefined,type:a.resource_type as Resource['type'],url:a.url,sortOrder:a.sort_order })),
@@ -61,7 +61,7 @@ export const readMember = cache(async () => {
     return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:r.title,publicationState:'draft' };
   });
   const submissions: SubmissionAttempt[] = rows.submissions.map(r => ({ id:r.id,assignmentId:r.assignment_id,enrollmentId:r.enrollment_id,status:r.status,submittedAt:r.submitted_at,updatedAt:r.updated_at,isCurrent:r.is_current,feedback:r.feedback ?? undefined,reviewedAt:r.reviewed_at ?? undefined,reviewedByUserId:r.reviewed_by ?? undefined,supersedesSubmissionId:r.supersedes_submission_id ?? undefined,
-    payload:r.submission_type==='link' ? { type:'link',submittedUrl:r.submitted_url! } : { type:'file',filePath:r.file_path!,originalFilename:r.original_filename! } }));
+    payload:r.submission_type==='text' ? { type:'text',submittedText:r.submitted_text! } : r.submission_type==='link' ? { type:'link',submittedUrl:r.submitted_url! } : { type:'file',filePath:r.file_path!,originalFilename:r.original_filename! } }));
   return { user,cohort,enrollment,weeks,submissions,now:new Date().toISOString() };
 });
 

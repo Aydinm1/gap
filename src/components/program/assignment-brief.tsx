@@ -1,0 +1,20 @@
+import { briefBlocks, briefInline, type BriefFormat } from '@/lib/program/brief';
+
+function Inline({ text }: { text: string }) {
+  return briefInline(text).map((part, index) => part.type === 'bold' ? <strong key={index} className="font-bold text-ink">{part.text}</strong>
+    : part.type === 'link' ? <a key={index} href={part.href} target="_blank" rel="noreferrer" className="font-semibold text-action underline underline-offset-4">{part.text}</a> : part.text);
+}
+
+export function AssignmentBrief({ instructions, format = 'plain' }: { instructions: string; format?: BriefFormat }) {
+  if (format === 'plain') return <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-base leading-8 text-ink-soft">{instructions}</p>;
+  return <div className="space-y-5 break-words [overflow-wrap:anywhere] text-base leading-8 text-ink-soft">{briefBlocks(instructions).map((block, index) => {
+    if (block.type === 'heading') return <h2 key={index} className="pt-5 text-xl font-bold tracking-tight text-ink first:pt-0 sm:text-2xl"><Inline text={block.text} /></h2>;
+    if (block.type === 'subheading') return <h3 key={index} className="pt-3 text-lg font-bold text-ink"><Inline text={block.text} /></h3>;
+    if (block.type === 'list') {
+      const items = block.items.map((text, i) => <li key={i} className="pl-1"><Inline text={text} /></li>);
+      return block.ordered ? <ol key={index} start={block.start} className="list-decimal space-y-2 pl-6 marker:font-semibold marker:text-ink">{items}</ol>
+        : <ul key={index} className="list-disc space-y-2 pl-6 marker:text-action">{items}</ul>;
+    }
+    return <p key={index} className="whitespace-pre-wrap"><Inline text={block.text} /></p>;
+  })}</div>;
+}

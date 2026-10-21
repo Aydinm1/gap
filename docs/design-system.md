@@ -77,8 +77,9 @@ descriptive filenames.
 - **Multiple assignments:** the week editor has an “Assignments” section and one
   repeated assignment card per item, with its own title, instructions, Pacific deadline
   and PDF panel. Keep a visible Add assignment action and the common week save bar.
-  Members see one instruction/submission workspace per assignment, followed by shared
-  materials. Module rows show approved counts such as “1 of 3 assignments complete.”
+  Members see compact assignment cards, followed by shared materials. Each card has
+  title, deadline, optional summary, status icon/text and View assignment. Module rows
+  show approved counts such as “1 of 3 assignments complete.”
   Queue dropdown labels include week number and assignment title.
 
 - **Admin member preview:** expose “Preview as member” beside the cohort switcher.
@@ -86,7 +87,8 @@ descriptive filenames.
   Show “My program” only for admins with enrolled participation in an active cohort.
   Omit the duplicate profile return link; the admin logo returns to the admin workspace.
   Keep a visible read-only banner across preview dashboard/week navigation. Reuse the
-  member layout and disabled submission rail, and retain the selected cohort in links.
+  member layout and retain the selected cohort in links. “Preview submission” opens the
+  shared editor with local inputs, a preview-only notice and disabled save/upload.
 
 - **Assignment brief:** place a labeled PDF upload panel below the assignment editor.
   Show current filename/download, selection, upload progress, retry/cancel after failure,
@@ -149,8 +151,12 @@ descriptive filenames.
 - Design student pages mobile-first in behavior even when composing desktop-first.
 - Cards stack, deadlines stay near assignment titles, and submission controls remain
   thumb-friendly on small screens.
-- Week detail pages are assignment-first: instructions retain the wide column in every
-  lifecycle state while a compact submission rail answers status and next action.
+- Week detail pages are scannable overviews; never expand full assignment briefs inline.
+  Dedicated assignment pages use a centered `max-w-3xl` reading column, open brief and
+  compact submission panel beneath it. Do not stretch a sidebar alongside long text.
+  Keep heading hierarchy, restrained bold, real list markers and generous paragraph rhythm.
+  Admin instruction controls use labeled formatting buttons, a plain/formatted choice,
+  an editable source textarea and a rendered preview; all controls remain keyboard accessible.
   Workshop slides and references follow in one quieter, full-width materials list, with
   the presentation first and ordered references beneath it.
 - Do not enlarge short status copy to fill the assignment body or hide instructions after
@@ -169,12 +175,16 @@ descriptive filenames.
 - Admin pages may prioritize desktop density but must remain operable on mobile.
 - Member titles share a 32px mobile/36px desktop scale with admin titles. The dashboard
   leads with one next-step feature and places progress beside the module-list heading.
-  Week submission rails use unboxed attachment metadata; submission review retains the
+  Assignment submission panels use compact attachment metadata; submission review retains the
   roomier bordered record and prominent feedback. Materials have a direct anchor from
   the week introduction. Status labels distinguish awaiting review from complete.
 - Submission editors show file formats and the 20 MB limit before selection. Opening an
   editor focuses its heading; cancelling restores focus to the action that opened it.
   Unavailable sample-file actions display an adjacent explanation.
+- Offer Write response, Upload file and Submit link. Stack choices in narrow desktop
+  rails; wide editors can use three columns. Written responses use a labeled multiline
+  textbox, 20,000-character counter and plain-text/draft guidance. Review preserves line
+  breaks, wraps unbroken strings and renders escaped text, never Markdown/HTML.
 - Admin pages use the same editorial headings and restrained surfaces as member pages,
   with a persistent cohort context bar beneath the primary header. Operational queues
   lead; cohort outcome summaries remain secondary and use counts plus transparent

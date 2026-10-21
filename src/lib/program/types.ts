@@ -6,7 +6,7 @@ export type AdvancementStatus = "pending" | "promoted" | "not_promoted";
 export type PromotionResponse = "pending" | "joined" | "declined";
 export type WeekPublicationState = "draft" | "published";
 export type SubmissionStatus = "submitted" | "revision_requested" | "completed";
-export type SubmissionType = "file" | "link";
+export type SubmissionType = "file" | "link" | "text";
 export type AssignmentDisplayState =
   | SubmissionStatus
   | "overdue"
@@ -83,7 +83,8 @@ export type LinkSubmission = {
   submittedUrl: string;
 };
 
-export type SubmissionPayload = FileSubmission | LinkSubmission;
+export type TextSubmission = { type: "text"; submittedText: string };
+export type SubmissionPayload = FileSubmission | LinkSubmission | TextSubmission;
 
 export type SubmissionAttempt = {
   updatedAt?: string;
@@ -105,6 +106,8 @@ export type Assignment = {
   weekNumber: number;
   title: string;
   instructions: string;
+  summary?: string;
+  instructionsFormat?: 'plain' | 'markdown';
   document?: { id: string; name: string };
   dueAt: string;
 };

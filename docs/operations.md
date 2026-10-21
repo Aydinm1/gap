@@ -345,6 +345,58 @@ Deployment and a real failing-attempt log remain pending verification.
 
 ## Vercel deployment — Pending
 
+### Focused assignment pages and brief formatting — implementation and release
+
+Migration `202610210005_assignment_briefs_and_summaries.sql` adds optional summaries
+and explicit plain/Markdown format. Existing content, IDs, files and histories are not
+rewritten. Apply locally with `supabase migration up --local`; do not seed/reset.
+Hosted migration was applied on 2026-10-21, with the two written-response migrations,
+after a dry run showing no seeds/role changes. Verified all three migration entries,
+new columns and text RPC. Counts remained two assignments, one PDF document and zero
+submissions; brief/work fingerprints were unchanged and no briefs were converted.
+Production code release is in progress; authenticated hosted acceptance and real SWOT
+content updates remain separate.
+In Admin → Weeks → assignment, write a short Summary and use Instructions formatting
+buttons or select Formatted; Preview instructions shows the result. Save the week as
+usual. Members open View assignment from the week; admins follow the same path in
+Preview as member. [The proposed SWOT brief](examples/notion-swot-assignment.md) is
+copy-ready only after content approval, and is not seeded into any real cohort.
+
+Local verification (2026-10-21): 61 unit/docs, six assignment, five written-response,
+five brief, 12 program and 12 Storage entries pass. Desktop/phone checks (1280px/390px)
+cover formatting authoring/save/reload, compact summaries, full brief rendering, private
+PDFs, denied/cross-week/draft routes, preview counts and existing submission/review flows.
+Consecutive toolbar selections restore focus at commit rather than in a deferred frame;
+summary help is associated by description rather than included in the field name.
+Lint, typecheck, generated types, Webpack build and diff checks pass. Screenshots were
+visually reviewed at both widths. Fixtures were removed; no real brief was rewritten.
+Default Turbopack was not rerun; the earlier environment limitation remains separate.
+
+### Written submissions and editor preview — local implementation
+
+Apply `202610210003_submission_text_type.sql` then
+`202610210004_written_submissions.sql`. The enum addition must commit before use in the
+second migration. Existing attempts/attachments are retained; never reset or seed.
+Hosted migrations were applied and verified on 2026-10-21 with the formatting release
+above. Production code release is in progress; real member/admin acceptance is separate.
+
+Run `npm run test:written` against local Supabase, with `GAP_TEST_APP_URL` pointing to a
+local production server for HTTP-action and desktop/phone checks. Writes use exact
+disposable fixtures. Members choose Write response or existing file/link methods.
+Admins use Preview as member → published week → Preview submission to inspect controls
+without saving/uploading. Preview drafts do not survive closing/reloading.
+
+Local verification (2026-10-21): 58 unit/documentation entries, five written-response,
+four multi-assignment, five assignment-brief, 12 program, 12 Storage and nine isolated
+enrollment entries pass. Written-response browser checks ran at 1280px/390px and covered
+reload, review/feedback, stale-save input retention, in-app drafts, escaped text and
+preview with zero write requests. HTTP actions reject expired/inactive/unauthorized
+sessions and malformed/version-forged input. Lint, typecheck, generated-type checks,
+Webpack production build and diff checks pass. Default Turbopack was not rerun; its
+previous environment limitation remains separate. Exact fixture accounts/records/files
+were removed, including an orphaned test PDF from an initially failed test run. No
+hosted records, credentials, Monday records or deployment settings changed.
+
 ### Multiple assignments per week
 
 Apply `202610210002_multiple_week_assignments.sql` before deploying collection-aware

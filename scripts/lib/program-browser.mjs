@@ -86,6 +86,7 @@ export async function verifyProgramBrowser({appUrl, fixture, jarFor, admin, ok, 
       await page.reload(); assert.equal(await page.getByLabel(/^Description/).inputValue(),'Published browser instructions');
       await memberPage.goto(`${appUrl}/week/1`);
       await memberPage.getByText('Published browser instructions',{exact:true}).waitFor();
+      await memberPage.getByRole('link',{name:/^View assignment:/}).click();
       await memberPage.getByRole('button',{name:'Submit assignment',exact:true}).click();
       await memberPage.getByRole('button',{name:/^Submit link/}).click();
       await memberPage.getByLabel('Submission link',{exact:true}).fill('https://example.com/browser-evidence');

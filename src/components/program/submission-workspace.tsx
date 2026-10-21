@@ -1,6 +1,6 @@
 "use client";
 
-import { saveLink } from "@/lib/supabase/actions";
+import { saveLink, saveText } from "@/lib/supabase/actions";
 
 import { useRef, useState } from "react";
 import { useMemberAttempts } from "./member-workspace";
@@ -34,7 +34,7 @@ export function SubmissionWorkspace({
   assignmentId: string;
   enrollmentId: string;
   unsubmittedState: AssignmentDisplayState;
-  instructions: string;
+  instructions?: string;
   document?: { id: string; name: string };
   readOnly?: boolean;
   initialAttempts: readonly SubmissionAttempt[];
@@ -48,9 +48,12 @@ export function SubmissionWorkspace({
   const presentation = statusPresentation[current?.status ?? unsubmittedState];
 
   async function submit(payload: SubmissionPayload) {
-    if (payload.type !== 'link') throw new Error('File uploads are not available yet. Submit a link instead.');
+    if (readOnly) throw new Error('Preview only — nothing will be submitted.');
+    if (payload.type === 'file') throw new Error('Use the file upload control to submit a file.');
     // This form only creates a first attempt; never silently replace a newer one.
-    const result = await saveLink(assignmentId, payload.submittedUrl);
+    const result = payload.type === 'text'
+      ? await saveText(assignmentId, payload.submittedText)
+      : await saveLink(assignmentId, payload.submittedUrl);
     if (result.error) throw new Error(result.error);
     setSubmitting(false);
     setAnnouncement('Submission received.');
@@ -59,19 +62,15 @@ export function SubmissionWorkspace({
   return (
     <div>
       <p className="sr-only" aria-live="polite">{announcement}</p>
+      {instructions ? <p className="mb-6 whitespace-pre-line text-base leading-8 text-ink-soft">{instructions}</p> : null}
+      {document ? <a href={`/api/assignment-briefs/${document.id}/download`} className="mb-6 inline-flex min-h-11 items-center break-all text-sm font-bold text-action underline">Download assignment PDF · {document.name}</a> : null}
 
-      <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.75fr)]">
-        <section className="px-6 py-7 sm:px-8 sm:py-9 lg:px-10 lg:py-10" aria-labelledby="assignment-instructions-heading">
-          <h3 id="assignment-instructions-heading" className="sr-only">Instructions</h3>
-          <p className="max-w-3xl whitespace-pre-line text-base leading-8 text-ink-soft">{instructions}</p>
-          {document ? <a href={`/api/assignment-briefs/${document.id}/download`} className="mt-5 inline-flex min-h-11 items-center break-all text-sm font-bold text-action underline">Download assignment PDF · {document.name}</a> : null}
-        </section>
-
-        <aside className="border-t border-border bg-surface px-6 py-7 sm:px-8 sm:py-9 lg:border-l lg:border-t-0 lg:px-8 lg:py-10" aria-labelledby="submission-status-heading">
-          <p id="submission-status-heading" className="text-xs font-bold uppercase tracking-[0.14em] text-ink-faint">Submission</p>
+      <div>
+        <section aria-label="Submission">
+          <h2 className="text-xl font-bold text-ink">Your submission</h2>
           <div className="mt-3"><Badge tone={presentation.tone}>{presentation.label}</Badge></div>
 
-          {readOnly ? <div className="mt-4"><p className="text-sm leading-6 text-ink-soft">Submission controls are unavailable in admin preview.</p><Button className="mt-6" disabled>Submit assignment</Button></div> : current && !submitting ? (
+          {current && !submitting && !readOnly ? (
             <div className="mt-5">
               {current.status === "revision_requested" ? (
                 <p className="mb-5 text-sm leading-6 text-ink-soft">Changes were requested. Review the feedback before updating your work.</p>
@@ -87,7 +86,9 @@ export function SubmissionWorkspace({
               <SubmissionEditor
                 actionLabel="Submit assignment"
                 assignmentId={assignmentId}
-                description="Upload a document or share a link the review team can open."
+                layout="wide"
+                preview={readOnly}
+                description="Write a response, upload a document, or share a link the review team can open."
                 onFileSaved={() => { setSubmitting(false); setAnnouncement('Submission received.'); }}
                 onCancel={() => { setSubmitting(false); requestAnimationFrame(() => actionRef.current?.focus()); }}
                 onSubmit={submit}
@@ -96,10 +97,11 @@ export function SubmissionWorkspace({
           ) : (
             <div className="mt-4">
               <p className="text-sm leading-6 text-ink-soft">{presentation.detail}</p>
-              <div className="mt-6"><Button ref={actionRef} onClick={() => setSubmitting(true)}>Submit assignment</Button></div>
+              {readOnly ? <p className="mt-3 text-sm leading-6 text-ink-soft">Preview only — nothing will be submitted.</p> : null}
+              <div className="mt-6"><Button ref={actionRef} onClick={() => setSubmitting(true)}>{readOnly ? 'Preview submission' : 'Submit assignment'}</Button></div>
             </div>
           )}
-        </aside>
+        </section>
       </div>
     </div>
   );

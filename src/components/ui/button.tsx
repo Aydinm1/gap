@@ -48,6 +48,7 @@ type ButtonLinkProps = {
   className?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
+  'aria-label'?: string;
 };
 
 export function ButtonLink({
@@ -56,9 +57,10 @@ export function ButtonLink({
   className,
   variant = "primary",
   size = "default",
+  'aria-label': ariaLabel,
 }: ButtonLinkProps) {
   return (
-    <Link className={cn(base, variants[variant], sizes[size], className)} href={href}>
+    <Link aria-label={ariaLabel} className={cn(base, variants[variant], sizes[size], className)} href={href}>
       {children}
     </Link>
   );

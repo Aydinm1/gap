@@ -34,8 +34,8 @@ export default async function SubmissionReviewPage({ params, searchParams }: Sub
   return (
     <main className="pb-20 sm:pb-24">
       <PageContainer className="py-9 sm:py-11">
-        <Link href={`/week/${detail.week.weekNumber}`} className="inline-flex min-h-11 items-center text-sm font-bold text-action hover:text-action-hover">
-          <span className="mr-2" aria-hidden="true">←</span> Week {detail.week.weekNumber.toString().padStart(2, "0")}
+        <Link href={`/week/${detail.week.weekNumber}/assignments/${encodeURIComponent(assignment.id)}`} className="inline-flex min-h-11 items-center text-sm font-bold text-action hover:text-action-hover">
+          <span className="mr-2" aria-hidden="true">←</span> Assignment
         </Link>
 
         <header className="mt-6">

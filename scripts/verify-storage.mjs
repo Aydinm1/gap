@@ -222,6 +222,7 @@ test('private Storage lifecycle using isolated local accounts',async t=>{
           await context.addCookies([...jar].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));
           const page=await context.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(e.message));
           await page.goto(`${process.env.GAP_TEST_APP_URL}/week/1`);
+          await page.getByRole('link',{name:/^View assignment:/}).click();
           await page.getByRole('button',{name:'Submit assignment',exact:true}).click();
           await page.getByRole('button',{name:/^Upload file/}).click();
           if(width===1280) {
@@ -319,6 +320,7 @@ test('private Storage lifecycle using isolated local accounts',async t=>{
         await recovery.addCookies([...interruptedJar].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));
         const page=await recovery.newPage();
         await page.goto(`${process.env.GAP_TEST_APP_URL}/week/1`);
+        await page.getByRole('link',{name:/^View assignment:/}).click();
         await page.getByRole('button',{name:'Submit assignment',exact:true}).click();
         await page.getByRole('button',{name:/^Upload file/}).click();
         await page.getByLabel('Choose file',{exact:true}).setInputFiles({name:'interrupted.pdf',mimeType:'application/pdf',buffer:pdf});
@@ -327,12 +329,12 @@ test('private Storage lifecycle using isolated local accounts',async t=>{
         await page.route('**/storage/v1/upload/resumable',async route=>{await stalled;await route.abort('failed').catch(()=>{});});
         const transferStarted=page.waitForRequest(request=>request.url().includes('/storage/v1/upload/resumable'));
         await page.getByRole('button',{name:'Submit assignment',exact:true}).click(); await transferStarted;
-        await page.route('**/week/1',route=>route.request().headers()['next-action']?route.abort('failed'):route.continue());
+        await page.route('**/week/1/assignments/*',route=>route.request().headers()['next-action']?route.abort('failed'):route.continue());
         await page.getByRole('button',{name:'Cancel upload',exact:true}).click(); stopTransfer();
         await page.locator('p[role="alert"]').filter({hasText:'Cancellation could not be confirmed'}).waitFor();
         assert.equal(await current(interrupted),null);
         assert.equal(await page.getByLabel('Choose file',{exact:true}).evaluate(input=>input.files[0].name),'interrupted.pdf');
-        await page.unroute('**/week/1');
+        await page.unroute('**/week/1/assignments/*');
         await page.getByRole('button',{name:/^Submit link/}).click();
         await page.getByLabel('Submission link',{exact:true}).fill('https://example.com/storage-fallback');
         await page.getByRole('button',{name:'Submit assignment',exact:true}).click();

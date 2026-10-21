@@ -421,6 +421,36 @@ authentication/authorization. A configured Monday board is not a P5 completion g
 
 ### Responsive and usability work
 
+- [x] Add compact week assignment cards, dedicated member/admin-preview assignment pages,
+  optional authored summaries and safe heading/bold/list/link brief formatting with toolbar.
+  Preserve old review URLs, existing prose, private PDFs, history and non-mutating preview.
+- [x] Verify local assignment formatting/navigation security and desktop/phone regressions:
+  61 unit/docs, six assignment, five written-response, five brief, 12 program and 12
+  Storage entries pass. At 1280px/390px verify author/save/reload, headings/bold/lists,
+  safe links/inert HTML, compact overview, cohort-preserving preview, denied routes,
+  submission/review and no overflow. Lint, typecheck, generated types, Webpack build
+  and diff checks pass (2026-10-21). Exact fixtures removed; no hosted changes.
+- [x] Apply the three written-response/assignment-format migrations to hosted GAP;
+  verify migration history, columns/RPC and unchanged brief/work fingerprints, with
+  no seeds or automatic content conversion (2026-10-21).
+- [~] Commit, push and verify the combined assignment/written-response production release.
+- [ ] Verify the released assignment pages, formatting and text submissions using real
+  authorized member/admin sessions.
+- [ ] Approve the proposed Notion SWOT text before replacing the live brief.
+
+- [x] Add written responses (plain text, 20,000 characters), inline review/history and
+  text/file/link replacement with existing authorization/version checks.
+- [x] Add local-only admin submission-editor preview without enrollment/upload/saving;
+  verify isolated drafts and desktop/phone behavior.
+  Local validation (2026-10-21): 58 unit/docs, five written-response, four assignment,
+  five brief, 12 program, 12 Storage and nine enrollment entries pass. Browser checks
+  at 1280px/390px verify text entry, stale-save input retention, in-app drafts, reload,
+  escaped rendering, admin feedback and preview with zero write requests. Expired and
+  deactivated sessions are rejected. Lint, typecheck, generated-type consistency,
+  Webpack build and diff checks pass; fixtures removed. Hosted work remains separate.
+- [x] Apply written-response migrations to hosted GAP with the assignment-format release.
+  Production readiness and real admin/member acceptance are tracked separately above.
+
 - [x] Support multiple assignments per week with independent deadlines/PDFs/history,
   assignment-specific review selection, and all-approved week completion; preserve
   existing work and verify rollback, stale collection saves and desktop/phone workflows.

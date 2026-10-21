@@ -23,7 +23,7 @@
 - `participation_status`: `enrolled | completed | withdrew`
 - `advancement_status`: `pending | promoted | not_promoted`
 - `promotion_response`: `pending | joined | declined`
-- `submission_type`: `file | link`
+- `submission_type`: `file | link | text`
 - `submission_status`: `submitted | revision_requested | completed`
 
 Do not store `overdue`, `due_soon`, or `upcoming`; derive them from deadline and current
@@ -177,6 +177,8 @@ Order by `sort_order`, then `created_at` for deterministic rendering.
 - `week_id uuid not null references program_weeks(id) on delete restrict`
 - `title text not null`
 - `instructions text not null`
+- `summary text` (optional, at most 300 Unicode characters)
+- `instructions_format text not null default 'plain'` (`plain | markdown`)
 - `due_at timestamptz not null`
 - `created_at timestamptz not null`
 - `updated_at timestamptz not null`
@@ -184,6 +186,13 @@ Order by `sort_order`, then `created_at` for deterministic rendering.
 `week_id` is no longer unique. `sort_order integer not null default 1 check (>0)` and
 the `(week_id,sort_order,id)` index define deterministic assignment order. Existing
 assignment IDs, submissions and PDF metadata remain unchanged by the migration.
+
+Migration `202610210005` adds summary/format metadata and a 50,000-character instruction
+constraint. Existing text is unchanged and explicitly defaults to plain rendering.
+The authorized collection save persists metadata atomically with the week; omitted
+metadata in older payloads preserves existing values. A supplied blank/null summary
+clears it. Invalid format, summary type/length or oversized instructions roll back the
+whole save. No RLS/Storage changes or real-content rewrites are introduced.
 
 `save_program_week(jsonb)` is a live-admin-authorized function called from the existing
 `admin_mutate('week', ...)` interface. It locks the week and its existing assignments,
@@ -209,6 +218,7 @@ per-assignment/enrollment uniqueness still govern submissions and upload operati
 - `file_size bigint` (required for files; 1–20,971,520 bytes)
 - `mime_type text` (required for files; null for links)
 - `submitted_url text`
+- `submitted_text text` (text attempts only; nonblank, 1–20,000 Unicode characters)
 - `status submission_status not null default 'submitted'`
 - `feedback text`
 - `reviewed_by uuid references profiles(id) on delete set null`
@@ -219,8 +229,9 @@ per-assignment/enrollment uniqueness still govern submissions and upload operati
 - `updated_at timestamptz not null`
 
 Constraints require the assignment week and enrollment to belong to the same cohort and
-exactly one of `file_path` or `submitted_url` according to
-`submission_type`. A partial unique index permits only one current submission per user
+exactly one valid file, URL, or written-text payload according to `submission_type`.
+Non-file attempts have null filename/path/size/MIME; text and URL are mutually exclusive.
+Files require nonnull size and MIME. A partial unique index permits only one current submission per user
 and assignment. Resubmission atomically sets the previous row to non-current and inserts
 a new row pointing to it. Historical records are never silently overwritten.
 
@@ -252,7 +263,13 @@ search paths. Monday mappings have no authenticated read grant.
 
 `submit_link` locks the enrollment and current attempt, checks the expected attempt ID
 and update timestamp, rejects completed work, and supersedes/inserts atomically. It accepts
-links only in P5. `admin_mutate` authorizes against the live roster before editing program
+links only. `submit_text` uses the same live authorization, enrollment/current-attempt lock
+order and optimistic version checks. It rejects blank/oversized text, inaccessible/draft
+assignments and completed attempts; failed/stale writes leave existing work intact.
+Text remains under submission RLS; Storage/downloads remain file-only. Migration
+`202610210003` commits the enum addition before `202610210004` uses it in constraints
+and functions. See [ADR 0013](decisions/0013-written-submissions-and-editor-preview.md).
+`admin_mutate` authorizes against the live roster before editing program
 records or invoking private enrollment. `review_submission` returns the saved timestamp
 inside the same transaction, so a later review cannot silently advance the caller's
 optimistic-concurrency token. Missing/stale tokens fail closed. Resource rows currently

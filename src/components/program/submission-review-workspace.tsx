@@ -1,6 +1,7 @@
 "use client";
 
-import { saveLink } from "@/lib/supabase/actions";
+import { saveLink, saveText } from "@/lib/supabase/actions";
+import { WrittenResponse } from './written-response';
 
 import { useRef, useState } from "react";
 import { useMemberAttempts } from "./member-workspace";
@@ -35,6 +36,7 @@ function SubmissionLink({
   presentation?: "record" | "history";
 }) {
   const [fileNotice, setFileNotice] = useState(false);
+  if (attempt.payload.type === 'text') return <WrittenResponse text={attempt.payload.submittedText} />;
   const className = cn(
     "inline-flex min-h-11 items-center text-sm font-bold transition-colors",
     presentation === "record"
@@ -76,9 +78,11 @@ export function SubmissionReviewWorkspace({
   const actionLabel = current.status === "revision_requested" ? "Revise submission" : "Replace submission";
 
   async function submit(payload: SubmissionPayload) {
-    if (payload.type !== 'link') throw new Error('File uploads are not available yet. Submit a link instead.');
+    if (payload.type === 'file') throw new Error('Use the file upload control to submit a file.');
     if (!replacementBase) throw new Error('Reopen the replacement form before submitting.');
-    const result = await saveLink(assignmentId, payload.submittedUrl, replacementBase.id, replacementBase.updatedAt);
+    const result = payload.type === 'text'
+      ? await saveText(assignmentId, payload.submittedText, replacementBase.id, replacementBase.updatedAt)
+      : await saveLink(assignmentId, payload.submittedUrl, replacementBase.id, replacementBase.updatedAt);
     if (result.error) throw new Error(result.error);
     setReplacing(false);
     setAnnouncement('Submission received.');

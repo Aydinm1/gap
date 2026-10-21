@@ -283,7 +283,9 @@ export type Database = {
           due_at: string
           id: string
           instructions: string
+          instructions_format: string
           sort_order: number
+          summary: string | null
           title: string
           updated_at: string
           week_id: string
@@ -293,7 +295,9 @@ export type Database = {
           due_at: string
           id?: string
           instructions: string
+          instructions_format?: string
           sort_order?: number
+          summary?: string | null
           title: string
           updated_at?: string
           week_id: string
@@ -303,7 +307,9 @@ export type Database = {
           due_at?: string
           id?: string
           instructions?: string
+          instructions_format?: string
           sort_order?: number
+          summary?: string | null
           title?: string
           updated_at?: string
           week_id?: string
@@ -571,6 +577,7 @@ export type Database = {
           status: Database["public"]["Enums"]["submission_status"]
           submission_type: Database["public"]["Enums"]["submission_type"]
           submitted_at: string
+          submitted_text: string | null
           submitted_url: string | null
           supersedes_submission_id: string | null
           updated_at: string
@@ -590,6 +597,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["submission_status"]
           submission_type: Database["public"]["Enums"]["submission_type"]
           submitted_at?: string
+          submitted_text?: string | null
           submitted_url?: string | null
           supersedes_submission_id?: string | null
           updated_at?: string
@@ -609,6 +617,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["submission_status"]
           submission_type?: Database["public"]["Enums"]["submission_type"]
           submitted_at?: string
+          submitted_text?: string | null
           submitted_url?: string | null
           supersedes_submission_id?: string | null
           updated_at?: string
@@ -701,6 +710,15 @@ export type Database = {
         }
         Returns: string
       }
+      submit_text: {
+        Args: {
+          p_assignment_id: string
+          p_expected_id?: string
+          p_expected_updated_at?: string
+          p_text: string
+        }
+        Returns: string
+      }
       sync_profile: {
         Args: never
         Returns: {
@@ -742,7 +760,7 @@ export type Database = {
       program_quarter: "fall" | "winter" | "spring"
       promotion_response: "pending" | "joined" | "declined"
       submission_status: "submitted" | "revision_requested" | "completed"
-      submission_type: "file" | "link"
+      submission_type: "file" | "link" | "text"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -880,7 +898,7 @@ export const Constants = {
       program_quarter: ["fall", "winter", "spring"],
       promotion_response: ["pending", "joined", "declined"],
       submission_status: ["submitted", "revision_requested", "completed"],
-      submission_type: ["file", "link"],
+      submission_type: ["file", "link", "text"],
     },
   },
 } as const

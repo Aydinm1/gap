@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { SubmissionWorkspace } from "./submission-workspace";
+import { AssignmentStatusBadge } from './assignment-status-badge';
+import { ButtonLink } from '@/components/ui/button';
 import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
 import { StateMessage } from "@/components/ui/state-message";
@@ -32,23 +33,19 @@ export function WeekContent({ detail, programHref = '/', preview = false }: {
         <div className="mt-10 space-y-12 lg:mt-12">
           <section id="assignment" aria-labelledby="assignment-heading">
             {detail.assignments.length ? (
-              <div className="space-y-10">
+              <div className="space-y-4">
                 <h2 id="assignment-heading" className="text-xs font-bold uppercase tracking-[0.16em] text-brand-deep">{detail.assignments.length === 1 ? 'Assignment' : 'Assignments'}</h2>
-                {detail.assignments.map((assignment) => <article key={assignment.id} id={`assignment-${assignment.id}`} aria-labelledby={`title-${assignment.id}`}>
-                <h3 id={`title-${assignment.id}`} className="mt-2 text-2xl font-bold tracking-[-0.025em] sm:text-3xl">{assignment.title}</h3>
-                <p className="mt-2 text-sm font-bold leading-6 text-ink-soft">Due {assignment.dueLabel}</p>
-                <Card className="mt-5 overflow-hidden">
-                  <SubmissionWorkspace
-                    readOnly={preview}
-                    assignmentId={assignment.id}
-                    enrollmentId={detail.enrollmentId ?? "admin-preview"}
-                    unsubmittedState={assignment.unsubmittedState}
-                    instructions={assignment.instructions}
-                    document={assignment.document}
-                    initialAttempts={assignment.attempts}
-                    reviewPath={`/week/${detail.week.weekNumber}/submission?assignment=${encodeURIComponent(assignment.id)}`}
-                  />
-                </Card>
+                {detail.assignments.map((assignment) => <article key={assignment.id} id={`assignment-${assignment.id}`} aria-labelledby={`title-${assignment.id}`} className="rounded-card border border-border bg-surface p-6 sm:p-7">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <div className="min-w-0"><h3 id={`title-${assignment.id}`} className="break-words text-xl font-bold tracking-tight">{assignment.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-ink-soft">Due {assignment.dueLabel}</p>
+                      {assignment.summary ? <p className="mt-3 max-w-2xl whitespace-pre-line break-words text-sm leading-7 text-ink-soft">{assignment.summary}</p> : null}
+                      <div className="mt-3"><AssignmentStatusBadge state={assignment.state} /></div>
+                    </div>
+                    <ButtonLink className="shrink-0 self-start sm:self-center" variant="secondary" href={preview
+                      ? `${programHref.split('?')[0]}/week/${detail.week.weekNumber}/assignments/${encodeURIComponent(assignment.id)}${programHref.includes('?') ? `?${programHref.split('?')[1]}` : ''}`
+                      : `/week/${detail.week.weekNumber}/assignments/${encodeURIComponent(assignment.id)}`} aria-label={`View assignment: ${assignment.title}`}>View assignment <span className="ml-2" aria-hidden="true">→</span></ButtonLink>
+                  </div>
                 </article>)}
               </div>
             ) : (

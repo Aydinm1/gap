@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { formatFileSize } from "@/components/dev/file-upload-preview";
 import {
   normalizeSubmissionUrl,
+  normalizeSubmissionText,
+  MAX_RESPONSE_CHARACTERS,
 } from "@/lib/program/submission";
 import type { SubmissionPayload } from "@/lib/program/types";
 import { cn } from "@/lib/ui";
@@ -23,6 +25,7 @@ export function SubmissionEditor({
   onSubmit,
   expected,
   onFileSaved,
+  preview = false,
 }: {
   actionLabel: string;
   assignmentId: string;
@@ -32,6 +35,7 @@ export function SubmissionEditor({
   onSubmit: (payload: SubmissionPayload) => void | Promise<void>;
   expected?: { id: string; updatedAt?: string };
   onFileSaved?: () => void;
+  preview?: boolean;
 }) {
   const router = useRouter();
   const task = useRef<ReturnType<typeof uploadTask> | undefined>(undefined);
@@ -43,20 +47,28 @@ export function SubmissionEditor({
   const inputId = useId();
   const workspace = useMemberWorkspace();
   const [localDraft, setLocalDraft] = useState<SubmissionDraft>({ url: "" });
-  const draft = workspace?.drafts[assignmentId] ?? localDraft;
-  const { method, file, url } = draft;
+  const draft = (!preview ? workspace?.drafts[assignmentId] : undefined) ?? localDraft;
+  const { method, file, url, text = '' } = draft;
+  const characterCount = Array.from(text).length;
+  const dirty = Boolean(file || url.trim() || text.trim());
+  useEffect(() => {
+    if (!preview && workspace) return;
+    const warn = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty, preview, workspace]);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
   function patchDraft(patch: Partial<SubmissionDraft>) {
-    if (workspace) workspace.setDrafts((items) => ({ ...items, [assignmentId]: { ...(items[assignmentId] ?? { url: "" }), ...patch } }));
+    if (workspace && !preview) workspace.setDrafts((items) => ({ ...items, [assignmentId]: { ...(items[assignmentId] ?? { url: "" }), ...patch } }));
     else setLocalDraft((current) => ({ ...current, ...patch }));
   }
   function clearDraft() {
-    patchDraft({ method: undefined, file: undefined, url: "" });
+    patchDraft({ method: undefined, file: undefined, url: "", text: '' });
   }
   const [saving, setSaving] = useState(false);
   async function finish(payload: SubmissionPayload) {
-    if (busy.current) return;
+    if (preview || busy.current) return;
     busy.current = true;
     setSaving(true);
     try { await onSubmit(payload); clearDraft(); }
@@ -64,7 +76,7 @@ export function SubmissionEditor({
     finally { busy.current = false; setSaving(false); }
   }
   async function sendFile() {
-    if (!file || busy.current) return;
+    if (preview || !file || busy.current) return;
     const invalid = fileError(file); if (invalid) return setError(invalid);
     busy.current = true; setSaving(true); setError(undefined); setFinalizing(false);
     task.current ??= uploadTask(file, assignmentId, expected, setProgress, () => setFinalizing(true));
@@ -87,7 +99,7 @@ export function SubmissionEditor({
     setError(result?.error ?? 'Upload canceled. Your file is still selected.');
   }
   function cancel() {
-    if ((file || url.trim()) && !window.confirm("Discard this submission draft?")) return;
+    if (dirty && !window.confirm("Discard this submission draft?")) return;
     clearDraft();
     onCancel?.();
   }
@@ -95,6 +107,13 @@ export function SubmissionEditor({
   const [error, setError] = useState<string>();
 
   function submit() {
+    if (preview) return;
+    setError(undefined);
+    if (method === 'text') {
+      const result = normalizeSubmissionText(text);
+      if ('error' in result) return setError(result.error);
+      return finish({ type: 'text', submittedText: result.value });
+    }
     if (method === "file") {
       if (!file) return setError('Choose a file.');
       return sendFile();
@@ -106,18 +125,19 @@ export function SubmissionEditor({
       return finish({ type: "link", submittedUrl: result.value });
     }
 
-    setError("Choose file or link submission.");
+    setError("Choose a written response, file, or link submission.");
   }
 
   return (
     <div>
       <h3 ref={heading} tabIndex={-1} className="text-lg font-bold text-ink outline-none">{actionLabel}</h3>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
+      {preview ? <p className="mt-3 rounded-lg border border-border bg-surface-subtle p-3 text-sm font-bold text-ink" role="note">Preview only — nothing will be submitted. Selected files stay on this device.</p> : null}
       <div className={cn(
         "mt-6 grid gap-3",
-        layout === "wide" ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2",
+        layout === "wide" ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-1",
       )}>
-        {(["file", "link"] as const).map((choice) => (
+        {(["text", "file", "link"] as const).map((choice) => (
           <button
             key={choice}
             type="button"
@@ -132,16 +152,28 @@ export function SubmissionEditor({
             )}
           >
             <span className="block text-sm font-bold text-ink">
-              {choice === "file" ? "Upload file" : "Submit link"}
+              {choice === 'text' ? 'Write response' : choice === "file" ? "Upload file" : "Submit link"}
             </span>
             <span className="mt-1 block text-xs leading-5 text-ink-soft">
-              {choice === "file"
+              {choice === 'text' ? 'Type or paste your response · Up to 20,000 characters' : choice === "file"
                 ? "PDF, DOCX, PPTX, or XLSX · Up to 20 MB"
                 : "Google Docs, Slides, Sheets, Canva, or another web link"}
             </span>
           </button>
         ))}
       </div>
+
+      {method === 'text' ? <div className="mt-6">
+        <label className="block text-sm font-bold text-ink" htmlFor={`${inputId}-text`}>Your response</label>
+        <textarea id={`${inputId}-text`} rows={10} disabled={saving} value={text}
+          onChange={(event) => { patchDraft({ text: event.target.value }); setError(undefined); }}
+          aria-describedby={`${inputId}-text-help ${inputId}-count`}
+          aria-invalid={characterCount > MAX_RESPONSE_CHARACTERS || undefined}
+          className="mt-2 block w-full min-w-0 resize-y rounded-lg border border-border-strong bg-surface p-3.5 text-base leading-7"
+          placeholder="Type or paste your response here." />
+        <p id={`${inputId}-count`} className={cn('mt-2 text-xs', characterCount > MAX_RESPONSE_CHARACTERS ? 'text-danger-text' : 'text-ink-soft')}>{characterCount.toLocaleString('en-US')} / 20,000 characters</p>
+        <p id={`${inputId}-text-help`} className="mt-2 text-xs leading-5 text-ink-soft">Plain text; paragraphs and line breaks are preserved. Drafts are not saved after a reload.</p>
+      </div> : null}
 
       {method === "file" ? (
         <div className="mt-6">
@@ -178,7 +210,7 @@ export function SubmissionEditor({
       {progress !== undefined ? <div className="mt-4" role="status"><label className="text-sm" htmlFor={`${inputId}-progress`}>{finalizing ? 'Checking file and saving…' : `Uploaded ${progress}%`}</label><progress id={`${inputId}-progress`} className="mt-2 w-full accent-action" max={100} value={progress} /></div> : null}
       {error ? <p className="mt-4 text-sm font-bold text-danger-text" role="alert">{error}</p> : null}
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button disabled={saving} onClick={submit}>{saving ? 'Submitting…' : actionLabel}</Button>
+        <Button disabled={saving || preview} onClick={submit}>{saving ? 'Submitting…' : actionLabel}</Button>
         {hasTask ? <Button disabled={finalizing} variant="quiet" onClick={() => void cancelTransfer()}>Cancel upload</Button> : null}
         {onCancel ? <Button disabled={saving} variant="quiet" onClick={cancel}>Cancel</Button> : null}
       </div>

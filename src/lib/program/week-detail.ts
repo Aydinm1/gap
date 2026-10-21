@@ -16,6 +16,8 @@ export type AssignmentDetail = {
     id: string;
     title: string;
     instructions: string;
+    summary?: string;
+    instructionsFormat?: 'plain' | 'markdown';
     document?: { id: string; name: string };
     dueLabel: string;
     state: AssignmentDisplayState;
@@ -77,6 +79,8 @@ export function buildWeekDetail({
       id: assignment.id,
       title: assignment.title,
       instructions: assignment.instructions,
+      summary: assignment.summary,
+      instructionsFormat: assignment.instructionsFormat,
       document: assignment.document,
       dueLabel: formatDeadline(assignment.dueAt),
       state: deriveAssignmentState(assignment, current, now),

@@ -1,0 +1,27 @@
+import Link from 'next/link';
+import { PageContainer } from '@/components/ui/container';
+import { Card } from '@/components/ui/card';
+import { AssignmentBrief } from './assignment-brief';
+import { SubmissionWorkspace } from './submission-workspace';
+import type { AssignmentDetail } from '@/lib/program/week-detail';
+
+export function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHref, preview = false }: {
+  assignment: AssignmentDetail; weekNumber: number; enrollmentId: string; weekHref: string; preview?: boolean;
+}) {
+  return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
+    <div className="mx-auto max-w-3xl">
+      <Link href={weekHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← Week {String(weekNumber).padStart(2,'0')}</Link>
+      <header className="mt-6 border-b border-border pb-8">
+        <p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {String(weekNumber).padStart(2,'0')} · Assignment</p>
+        <h1 className="mt-3 break-words text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{assignment.title}</h1>
+        <p className="mt-3 text-sm font-semibold leading-6 text-ink-soft">Due {assignment.dueLabel}</p>
+        {assignment.summary ? <p className="mt-5 text-lg leading-8 text-ink-soft">{assignment.summary}</p> : null}
+        {assignment.document ? <a href={`/api/assignment-briefs/${assignment.document.id}/download`} className="mt-5 inline-flex min-h-11 max-w-full items-center break-words text-sm font-bold text-action underline underline-offset-4">Download assignment PDF · {assignment.document.name}</a> : null}
+      </header>
+      <section aria-label="Assignment instructions" className="py-9 sm:py-11"><AssignmentBrief instructions={assignment.instructions} format={assignment.instructionsFormat} /></section>
+      <Card className="p-6 sm:p-8"><SubmissionWorkspace assignmentId={assignment.id} enrollmentId={enrollmentId}
+        unsubmittedState={assignment.unsubmittedState} initialAttempts={assignment.attempts} readOnly={preview}
+        reviewPath={`/week/${weekNumber}/submission?assignment=${encodeURIComponent(assignment.id)}`} /></Card>
+    </div>
+  </PageContainer></main>;
+}

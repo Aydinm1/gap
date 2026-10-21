@@ -5,6 +5,15 @@ import type {
 } from "./types.ts";
 
 export const MAX_SUBMISSION_BYTES = 20 * 1024 * 1024;
+export const MAX_RESPONSE_CHARACTERS = 20000;
+
+export function normalizeSubmissionText(value: unknown) {
+  if (typeof value !== 'string' || value.includes('\0')) return { error: 'Enter a written response.' } as const;
+  const normalized = value.replace(/\r\n?/g, '\n');
+  if (!normalized.trim()) return { error: 'Enter a written response.' } as const;
+  if (Array.from(normalized).length > MAX_RESPONSE_CHARACTERS) return { error: 'Keep your response to 20,000 characters or fewer.' } as const;
+  return { value: normalized } as const;
+}
 
 const allowedExtensions = new Set(["pdf", "docx", "pptx", "xlsx"]);
 const allowedMimeTypes = new Set([
@@ -166,6 +175,7 @@ export function replaceSubmission({
 }
 
 export function submissionDisplayName(attempt: SubmissionAttempt) {
+  if (attempt.payload.type === 'text') return 'Written response';
   return attempt.payload.type === "file"
     ? attempt.payload.originalFilename
     : attempt.payload.submittedUrl;

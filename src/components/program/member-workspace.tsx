@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import type { SubmissionAttempt } from "@/lib/program/types";
 
-export type SubmissionDraft = { method?: "file" | "link"; file?: File; url: string };
+export type SubmissionDraft = { method?: "file" | "link" | "text"; file?: File; url: string; text?: string };
 type Workspace = {
   attempts: SubmissionAttempt[];
   setAttempts: Dispatch<SetStateAction<SubmissionAttempt[]>>;
@@ -15,7 +15,7 @@ const Context = createContext<Workspace | null>(null);
 export function MemberWorkspace({ initialAttempts, children }: { initialAttempts: readonly SubmissionAttempt[]; children: ReactNode }) {
   const [attempts, setAttempts] = useState([...initialAttempts]);
   const [drafts, setDrafts] = useState<Record<string, SubmissionDraft>>({});
-  const dirty = Object.values(drafts).some((draft) => draft.file || draft.url.trim());
+  const dirty = Object.values(drafts).some((draft) => draft.file || draft.url.trim() || draft.text?.trim());
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); };
     window.addEventListener("beforeunload", warn);

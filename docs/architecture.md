@@ -33,6 +33,7 @@ See [ADR 0008](decisions/0008-monday-member-import.md).
 | `/auth/callback` | Public callback | Exchange OAuth code and validate access |
 | `/access-denied` | Public | Explain domain, roster, or inactive access failure |
 | `/week/[weekNumber]` | Active member/admin | Published week detail |
+| `/week/[weekNumber]/assignments/[assignmentId]` | Enrolled active member/admin | Complete brief and submission workspace |
 | `/week/[weekNumber]/submission` | Active member/admin | Own submission review and history |
 | `/dev/info` | Development only | Retired public-information page reference |
 | `/admin` | Admin | Overview and submission matrix |
@@ -63,7 +64,9 @@ at both layout and data boundaries. They reuse the user-scoped admin workspace r
 then map only the selected cohort's catalog/published payload into member view models.
 An in-memory `admin-preview` enrollment context satisfies the existing pure selectors;
 it is never saved or passed to a mutation. Real enrollments, attempts and feedback do
-not enter preview DTOs. Shared week rendering disables submission controls in preview.
+not enter preview DTOs. Shared week rendering offers a local-only editor preview:
+explicit preview mode isolates drafts from the member provider and guards submit/upload
+handlers in addition to disabling save. Typing/selecting files sends no mutation/Storage request.
 Preview navigation retains its cohort query; normal member reads remain enrollment-scoped.
 
 1. The user initiates Google OAuth with an allowed callback URL.
@@ -77,6 +80,17 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 7. Database and Storage RLS enforce the same policy independently.
 
 ## Data access and mutations
+
+Week pages render compact assignment summaries/statuses, not full briefs or forms.
+Dedicated assignment pages resolve the ID within `readWeek`'s enrollment/cohort-scoped,
+published detail; cross-week/unknown/draft IDs are not found. Preview has the equivalent
+`/admin/preview/week/[weekNumber]/assignments/[assignmentId]?cohort=...` route under live
+admin authorization and keeps cohort context. Existing review URLs remain unchanged.
+Server-rendered briefs use a dependency-free, restricted Markdown parser producing
+typed text/heading/list/link tokens and React elements. No HTML injection APIs or HTML
+parser are used. HTTP(S) links are allowlisted; images/raw HTML are literal text.
+Format defaults to plain so existing prose is never silently reinterpreted. The same
+renderer drives the client admin preview; the toolbar inserts the documented subset.
 
 Runtime weeks expose `assignments` arrays ordered by database `sort_order,id`.
 `assignmentsForWeek` accepts a legacy single field only for existing fixtures and
@@ -160,10 +174,14 @@ admins opening the member portal, regardless of their broader RLS permissions. N
 qualifying enrollment short-circuits to the empty state without program-wide queries.
 All list reads retain deterministic pagination and fail on incomplete results.
 
-Non-upload actions reject malformed top-level payloads before database calls; link
+Non-upload actions reject malformed top-level payloads before database calls; link/text
 actions also validate identifiers and paired replacement-version fields. Live authority
 is checked before validation and again by the database functions. Invalid requests
 return the existing safe error contract without clearing client drafts.
+
+`saveText` validates plain text and calls user-scoped `submit_text`. Row mapping retains
+the text discriminant; a shared escaped-text component renders current/history responses
+without interpreting HTML. Both form and database enforce the 20,000-character limit.
 
 The following prototype history describes the earlier UI stages, not current persistence.
 Local P5 core and session-security acceptance passed on 2026-10-20, including
@@ -178,7 +196,7 @@ concrete need emerges.
 
 - Domain contracts and pure selectors live in `src/lib/program`; mock fixtures are a
   separate module in that domain.
-- File and link submissions use a discriminated union, and persisted submission status
+- File, link and plain-text submissions use a discriminated union, and persisted submission status
   excludes deadline-derived display states.
 - Draft program items contain catalog fields only. Published detail objects carry
   descriptions, resources, slides, and assignments.

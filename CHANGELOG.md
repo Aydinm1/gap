@@ -5,6 +5,16 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added compact week assignment cards and focused assignment pages with full briefs,
+  PDF downloads and submission controls beneath the instructions. Added optional summaries
+  and opt-in restricted brief formatting with an admin toolbar/preview. Existing prose,
+  submission-review links and histories remain intact. Hosted migrations are applied
+  with unchanged content fingerprints; production code release is in progress.
+
+- Added plain-text responses alongside files/links with inline review, retained history
+  and version-checked replacement. Added local-only admin editor preview without
+  enrollment, uploads or saving. Hosted migrations are applied with the assignment release.
+
 - Added ordered multiple assignments per week with independent deadlines, PDFs,
   submission histories and reviews. Weeks complete only after all assignments are
   approved, with partial counts displayed. Added transactional collection saves and

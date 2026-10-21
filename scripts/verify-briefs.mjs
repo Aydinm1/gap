@@ -114,7 +114,9 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
           assert.equal(await page.getByRole('link',{name:'My program →',exact:true}).count(),0);
           assert.equal(await page.getByRole('link',{name:'180 Degrees Consulting UC Davis home',exact:true}).getAttribute('href'),`/admin?cohort=${cohort}`);
           await page.getByRole('link',{name:/Week 1 Brief test/}).click();
-          await page.getByText('Submission controls are unavailable in admin preview.',{exact:true}).waitFor();
+          await page.getByRole('link',{name:/^View assignment:/}).click();
+          await page.getByRole('button',{name:'Preview submission',exact:true}).click();
+          await page.getByRole('note').filter({hasText:'Preview only'}).waitFor();
           assert.equal(await page.getByRole('button',{name:'Submit assignment',exact:true}).isDisabled(),true);
           assert.equal(await sql(`select count(*) from public.cohort_enrollments where cohort_id=${q(cohort)}`),countBefore);
           await sql(`insert into public.cohort_enrollments(person_id,cohort_id) values(${q(lead.person)},${q(cohort)})`);
@@ -156,6 +158,7 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
           const memberCtx=await browser.newContext({viewport:{width,height:900}});
           await memberCtx.addCookies([...(await jar(member))].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));
           const memberPage=await memberCtx.newPage();memberPage.setDefaultTimeout(15000);await memberPage.goto(`${process.env.GAP_TEST_APP_URL}/week/1`);
+          await memberPage.getByRole('link',{name:/^View assignment:/}).click();
           await memberPage.getByRole('link',{name:`Download assignment PDF · Assignment ${width}.pdf`,exact:true}).waitFor();
           await memberPage.goto(`${process.env.GAP_TEST_APP_URL}/admin/preview?cohort=${cohort}`);
           await memberPage.waitForURL(url=>url.pathname==='/access-denied');
