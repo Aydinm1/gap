@@ -51,7 +51,7 @@ export function ProfileMenu({
         <span className="hidden min-w-0 sm:block">
           <span className="block truncate text-sm font-bold text-ink">{user.fullName}</span>
           <span className="block text-xs capitalize text-ink-soft">
-            {user.role === "member" ? "Analyst" : "Admin"}
+            {user.role === "member" ? "Analyst" : user.role === 'viewer' ? 'Viewer' : "Admin"}
           </span>
         </span>
         <span aria-hidden="true" className="hidden text-ink-faint sm:inline">⌄</span>

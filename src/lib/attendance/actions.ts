@@ -1,13 +1,13 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { requireUser } from '@/lib/supabase/auth';
+import { requireUser, requireParticipant } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
 import type { AttendanceOperation, AttendanceRecord, AttendanceResult } from './types';
 
 const uuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 export async function saveAttendance(input: AttendanceOperation): Promise<AttendanceResult> {
   const action = input?.action;
-  await requireUser(action !== 'check_in');
+  if (action === 'check_in') await requireParticipant(); else await requireUser(true);
   if (!input || typeof input !== 'object' || !['open', 'close', 'correct', 'check_in'].includes(action)) return { error: 'Invalid attendance request.' };
   if (action === 'open') {
     if (!uuid(input.weekId) || typeof input.workshopDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(input.workshopDate) || !Number.isFinite(Date.parse(input.workshopDate)) || new Date(input.workshopDate).toISOString().slice(0,10) !== input.workshopDate) return { error: 'Choose a valid workshop date.' };

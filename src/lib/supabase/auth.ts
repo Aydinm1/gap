@@ -17,3 +17,9 @@ export const requireUser = cache(async (admin = false): Promise<ProgramUser> => 
   return { id: user.id, personId: profile.person_id, email: profile.email, fullName: profile.full_name,
     role: profile.role, initials: profile.full_name.split(/\s+/).map((part: string) => part[0]).slice(0,2).join('') };
 });
+
+export const requireParticipant = cache(async () => {
+  const user = await requireUser();
+  if (user.role === 'viewer') redirect('/access-denied');
+  return user;
+});

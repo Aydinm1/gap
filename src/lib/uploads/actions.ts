@@ -1,6 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { requireUser } from '@/lib/supabase/auth';
+import { requireParticipant } from '@/lib/supabase/auth';
 import { storageServer, storageObjectUrl, readBounded } from './server';
 import { fileError, fileMime, type UploadResult } from './format';
 import { inspectFile } from './inspect';
@@ -17,7 +17,7 @@ function resultMessage(result: UploadResult): UploadResult {
   return 'error' in result ? { error: messages[result.error] ?? failure } : result;
 }
 export async function prepareUpload(assignmentId: string, file: { name: string; size: number; type: string }, expectedId?: string, expectedUpdatedAt?: string): Promise<UploadResult> {
-  const user = await requireUser();
+  const user = await requireParticipant();
   const invalid = fileError(file); if (invalid) return { error: invalid };
   try {
     const db = storageServer();
@@ -30,14 +30,14 @@ export async function prepareUpload(assignmentId: string, file: { name: string; 
   } catch { return { error: failure }; }
 }
 export async function cancelUpload(intentId: string) {
-  const user = await requireUser();
+  const user = await requireParticipant();
   try {
     const { error } = await storageServer().rpc('file_upload', { p_actor: user.id, p_action: 'cancel', p_intent: intentId });
     return error ? { error: 'Could not cancel. The upload will expire automatically after one hour.' } : { success: true };
   } catch { return { error: failure }; }
 }
 export async function finalizeUpload(intentId: string): Promise<UploadResult> {
-  const user = await requireUser();
+  const user = await requireParticipant();
   try {
     const db = storageServer();
     const args = { p_actor: user.id, p_intent: intentId };

@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -375,6 +375,23 @@ do not satisfy them. See ADR 0007.
   pass (2026-10-20); hosted configuration and second-lead provisioning remain open.
 
 ## Phase 8 — Final responsive and usability polish
+
+### Viewer access for board members — local implementation
+
+- [x] Add separate Viewer enum/access migrations, published-content permissions,
+  historical-work denial, enrollment/conversion guards and actionable Monday errors.
+- [x] Add Portal access roles, Viewer profile labels, Explore cohort/week/assignment
+  routes and local-only practice without enrollment or personal progress/statuses.
+- [x] Finish isolated Viewer security/concurrency/browser verification, unchanged participant/
+  review/attendance counts, member/admin regressions, generated types, lint/build/diff and docs.
+  Eight Viewer entries (desktop/phone), 64 unit/docs entries and all existing enrollment,
+  program/session, Storage, attendance, assignment/PDF/written regressions pass locally.
+  Real Google sessions for board accounts remain a release acceptance check.
+- [x] Apply separately authorized hosted Viewer migrations; verify receipts/guards/grants
+  and unchanged data fingerprints across 15 tables, including 24 enrollments (2026-10-22).
+- [~] Commit/push and verify the separately authorized Viewer production deployment.
+- [ ] Provision real board users and verify their Google/Viewer experience with separate
+  account-provisioning authorization.
 
 ### Workshop resources and week attendance — local implementation
 

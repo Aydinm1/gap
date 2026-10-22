@@ -4,9 +4,10 @@ import { Card } from '@/components/ui/card';
 import { AssignmentBrief } from './assignment-brief';
 import { SubmissionWorkspace } from './submission-workspace';
 import type { AssignmentDetail } from '@/lib/program/week-detail';
+import { PracticeSubmission } from './practice-submission';
 
-export function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHref, preview = false }: {
-  assignment: AssignmentDetail; weekNumber: number; enrollmentId: string; weekHref: string; preview?: boolean;
+export function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHref, preview = false, browse = false }: {
+  assignment: AssignmentDetail; weekNumber: number; enrollmentId: string; weekHref: string; preview?: boolean; browse?: boolean;
 }) {
   return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
     <div className="mx-auto max-w-3xl">
@@ -19,9 +20,9 @@ export function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHr
         {assignment.document ? <a href={`/api/assignment-briefs/${assignment.document.id}/download`} className="mt-5 inline-flex min-h-11 max-w-full items-center break-words text-sm font-bold text-action underline underline-offset-4">Download assignment PDF · {assignment.document.name}</a> : null}
       </header>
       <section aria-label="Assignment instructions" className="py-9 sm:py-11"><AssignmentBrief instructions={assignment.instructions} format={assignment.instructionsFormat} /></section>
-      <Card className="p-6 sm:p-8"><SubmissionWorkspace assignmentId={assignment.id} enrollmentId={enrollmentId}
+      <Card className="p-6 sm:p-8">{browse ? <PracticeSubmission key={assignment.id} assignmentId={assignment.id} /> : <SubmissionWorkspace assignmentId={assignment.id} enrollmentId={enrollmentId}
         unsubmittedState={assignment.unsubmittedState} initialAttempts={assignment.attempts} readOnly={preview}
-        reviewPath={`/week/${weekNumber}/submission?assignment=${encodeURIComponent(assignment.id)}`} /></Card>
+        reviewPath={`/week/${weekNumber}/submission?assignment=${encodeURIComponent(assignment.id)}`} />}</Card>
     </div>
   </PageContainer></main>;
 }

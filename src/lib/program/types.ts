@@ -1,4 +1,4 @@
-export type AppRole = "member" | "admin";
+export type AppRole = "member" | "admin" | "viewer";
 export type ProgramQuarter = "fall" | "winter" | "spring";
 export type CohortState = "draft" | "active" | "archived";
 export type ParticipationStatus = "enrolled" | "completed" | "withdrew";

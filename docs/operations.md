@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -89,6 +89,46 @@ tables are empty. No one was checked in or enrolled by release verification. Com
 is authorized; verify Vercel's automatic deployment and real Google/phone attendance next.
 
 ## Local development
+
+### Viewer access — release
+
+Apply `202610210007_viewer_role.sql` then `202610210008_viewer_access.sql` using
+`supabase migration up --local`, without reset/seed. The enum must commit before access
+functions/policies use it. Regenerate types as usual. This creates no real identities,
+enrollments or automatic role changes. Hosted migrations, real board provisioning,
+commit/push and deployment require separate approval, not prior attendance-release approval.
+
+Add board users under Members → Portal access → Add roster member, selecting Viewer
+and their UC Davis email; do not use Add participant or Monday intake. They use the same
+Google/active-roster sign-in, then Explore published active/archived programs and local
+practice without submitting/checking in/reviewing/administering or reading private work.
+Explicitly change roles before future enrollment; resolve enrolled active/draft participation
+before conversion to Viewer, preserving historical records.
+
+Run `npm run test:viewers` on local Supabase. Set `GAP_TEST_APP_URL=http://localhost:3004`
+and `GAP_TEST_ACTION_MANIFEST=.next/server/server-reference-manifest.json` for action and
+desktop/phone checks against an isolated production server. Fixtures include a fictional
+24-participant cohort and disposable accounts/files; cleanup targets exact owned records.
+Fixture sessions do not verify real Google OAuth acceptance for newly provisioned board users.
+
+Local verification (2026-10-22): eight Viewer entries pass, including Portal access UI
+provisioning, desktop/390px browsing and practice, protected PDFs, live role/deactivation
+checks, retained-history denial, manual/Monday enrollment guards and concurrent role/
+enrollment attempts. Practice sends zero mutation/upload requests; the 24-participant
+fixture's participation/work/attendance snapshots remain unchanged by Viewer creation.
+All 64 unit/documentation entries and enrollment, program/session, Storage, attendance,
+multiple-assignment, brief and written-response regressions pass. Lint, typecheck,
+generated-type consistency, Webpack production build and diff checks pass. The existing
+Turbopack environment limitation remains separate; real board-user Google acceptance
+is not claimed.
+
+Hosted release (2026-10-22): explicitly authorized the Viewer migration and production
+release. Dry run listed only `202610210007` and `202610210008`, no seeds, role files or
+Vault changes; both applied successfully. Verified enum, two migration receipts, four
+enrollment/role guards and service-only upload wrapper grants. Before/after fingerprints
+match across 15 existing application/Auth/Storage tables, including all 24 enrollments.
+No real Viewer accounts were provisioned. Push/deployment verification follows this
+checkpoint; real board-account sign-in remains manual acceptance.
 
 1. Install native `fnm` through Apple Silicon Homebrew or the official universal macOS
    release, then `fnm install 24` and `fnm default 24`. Initialize `fnm env --use-on-cd

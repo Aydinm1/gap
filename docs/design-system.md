@@ -1,10 +1,15 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
+
+Viewer Explore retains member typography, modules, locked icons, materials and focused
+assignment pages. Label the switcher “Browsing cohort” and profile “Viewer.” Omit personal
+progress, submission badges, overdue and attendance prompts. Use “Try submission preview”
+with explicit local-only/no-save messaging and retain cohort context through content links.
 
 Attendance uses compact green prompts without replacing Continue. Week selectors show
 date/state/count; a large monospace code and local QR share a neutral panel, stacking on

@@ -204,6 +204,7 @@ export type Database = {
     }
     Functions: {
       can_learn: { Args: { p_cohort: string }; Returns: boolean }
+      can_read_content: { Args: { p_cohort: string }; Returns: boolean }
       current_member: {
         Args: never
         Returns: Database["public"]["Tables"]["approved_members"]["Row"][]
@@ -229,7 +230,17 @@ export type Database = {
           person_id: string
         }[]
       }
+      file_upload_impl: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_data?: Json
+          p_intent?: string
+        }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
+      is_viewer: { Args: never; Returns: boolean }
       may_download: { Args: { p_path: string }; Returns: boolean }
       may_download_brief: { Args: { p_path: string }; Returns: boolean }
       may_upload: { Args: { p_path: string }; Returns: boolean }
@@ -901,7 +912,7 @@ export type Database = {
     }
     Enums: {
       advancement_status: "pending" | "promoted" | "not_promoted"
-      app_role: "member" | "admin"
+      app_role: "member" | "admin" | "viewer"
       cohort_state: "draft" | "active" | "archived"
       participation_status: "enrolled" | "completed" | "withdrew"
       program_quarter: "fall" | "winter" | "spring"
@@ -1039,7 +1050,7 @@ export const Constants = {
   public: {
     Enums: {
       advancement_status: ["pending", "promoted", "not_promoted"],
-      app_role: ["member", "admin"],
+      app_role: ["member", "admin", "viewer"],
       cohort_state: ["draft", "active", "archived"],
       participation_status: ["enrolled", "completed", "withdrew"],
       program_quarter: ["fall", "winter", "spring"],

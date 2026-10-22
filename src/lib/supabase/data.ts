@@ -1,5 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
+import { redirect } from 'next/navigation';
 import { createClient } from './server';
 import { requireUser } from './auth';
 import type { AdminWorkspaceState, AdminWeek } from '@/lib/program/admin';
@@ -44,6 +45,7 @@ export const readWorkspace = cache(async (admin = true) => {
 
 export const readMember = cache(async () => {
   const user = await requireUser();
+  if (user.role === 'viewer') redirect('/explore');
   const db = await createClient();
   const rows = await readMemberRows(db, user.personId);
   const c = rows.cohort, e = rows.enrollment;

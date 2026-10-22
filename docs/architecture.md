@@ -8,10 +8,17 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
+
+Viewer Explore has a dedicated user-scoped published-content loader and role-checked
+layout/data boundary, never the broad admin workspace or admin-preview loader. Portal
+entry redirects Viewers before loading participation. Shared content components accept
+a browsing variant; practice has no member workspace, mutation requests or enrollment.
+Content and participation privileges are separate DB helpers; participant actions also
+call `requireParticipant`. Normal own-profile synchronization is not participation.
 
 Attendance uses user-scoped clients and typed actions in `src/lib/attendance/`, without
 a service-key client or new public API. Its generic landing sits outside the protected
@@ -39,6 +46,9 @@ updates without shared protected caching or realtime.
 | --- | --- | --- |
 | `/` | Active member/admin | Student dashboard and portal home |
 | `/login` | Public | Google sign-in and access explanation |
+| `/explore` | Active Viewer/Admin | Published active/archived program browser |
+| `/explore/week/[weekNumber]` | Active Viewer/Admin | Selected-cohort workshop/resources |
+| `/explore/week/[weekNumber]/assignments/[assignmentId]` | Active Viewer/Admin | Published brief/PDF and non-saving practice |
 | `/attendance/[sessionId]` | Generic public shell; authorized member details | Explicit QR/manual check-in and receipt |
 | `/admin/attendance` | Admin | Selected-cohort sessions, local QR and roster corrections |
 | `/auth/callback` | Public callback | Exchange OAuth code and validate access |

@@ -5,6 +5,15 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added local Viewer access: published active/archived programs and non-saving assignment
+  practice without enrollment, cohort metrics, review/attendance obligations or private
+  learner/admin data. Added Portal access roles, separate read/participation permissions
+  and guarded enrollment/role transitions. Eight isolated Viewer entries, desktop/phone
+  practice with zero write requests, existing regressions and local build/type/lint/docs
+  checks pass. Separately authorized hosted Viewer migrations are applied with unchanged
+  existing record fingerprints and 24 enrollments. Real board provisioning/Google acceptance
+  remains separate.
+
 - Updated Next.js and eslint-config-next to matched stable 16.4.2 and applied compatible
   Sharp/source-map-js/brace-expansion security fixes. Production dependency audit is clean;
   five development-only braces/lint-chain findings have no compatible upstream patch and

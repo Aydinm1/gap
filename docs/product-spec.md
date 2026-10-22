@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -20,6 +20,8 @@ It should feel like a restrained consulting-firm training portal, not a school L
 - **Member:** an active approved member who signs in with a UC Davis Google account.
 - **Admin:** an active approved member with responsibility for content, roster, and
   submission review.
+- **Viewer:** an approved observer who browses published content without cohort
+  enrollment, student obligations or administrative/private learner access.
 - Authentication requires Google through Supabase Auth and a verified email ending in
   `@ucdavis.edu`.
 - Authentication alone never grants application access. The normalized authenticated
@@ -46,6 +48,26 @@ It should feel like a restrained consulting-firm training portal, not a school L
   instructions, PDF brief, deadline, submissions, feedback, and retained history.
 
 ## Member workflows
+
+### Viewer browsing
+
+Provision board viewers under Members → Portal access → Add roster member → Viewer,
+not cohort participants or Monday intake. Adding access creates no enrollment, review
+item or attendance entry; metrics derive from enrollments rather than approved identities.
+Enrollment requires changing Viewer to Member/Admin first. Converting a currently enrolled
+active/draft participant requires explicitly resolving participation; never delete history.
+
+Viewers entering `/` go to `/explore`, also accessible to admins. Reuse member styling and
+the cohort switcher; choose the latest active cohort, then latest archived. Draft cohorts
+are unavailable. Published weeks expose descriptions, slides, ordered resources, assignment
+instructions/current PDFs; draft cards expose catalog fields only. No student work,
+feedback, directories, attendance/codes or admin controls. Omit personal progress, completion,
+overdue warnings and submission badges. Ordinary members retain their enrolled-program scope.
+
+Try submission preview opens the existing text/file/link editor with saving/uploading
+disabled. Explain that nothing is submitted and local practice resets on leaving the
+assignment. Retain verified UC Davis Google/active-roster rules and enforce role changes/
+deactivation on subsequent requests, including direct actions and protected downloads.
 
 Admins can open “Preview as member” for the selected cohort without enrollment.
 Admin navigation shows “My program” only when the admin has enrolled participation in

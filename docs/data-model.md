@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-22
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -17,7 +17,7 @@
 
 ## Enums
 
-- `app_role`: `member | admin`
+- `app_role`: `member | admin | viewer`
 - `program_quarter`: `fall | winter | spring`
 - `cohort_state`: `draft | active | archived`
 - `participation_status`: `enrolled | completed | withdrew`
@@ -268,6 +268,23 @@ returns only `week_number`, `title`, and `published`. Direct member SELECT polic
 `program_weeks`, resources, and assignments expose full rows only when published.
 
 ## RLS capability matrix
+
+### Viewer capability exception
+
+Viewers read only their own identity/profile, active/archived cohorts, narrow week catalogs,
+published weeks/resources/assignments and current ready assignment PDFs. Deny enrollment,
+student submissions/feedback/files, attendance/codes, directories and Monday data, including
+retained own history. Draft cohorts and full draft payloads remain private.
+
+`is_viewer()` derives live roster authority. `can_read_content(cohort)` expands published
+reads; `can_learn(cohort)` explicitly excludes Viewer participation. PDF metadata/Storage
+use content permission; submitted Storage keeps owner/admin rules with Viewer excluded.
+Statement-level guards acquire provisioning's advisory transaction lock; row guards reject
+new Viewer enrollments and conversion of enrolled active/draft participants. Existing-role
+edits/deactivation do not erase or get blocked by historical participation. Monday previews/
+results report actionable Viewer errors. Service-only `file_upload` rejects Viewer actors
+before any operation; the original implementation is private and all API roles lose direct
+execution. Enum/access changes are ordered separate migrations (007 then 008).
 
 | Resource | Member | Admin |
 | --- | --- | --- |

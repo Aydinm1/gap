@@ -4,10 +4,11 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { ProgramCohort } from "@/lib/program/types";
 import { compareCohorts, formatCohortLabel } from "@/lib/program/state";
 
-export function CohortSwitcher({ cohorts, selectedId, onChange }: {
+export function CohortSwitcher({ cohorts, selectedId, onChange, label = 'Managing cohort' }: {
   cohorts: readonly ProgramCohort[];
   selectedId: string;
   onChange: (id: string) => void;
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -34,7 +35,7 @@ export function CohortSwitcher({ cohorts, selectedId, onChange }: {
           trigger.current?.focus();
         }
       }}>
-      <p id={`${id}-label`} className="mb-1 text-xs font-medium text-ink-soft">Managing cohort</p>
+      <p id={`${id}-label`} className="mb-1 text-xs font-medium text-ink-soft">{label}</p>
       <button ref={trigger} type="button" disabled={!cohorts.length}
         aria-expanded={open} aria-controls={`${id}-options`} aria-labelledby={`${id}-label ${id}-value`}
         onClick={() => setOpen(value => !value)}

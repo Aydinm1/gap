@@ -16,8 +16,8 @@ const resourceLabels = {
   workshop: "Workshop",
 } as const;
 
-export function WeekContent({ detail, programHref = '/', preview = false, attendance = [] }: {
-  detail: WeekDetailViewModel & { enrollmentId?: string }; programHref?: string; preview?: boolean; attendance?: AttendancePrompt[];
+export function WeekContent({ detail, programHref = '/', preview = false, browse = false, attendance = [] }: {
+  detail: WeekDetailViewModel & { enrollmentId?: string }; programHref?: string; preview?: boolean; browse?: boolean; attendance?: AttendancePrompt[];
 }) {
   return (
     <main className="pb-20 sm:pb-24">
@@ -44,9 +44,10 @@ export function WeekContent({ detail, programHref = '/', preview = false, attend
                     <div className="min-w-0"><h3 id={`title-${assignment.id}`} className="break-words text-xl font-bold tracking-tight">{assignment.title}</h3>
                       <p className="mt-2 text-sm leading-6 text-ink-soft">Due {assignment.dueLabel}</p>
                       {assignment.summary ? <p className="mt-3 max-w-2xl whitespace-pre-line break-words text-sm leading-7 text-ink-soft">{assignment.summary}</p> : null}
-                      <div className="mt-3"><AssignmentStatusBadge state={assignment.state} /></div>
+                      {!browse ? <div className="mt-3"><AssignmentStatusBadge state={assignment.state} /></div> : null}
                     </div>
-                    <ButtonLink className="shrink-0 self-start sm:self-center" variant="secondary" href={preview
+                    <ButtonLink className="shrink-0 self-start sm:self-center" variant="secondary" href={browse
+                      ? `/explore/week/${detail.week.weekNumber}/assignments/${encodeURIComponent(assignment.id)}${programHref.includes('?') ? `?${programHref.split('?')[1]}` : ''}` : preview
                       ? `${programHref.split('?')[0]}/week/${detail.week.weekNumber}/assignments/${encodeURIComponent(assignment.id)}${programHref.includes('?') ? `?${programHref.split('?')[1]}` : ''}`
                       : `/week/${detail.week.weekNumber}/assignments/${encodeURIComponent(assignment.id)}`} aria-label={`View assignment: ${assignment.title}`}>View assignment <span className="ml-2" aria-hidden="true">→</span></ButtonLink>
                   </div>

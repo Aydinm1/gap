@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { createClient } from './server';
-import { requireUser } from './auth';
+import { requireUser, requireParticipant } from './auth';
 import { normalizeSubmissionText, normalizeSubmissionUrl } from '@/lib/program/submission';
 import { validateCohortDates } from '@/lib/program/admin';
 
@@ -27,6 +27,7 @@ export async function saveAdmin(action: string, data: Record<string, unknown>) {
     ? await db.rpc('review_submission', { p_data: payload }).single()
     : await db.rpc('admin_mutate', { p_action: action, p_data: payload });
   const { error } = result;
+  if (error?.code === '22023' && /^((Change Viewer access)|(Resolve current cohort participation))/.test(error.message)) return { error: error.message };
   if (error) return { error:error.code==='40001' ? 'This record changed. Refresh before saving again.' : 'Could not save. Check the entered values and try again. Existing submissions and inactive access are protected.' };
   const receipt = typeof result.data === 'object' && result.data !== null ? result.data : null;
   revalidatePath('/admin','layout');
@@ -35,7 +36,7 @@ export async function saveAdmin(action: string, data: Record<string, unknown>) {
 }
 
 export async function saveLink(assignmentId: string, url: string, expectedId?: string, expectedUpdatedAt?: string) {
-  await requireUser();
+  await requireParticipant();
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (typeof assignmentId !== 'string' || !uuid.test(assignmentId) || typeof url !== 'string' ||
     (expectedId !== undefined && (typeof expectedId !== 'string' || !uuid.test(expectedId))) ||
@@ -54,7 +55,7 @@ export async function saveLink(assignmentId: string, url: string, expectedId?: s
 }
 
 export async function saveText(assignmentId: string, text: string, expectedId?: string, expectedUpdatedAt?: string) {
-  await requireUser();
+  await requireParticipant();
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (typeof assignmentId !== 'string' || !uuid.test(assignmentId) ||
     (expectedId !== undefined && (typeof expectedId !== 'string' || !uuid.test(expectedId))) ||
