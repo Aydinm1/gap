@@ -102,6 +102,14 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 
 ## Data access and mutations
 
+Enrollment DTOs retain `isTest` from the nonnull database flag. The live-admin-only
+`saveAdmin('enrollment_test', {id,isTest})` validates UUID/boolean and calls the narrow
+`set_test_participation` RPC, then revalidates member/admin layouts. No authentication or
+learning-policy bypass is added. Shared cohort metrics and queue selectors exclude tests
+by default; explicit test queues and attendance views preserve real workflows. Summary
+cards/present counts remain official in test views. Persist classification per enrollment,
+not person, so returning cohorts can have independent classifications. See ADR 0017.
+
 Week pages render compact assignment summaries/statuses, not full briefs or forms.
 Dedicated assignment pages resolve the ID within `readWeek`'s enrollment/cohort-scoped,
 published detail; cross-week/unknown/draft IDs are not found. Preview has the equivalent

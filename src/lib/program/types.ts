@@ -61,6 +61,7 @@ export type CohortEnrollment = {
   cohortId: string;
   personId: string;
   participationStatus: ParticipationStatus;
+  isTest?: boolean;
 } & (PendingOrNotPromotedEnrollment | PromotedEnrollment);
 
 export type Resource = {

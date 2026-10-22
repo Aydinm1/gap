@@ -18,6 +18,7 @@ export type CohortMetrics = {
 export function calculateCohortMetrics(
   enrollments: readonly CohortEnrollment[],
 ): CohortMetrics {
+  enrollments = enrollments.filter(enrollment => !enrollment.isTest);
   let completed = 0;
   let withdrew = 0;
   let pendingDecisions = 0;

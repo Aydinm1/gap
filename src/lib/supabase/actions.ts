@@ -7,8 +7,16 @@ import { validateCohortDates } from '@/lib/program/admin';
 
 export async function saveAdmin(action: string, data: Record<string, unknown>) {
   await requireUser(true);
-  if (!['review','week','enrollment','enroll','roster','cohort_create','cohort_state','cohort_dates'].includes(action)) return { error:'Unknown operation.' };
+  if (!['review','week','enrollment','enroll','roster','cohort_create','cohort_state','cohort_dates','enrollment_test'].includes(action)) return { error:'Unknown operation.' };
   if (!data || typeof data !== 'object' || Array.isArray(data)) return { error:'Invalid form data. Check the entered values and try again.' };
+  if (action === 'enrollment_test') {
+    if (typeof data.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.id) || typeof data.isTest !== 'boolean') return { error:'Invalid test participation.' };
+    const db = await createClient();
+    const result = await db.rpc('set_test_participation',{p_id:data.id,p_is_test:data.isTest});
+    if (result.error) return {error:'Could not update test participation. Refresh and retry.'};
+    revalidatePath('/admin','layout'); revalidatePath('/','layout');
+    return {id:result.data};
+  }
   if (action === 'cohort_dates') {
     if (typeof data.id !== 'string' || !/^[0-9a-f-]{36}$/i.test(data.id) || typeof data.startsOn !== 'string' || typeof data.endsOn !== 'string') return { error: 'Invalid cohort dates.' };
     const invalid = validateCohortDates({ startsOn: data.startsOn, endsOn: data.endsOn });

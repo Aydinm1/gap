@@ -155,6 +155,11 @@ such as `Winter 2027` avoid ambiguous academic-year storage.
 
 ### `cohort_enrollments`
 
+- `is_test boolean not null default false`: reporting classification, not a role/status.
+  Only live admins may set it through `set_test_participation(uuid,boolean)`; strict
+  nonnull inputs and existing enrollment/Viewer guards apply. No direct client writes.
+  Flag-only changes preserve lifecycle, outcomes, work/files, attendance and roles.
+
 - `id uuid primary key`
 - `cohort_id uuid not null references program_cohorts(id) on delete restrict`
 - `person_id uuid not null references people(id) on delete restrict`
@@ -321,13 +326,16 @@ receive new IDs on a week save; they are not external identifiers.
 
 Admin summaries derive rather than store:
 
-- `starters`: all cohort enrollments;
+- `starters`: all non-test cohort enrollments;
 - `advancement_rate`: promoted divided by finalized advancement decisions;
 - `offer_yield`: joined divided by finalized promoted responses;
 - `end_to_end_conversion`: joined divided by all cohort starters.
 
 Always show pending-decision, pending-response, and withdrawal counts with these rates so
 their denominators remain clear.
+Exclude `is_test` enrollments from every official numerator/denominator, active counts,
+review summaries/default queues and attendance present counts. Test-specific views retain
+their saved work/marks for verification. Future Monday reporting must exclude them too.
 
 ## Monday reporting contract — Planned
 

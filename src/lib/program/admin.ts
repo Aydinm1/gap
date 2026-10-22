@@ -162,9 +162,9 @@ export function getCurrentAdminWeek(weeks: readonly AdminWeek[]) {
     .toSorted((left, right) => right.weekNumber - left.weekNumber)[0];
 }
 
-export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now }: { state: AdminWorkspaceState; cohortId: string; weekId: string; assignmentId?: string; now: Date }) {
+export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now, audience = 'official' }: { state: AdminWorkspaceState; cohortId: string; weekId: string; assignmentId?: string; now: Date; audience?: 'official' | 'test' }) {
   const week = state.weeks.find((item) => item.id === weekId && item.cohortId === cohortId);
-  const enrollments = state.enrollments.filter((item) => item.cohortId === cohortId && item.participationStatus === "enrolled");
+  const enrollments = state.enrollments.filter((item) => item.cohortId === cohortId && item.participationStatus === "enrolled" && !!item.isTest === (audience === 'test'));
   if (!week) return [];
   const assignments = assignmentsForWeek(week);
   const assignment = assignmentId ? assignments.find((item) => item.id === assignmentId) : assignments[0];

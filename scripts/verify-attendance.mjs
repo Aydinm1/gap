@@ -164,7 +164,13 @@ test('Workshop materials and attendance lifecycle, security and browser story',a
     }
     await page.getByRole('button',{name:'Mark me present'}).click();await page.getByRole('heading',{name:'You’re checked in'}).waitFor();await page.reload();await page.getByRole('heading',{name:'You’re checked in'}).waitFor();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:join(screens,`receipt-${width}.png`),fullPage:true});
-    await page.goto(`${app}/`);await page.getByRole('link',{name:/Workshop check-in open/}).waitFor();await page.getByRole('link',{name:/^Continue/}).waitFor();await page.goto(`${app}/week/1`);await page.getByRole('link',{name:/Workshop check-in open/}).waitFor();await page.getByRole('link',{name:/Workshop exercise/}).waitFor();
+    await page.goto(`${app}/`);const checkIn=page.getByRole('link',{name:/Workshop check-in open/});await checkIn.waitFor();const continueLink=page.getByRole('link',{name:/^Continue/});await continueLink.waitFor();
+    assert.equal(await page.getByText('Workshop test',{exact:true}).count(),1);await page.getByRole('heading',{name:'Week 1',exact:true}).waitFor();
+    assert.equal(await page.locator('main header').getByRole('complementary',{name:'Workshop attendance'}).count(),1);
+    assert.ok((await checkIn.boundingBox()).height>=44);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.screenshot({path:join(screens,`dashboard-${width}.png`),fullPage:true});
+    await checkIn.click();await page.waitForURL(`**/attendance/${sessionId}`);await page.getByRole('heading',{name:'You’re checked in'}).waitFor();
+    await page.goto(`${app}/`);await page.getByRole('link',{name:/^Continue/}).click();await page.waitForURL('**/week/1');await page.getByRole('link',{name:/Workshop check-in open/}).waitFor();await page.getByRole('link',{name:/Workshop exercise/}).waitFor();
     const adminCtx=await browser.newContext({viewport:{width,height:900}});await adminCtx.addCookies([...(await jar(lead))].map(([name,value])=>({name,value,url:app})));const adminPage=await adminCtx.newPage();adminPage.setDefaultTimeout(20000);
     await adminPage.goto(`${app}/admin/attendance?cohort=${cohort}`);await adminPage.getByRole('heading',{name:'Attendance',exact:true}).waitFor();await adminPage.getByAltText('Scan to check in for Week 1').waitFor();assert.match(await adminPage.getByAltText('Scan to check in for Week 1').getAttribute('src'),/^data:image\/png;base64,/);
     await adminPage.getByRole('button',{name:'Refresh',exact:true}).click();const search=adminPage.getByRole('searchbox',{name:'Search people'});const email=await sql(`select email from public.people where id=${q(other.person)}`);await search.fill(email);await adminPage.getByRole('button',{name:'Mark present',exact:true}).click();await adminPage.getByRole('button',{name:'Undo',exact:true}).waitFor();

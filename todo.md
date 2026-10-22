@@ -186,6 +186,13 @@ Turbopack environment failure remains open below.
 
 ### Member refinement follow-up
 
+- [x] Simplify continuation to week number without a duplicate title, and make open
+  workshop check-in a secondary compact greeting action; verify desktop/phone layouts,
+  navigation, attendance regression, lint/types/build and documentation.
+  Verified at 1280px/390px with isolated local accounts: title appears once, check-in
+  target is at least 44px, no overflow and both destinations work; nine attendance
+  entries, 64 unit/docs entries, lint/typecheck/Webpack build and diff checks pass.
+
 - [x] Attach continuation to the module panel and verify desktop, phone, and navigation.
 
 - [x] Replace the dashboard overview card with a thin continuation bar and remove
@@ -375,6 +382,22 @@ do not satisfy them. See ADR 0007.
   pass (2026-10-20); hosted configuration and second-lead provisioning remain open.
 
 ## Phase 8 — Final responsive and usability polish
+
+### Test participant enrollments
+
+- [x] Add admin-managed test flag, normal member workflows, official metric/queue/
+  attendance exclusions, explicit test review/roster views and retained history.
+- [x] Verify live permissions, flag persistence/reversal, enrollment retries, submissions/
+  files/feedback/check-in and 24 official plus test isolation at desktop/phone widths;
+  regressions, generated types, lint/typecheck/build, docs and diff checks.
+  Five focused entries pass with desktop/390px flows and zero skips; 65 unit/docs,
+  lint, typecheck, generated types and Webpack build pass. Twelve program/session,
+  twelve Storage, eight Viewer and nine attendance entries also pass with browser checks.
+- [x] Apply separately authorized hosted migration; unchanged fingerprints across ten
+  application/Auth/Storage tables, 25 official enrollments and zero test enrollments.
+- [~] Commit/push and verify the authorized production deployment.
+- [ ] Classify a real enrollment as test only through an explicit admin choice; no
+  automatic change to the current admin or other real participants.
 
 ### Viewer access for board members — local implementation
 

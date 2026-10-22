@@ -90,6 +90,30 @@ is authorized; verify Vercel's automatic deployment and real Google/phone attend
 
 ## Local development
 
+### Test participant verification — local only
+
+Apply `202610220001_test_participation.sql` with `supabase migration up --local`; do not
+reset/seed. Existing enrollments default to official (`false`). No account is automatically
+marked test and no role changes. Under Members → Edit outcomes, enable Test participant
+for a deliberately chosen enrollment; keep participation enrolled to use My program.
+Use the test-only review/attendance selectors to exercise saved work without official
+totals. Removing the flag includes historical work/marks; it is not a cleanup operation.
+Do not delete submissions/enrollments to undo a test flag. Future reporting must exclude
+tests explicitly; no outbound sync changes are included.
+
+Run `npm run test:test-participants` on local Supabase; set
+`GAP_TEST_APP_URL=http://localhost:3004` against an isolated production server for HTTP
+and desktop/phone tests. It owns disposable cohort/accounts/files and exact cleanup.
+Hosted migration `202610220001` was separately authorized and applied on 2026-10-22
+after a dry run listing only that migration, without seeds/roles/Vault updates.
+Fingerprints across ten existing application/Auth/Storage tables are unchanged; all 25
+existing enrollments remain official and none are automatically marked test. Anonymous
+RPC execution is denied. Local validation passes five focused desktop/phone entries,
+65 unit/docs, twelve program/session, twelve Storage, eight Viewer and nine attendance
+entries, lint/types/generated types and Webpack build. Push/deployment verification follows;
+real enrollment classification remains an explicit admin choice. Fixture sessions do
+not verify hosted Google sign-in.
+
 ### Viewer access — release
 
 Apply `202610210007_viewer_role.sql` then `202610210008_viewer_access.sql` using

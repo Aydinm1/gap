@@ -5,6 +5,15 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added local admin-managed Test participant flags independent of roles/lifecycle.
+  Test enrollments retain real submission/feedback/file/check-in workflows but do not
+  contribute to official totals, default review queues or attendance present counts.
+  Separate test review/attendance views retain history; hosted release remains pending.
+
+- Simplified dashboard continuation to the week number, leaving full titles in module
+  rows. Moved open workshop check-in beside/below the greeting as a compact neutral
+  action instead of a competing full-width green banner; week prompts share the styling.
+
 - Added local Viewer access: published active/archived programs and non-saving assignment
   practice without enrollment, cohort metrics, review/attendance obligations or private
   learner/admin data. Added Portal access roles, separate read/participation permissions

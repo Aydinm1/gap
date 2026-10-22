@@ -74,6 +74,14 @@ test("rates remain undefined when their denominator has no finalized records", (
   assert.equal(metrics.endToEndConversion, 0);
 });
 
+test('test enrollments are excluded from every official outcome denominator',()=>{
+ const official=Array.from({length:24},(_,n)=>({...mockEnrollments[0],id:`official-${n}`}));
+ const tester={...mockEnrollments[0],id:'tester',isTest:true,participationStatus:'completed',advancementStatus:'promoted',promotionResponse:'joined'};
+ assert.deepEqual(calculateCohortMetrics([...official,tester]),calculateCohortMetrics(official));
+ assert.equal(calculateCohortMetrics([...official,tester]).starters,24);
+ assert.equal(calculateCohortMetrics([{...tester,participationStatus:'withdrew'}]).withdrew,0);
+});
+
 test("outcome validation accepts only coherent promotion responses", () => {
   assert.equal(
     isValidOutcomeCombination({ advancementStatus: "pending" }),

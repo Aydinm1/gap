@@ -487,6 +487,7 @@ export type Database = {
           cohort_id: string
           created_at: string
           id: string
+          is_test: boolean
           participation_status: Database["public"]["Enums"]["participation_status"]
           person_id: string
           promotion_response:
@@ -499,6 +500,7 @@ export type Database = {
           cohort_id: string
           created_at?: string
           id?: string
+          is_test?: boolean
           participation_status?: Database["public"]["Enums"]["participation_status"]
           person_id: string
           promotion_response?:
@@ -511,6 +513,7 @@ export type Database = {
           cohort_id?: string
           created_at?: string
           id?: string
+          is_test?: boolean
           participation_status?: Database["public"]["Enums"]["participation_status"]
           person_id?: string
           promotion_response?:
@@ -859,6 +862,10 @@ export type Database = {
         }[]
       }
       save_program_week: { Args: { p_data: Json }; Returns: string }
+      set_test_participation: {
+        Args: { p_id: string; p_is_test: boolean }
+        Returns: string
+      }
       submit_link: {
         Args: {
           p_assignment_id: string

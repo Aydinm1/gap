@@ -27,7 +27,7 @@ export const readWorkspace = cache(async (admin = true) => {
     people: (people.data ?? []).map(r => ({ id:r.id,email:r.email,fullName:r.full_name })),
     approvedMembers: (roster.data ?? []).map(r => ({ id:r.id,personId:r.person_id,email:r.email,fullName:r.full_name,role:r.role,active:r.active })),
     cohorts: (cohorts.data ?? []).map(r => ({ id:r.id,quarter:r.quarter,year:r.year,startsOn:r.starts_on,endsOn:r.ends_on,state:r.state })),
-    enrollments: (enrollments.data ?? []).map(r => ({ id:r.id,cohortId:r.cohort_id,personId:r.person_id,participationStatus:r.participation_status,advancementStatus:r.advancement_status,...(r.promotion_response ? { promotionResponse:r.promotion_response } : {}) }) as CohortEnrollment),
+    enrollments: (enrollments.data ?? []).map(r => ({ id:r.id,cohortId:r.cohort_id,personId:r.person_id,participationStatus:r.participation_status,isTest:r.is_test,advancementStatus:r.advancement_status,...(r.promotion_response ? { promotionResponse:r.promotion_response } : {}) }) as CohortEnrollment),
     weeks: (weeks.data ?? []).map((r): AdminWeek => {
       const weekAssignments = assignments.data.filter(a => a.week_id === r.id).map(a => {
         const document = documents.data.find(d => d.assignment_id === a.id);

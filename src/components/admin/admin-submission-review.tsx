@@ -47,11 +47,12 @@ export function AdminSubmissionReview({ submissionId }: { submissionId: string }
   const currentSubmission = submission;
   const history = workspace.submissions.filter((item) => item.enrollmentId === submission.enrollmentId && item.assignmentId === submission.assignmentId && !item.isCurrent).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const assignment = assignmentsForWeek(week).find((item) => item.id === submission.assignmentId);
-  const queueRows = getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: week.id, assignmentId: submission.assignmentId, now: new Date() });
+  const queueRows = getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: week.id, assignmentId: submission.assignmentId, now: new Date(), audience: enrollment.isTest ? 'test' : 'official' });
   const nextSubmission = getNextAwaitingSubmission(queueRows, submission.id);
   const backParams = new URLSearchParams(params.toString());
   backParams.set("cohort", workspace.selectedCohortId); backParams.set("week", week.id);
   backParams.set("assignment", submission.assignmentId);
+  if (enrollment.isTest) backParams.set('audience','test'); else backParams.delete('audience');
   const backHref = `/admin?${backParams.toString()}#submissions`;
 
   function saveReview(reviewNext = false) {
@@ -71,6 +72,7 @@ export function AdminSubmissionReview({ submissionId }: { submissionId: string }
 
   return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
     <Link href={backHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← Review queue</Link>
+    {enrollment.isTest ? <p className="mt-4 text-sm font-bold text-ink-soft">Test submission · Excluded from official cohort statistics</p> : null}
     <header className="mt-6"><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {week.weekNumber.toString().padStart(2, "0")} · Submission review</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{person?.fullName ?? "Member submission"}</h1><p className="mt-3 text-base text-ink-soft">{assignment?.title} · Submitted {formatSubmissionTime(submission.submittedAt)}</p></header>
 
     <div className="mt-9 grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)] lg:gap-10">

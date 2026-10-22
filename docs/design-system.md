@@ -211,8 +211,18 @@ descriptive filenames.
 
 ## Accessibility baseline
 
+Test participation is an explicit checkbox within participant Edit outcomes, separate
+from lifecycle controls. Read-only rows label test records; removal confirms inclusion
+in official totals. Review/attendance selectors distinguish Official participants from
+Test participants only, with test review labeling and official summaries unchanged.
+
 Dashboard overview refinements: use a slim continuation header inside the module panel,
-with a small label, week number/title, and one Continue button. Put the module heading
+with a quiet sentence-case label, week number only, and one Continue button; leave the
+full week title in the module row to avoid repetition. Open workshop check-in uses a
+compact neutral outlined link with a green availability dot, explicit Open text and
+44px minimum target. Place it beside the dashboard greeting on desktop, below on phones;
+on week pages retain it below the introduction. Do not use a full-width green banner.
+Put the module heading
 and progress above the shared panel. Use a subtle neutral fill and bottom divider for
 the continuation header, without a separate card or shadow. Show a compact caught-up
 message there when appropriate. Stack only as needed on narrow screens. Do not

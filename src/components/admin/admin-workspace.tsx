@@ -19,6 +19,7 @@ type AdminWorkspaceContextValue = AdminWorkspaceState & {
   updateSubmission: (id: string, status: SubmissionStatus, feedback: string | undefined, expectedUpdatedAt: string | undefined) => Promise<{ error?: string; updatedAt?: string }>;
   updateWeek: (week: AdminWeek) => Promise<string | undefined>;
   updateEnrollment: (enrollment: CohortEnrollment) => Promise<string | undefined>;
+  setTestParticipation: (id: string, isTest: boolean) => Promise<string | undefined>;
   addEnrollment: (personId: string) => Promise<string | undefined>;
   updateApprovedMember: (member: ApprovedMember) => Promise<string | undefined>;
   addApprovedMember: (input: { fullName: string; email: string; role: ProgramUser["role"] }) => Promise<string | undefined>;
@@ -86,6 +87,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
     },
     updateWeek: week => persist('week', week),
     updateEnrollment: enrollment => persist('enrollment', enrollment),
+    setTestParticipation: (id,isTest) => persist('enrollment_test',{id,isTest}),
     addEnrollment: personId => persist('enroll', { personId,cohortId:selectedCohortId }),
     updateApprovedMember: member => persist('roster', member),
     addApprovedMember: input => persist('roster', input),

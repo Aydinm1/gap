@@ -49,6 +49,19 @@ It should feel like a restrained consulting-firm training portal, not a school L
 
 ## Member workflows
 
+### Test participation
+
+Admins can mark an enrollment **Test participant** under Members → Edit outcomes.
+It is a separate checkbox, not a fourth enrolled/completed/withdrew status or portal role.
+Test participants retain ordinary authorized student submission, review/feedback, file,
+history and attendance behavior. Admins can keep their role and use My program to test.
+Official cohort/active/outcome/review/attendance totals exclude them without hardcoded
+counts; normal queues hide test work. Admin review and attendance offer a Test participants
+only view. Test reviews use normal decisions and preserve test-only back/next context.
+Changing the flag preserves all history; removing it requires confirmation because the
+enrollment and its retained work then contribute to official totals. Members cannot
+self-designate as test. Viewer, inactive and withdrawn restrictions remain unchanged.
+
 ### Viewer browsing
 
 Provision board viewers under Members → Portal access → Add roster member → Viewer,
@@ -93,7 +106,9 @@ The dashboard answers, in order:
 It includes the program term, a thin Continue where you left off header attached to the
 module panel, completion progress
 beside the module list, and all six modules. The bar contains the current learning week's
-number, title, and one Continue action opening that week. Assignment details, deadlines,
+number and one Continue action opening that week; the full title appears only in its
+module row. An open workshop check-in is a secondary compact action beside the greeting
+(below it on phones), not a full-width banner competing with Continue. Assignment details, deadlines,
 and feedback summaries belong on the week and submission pages, not the dashboard.
 Awaiting-review work remains visible in module status but is not a next-step priority.
 Only approved (`completed`) assignments count toward completion. A week is complete

@@ -54,6 +54,8 @@ do not override a later source-of-truth update and superseding ADR.
 
 ## Accepted decisions
 
+- [ADR 0017: Test participant enrollments](0017-test-participant-enrollments.md)
+
 - [ADR 0016: Viewer published-program access](0016-viewer-published-program-access.md)
 
 - [ADR 0015: Week workshop attendance](0015-week-workshop-attendance.md)
