@@ -389,7 +389,9 @@ do not satisfy them. See ADR 0007.
   Real Google sessions for board accounts remain a release acceptance check.
 - [x] Apply separately authorized hosted Viewer migrations; verify receipts/guards/grants
   and unchanged data fingerprints across 15 tables, including 24 enrollments (2026-10-22).
-- [~] Commit/push and verify the separately authorized Viewer production deployment.
+- [x] Commit/push and verify the separately authorized Viewer production deployment:
+  `6679dc4` reached READY at `https://gap-khaki.vercel.app`; live login and anonymous
+  Explore/week/admin redirects pass, with no errors in the release runtime-log scan.
 - [ ] Provision real board users and verify their Google/Viewer experience with separate
   account-provisioning authorization.
 

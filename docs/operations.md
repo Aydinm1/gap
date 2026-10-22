@@ -127,8 +127,13 @@ release. Dry run listed only `202610210007` and `202610210008`, no seeds, role f
 Vault changes; both applied successfully. Verified enum, two migration receipts, four
 enrollment/role guards and service-only upload wrapper grants. Before/after fingerprints
 match across 15 existing application/Auth/Storage tables, including all 24 enrollments.
-No real Viewer accounts were provisioned. Push/deployment verification follows this
-checkpoint; real board-account sign-in remains manual acceptance.
+No real Viewer accounts were provisioned. Implementation commit `6679dc4` reached Vercel
+production READY (`dpl_7vsdxWmhmteg6sU9H2zSWwceA9s9`) at
+`https://gap-khaki.vercel.app`. Live login returns 200 and anonymous Explore/week/admin
+requests redirect to login with private/no-store responses. No error-level runtime logs
+were returned for that deployment at release verification. Real board-account sign-in
+and authenticated hosted Viewer browsing remain manual acceptance, not proven by the
+anonymous smoke checks or local fixture sessions.
 
 1. Install native `fnm` through Apple Silicon Homebrew or the official universal macOS
    release, then `fnm install 24` and `fnm default 24`. Initialize `fnm env --use-on-cd
