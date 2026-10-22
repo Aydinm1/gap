@@ -395,7 +395,8 @@ do not satisfy them. See ADR 0007.
   twelve Storage, eight Viewer and nine attendance entries also pass with browser checks.
 - [x] Apply separately authorized hosted migration; unchanged fingerprints across ten
   application/Auth/Storage tables, 25 official enrollments and zero test enrollments.
-- [~] Commit/push and verify the authorized production deployment.
+- [x] Commit/push and verify the authorized production deployment: `452e3a1` reached
+  Vercel production READY on 2026-10-22; real account classification remains manual.
 - [ ] Classify a real enrollment as test only through an explicit admin choice; no
   automatic change to the current admin or other real participants.
 

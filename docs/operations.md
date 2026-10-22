@@ -110,7 +110,8 @@ Fingerprints across ten existing application/Auth/Storage tables are unchanged; 
 existing enrollments remain official and none are automatically marked test. Anonymous
 RPC execution is denied. Local validation passes five focused desktop/phone entries,
 65 unit/docs, twelve program/session, twelve Storage, eight Viewer and nine attendance
-entries, lint/types/generated types and Webpack build. Push/deployment verification follows;
+entries, lint/types/generated types and Webpack build. Commit `452e3a1` reached production
+READY (`dpl_2bzeMBExfEA3SN1ndm3HUgpmu4Ke`) at `https://gap-khaki.vercel.app`;
 real enrollment classification remains an explicit admin choice. Fixture sessions do
 not verify hosted Google sign-in.
 
