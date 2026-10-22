@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AttendancePrompts } from "@/components/attendance/prompts";
+import type { AttendancePrompt } from "@/lib/attendance/types";
 import { AssignmentStatusBadge } from './assignment-status-badge';
 import { ButtonLink } from '@/components/ui/button';
 import { Card } from "@/components/ui/card";
@@ -11,10 +13,11 @@ const resourceLabels = {
   template: "Template",
   reading: "Reading",
   video: "Video",
+  workshop: "Workshop",
 } as const;
 
-export function WeekContent({ detail, programHref = '/', preview = false }: {
-  detail: WeekDetailViewModel & { enrollmentId?: string }; programHref?: string; preview?: boolean;
+export function WeekContent({ detail, programHref = '/', preview = false, attendance = [] }: {
+  detail: WeekDetailViewModel & { enrollmentId?: string }; programHref?: string; preview?: boolean; attendance?: AttendancePrompt[];
 }) {
   return (
     <main className="pb-20 sm:pb-24">
@@ -30,6 +33,7 @@ export function WeekContent({ detail, programHref = '/', preview = false }: {
           <a href="#materials" className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-action">View materials ↓</a>
         </header>
 
+        <AttendancePrompts sessions={attendance} />
         <div className="mt-10 space-y-12 lg:mt-12">
           <section id="assignment" aria-labelledby="assignment-heading">
             {detail.assignments.length ? (

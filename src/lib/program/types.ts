@@ -67,7 +67,7 @@ export type Resource = {
   id: string;
   title: string;
   description?: string;
-  type: "guide" | "template" | "reading" | "video";
+  type: "guide" | "template" | "reading" | "video" | "workshop";
   url: string;
   sortOrder: number;
 };

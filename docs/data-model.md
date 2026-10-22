@@ -31,6 +31,31 @@ submission state.
 
 ## Tables
 
+### Week workshop attendance
+
+`attendance_sessions` has a unique week, workshop date, opened/closing/early-closed
+timestamps and version; closing is exactly two hours after opening. `attendance_records`
+has unique session/enrollment, present, recorded timestamp (null for Not recorded) and
+update version. Returning enrollments stay separate. Foreign keys retain history.
+
+Private `attendance_codes` holds six-character codes from
+`23456789ABCDEFGHJKMNPQRSTUVWXYZ`. Private `attendance_attempts` indexes person/session/time
+for the ten-failures/five-minute window. Private `attendance_history` appends changed
+marks/undo with Auth actor ID, source and timestamp. RLS/revoked grants protect all three;
+only admin-authorized RPC reads expose codes/history.
+
+`attendance(action,data)` supports open, close, admin_read, correct and check_in. It uses
+live helpers, an empty search path and authenticated-only execution. Opening locks the
+week then session; check-in/close/correction lock the session. DB time after locking governs
+expiry. Live opening does not change it; reopening renews date/code/window, retaining marks.
+Corrections compare expected versions (null for new marks). Member identity, enrollment
+and time are derived. Bad-code results commit attempt bookkeeping, not raise/rollback.
+Present receipts survive close after current authorization. Codes normalize case/space/hyphens.
+
+Public tables grant SELECT only: live admins see all, members see published active
+enrolled context and own records. Members cannot read codes/classmates, undo, forge time
+or directly write. Resource types also permit `workshop`, preserving order and slides URLs.
+
 ### Assignment PDF briefs
 
 `public.assignment_documents` stores an immutable unique Storage path, assignment and

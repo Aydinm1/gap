@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { readWeek } from '@/lib/supabase/data';
+import { readWeek, readMember } from '@/lib/supabase/data';
+import { readAttendancePrompts } from '@/lib/attendance/data';
 import { WeekContent } from '@/components/program/week-content';
 
 type WeekPageProps = { params: Promise<{ weekNumber: string }> };
@@ -15,5 +16,7 @@ export default async function WeekDetailPage({ params }: WeekPageProps) {
   const { weekNumber } = await params;
   const detail = await readWeek(weekNumber);
   if (!detail) notFound();
-  return <WeekContent detail={detail} />;
+  const member = await readMember();
+  const attendance = member.cohort ? (await readAttendancePrompts(member.cohort.id)).filter(s => s.weekNumber === detail.week.weekNumber) : [];
+  return <WeekContent detail={detail} attendance={attendance} />;
 }

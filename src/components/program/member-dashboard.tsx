@@ -7,9 +7,11 @@ import { ButtonLink } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/container";
 import { Progress } from "@/components/ui/progress";
 import { StateMessage } from "@/components/ui/state-message";
+import { AttendancePrompts } from "@/components/attendance/prompts";
+import type { AttendancePrompt } from "@/lib/attendance/types";
 
 type Input = Parameters<typeof buildProgramDashboard>[0];
-export function MemberDashboard({ input, preview = false }: { input: Omit<Input, "now"> & { now: string }; preview?: boolean }) {
+export function MemberDashboard({ input, preview = false, attendance = [] }: { input: Omit<Input, "now"> & { now: string }; preview?: boolean; attendance?: AttendancePrompt[] }) {
   const [attempts] = useMemberAttempts(input.submissions);
   const dashboard = buildProgramDashboard({ ...input, submissions: attempts, now: new Date(input.now) });
   const priority = dashboard.priorityAssignment;
@@ -19,6 +21,7 @@ export function MemberDashboard({ input, preview = false }: { input: Omit<Input,
   const destination = (href: string) => preview ? `/admin/preview${href}?cohort=${encodeURIComponent(input.cohort.id)}` : href;
   return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
     <header><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">{dashboard.term}</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{preview ? 'Member preview' : `Welcome back, ${dashboard.user.fullName.split(" ")[0]}`}</h1>{preview && input.cohort.state !== 'active' ? <p className="mt-3 text-sm text-warning-text">This cohort is {input.cohort.state}. Members can access it only while it is active.</p> : null}</header>
+    <AttendancePrompts sessions={attendance} />
     {dashboard.totalModules ? <section className="mt-11" aria-labelledby="modules-heading"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><h2 id="modules-heading" className="text-2xl font-bold tracking-[-0.025em]">Program modules</h2><div className="w-full sm:max-w-xs"><Progress value={dashboard.completedModules} max={dashboard.totalModules} label="Program progress" valueLabel={`${dashboard.completedModules} of ${dashboard.totalModules} complete`} /></div></div><div className="mt-5 overflow-hidden rounded-card border border-border bg-surface">
       <div className="border-b border-border bg-surface-subtle/60 px-5 py-4 sm:px-6">
         {featured ? <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

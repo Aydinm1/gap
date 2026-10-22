@@ -13,7 +13,16 @@ See [ADR 0008](decisions/0008-monday-member-import.md).
 
 ## Stack and principles
 
-- Next.js 16.3 stable App Router, React 19.2, TypeScript strict mode, and Tailwind
+Attendance uses user-scoped clients and typed actions in `src/lib/attendance/`, without
+a service-key client or new public API. Its generic landing sits outside the protected
+portal layout to capture QR fragments before login. Anonymous output contains no workshop
+details; authorized reads fetch matching enrollment/context and own receipt. Codes are
+only serialized to admin screens; `qrcode` generates PNGs server-side, not externally.
+Tab storage carries pending input across same-tab sign-in; OAuth returns use a clean path.
+Actions/DB transactions independently check live access. Refresh/revalidation provide
+updates without shared protected caching or realtime.
+
+- Next.js 16.4.2 stable App Router, React 19.2, TypeScript strict mode, and Tailwind
   CSS 4 on Node.js 24 LTS.
 - Production dependencies use stable/LTS release channels. Keep Next.js and
   `eslint-config-next` versions identical and keep React/React DOM versions identical.
@@ -30,6 +39,8 @@ See [ADR 0008](decisions/0008-monday-member-import.md).
 | --- | --- | --- |
 | `/` | Active member/admin | Student dashboard and portal home |
 | `/login` | Public | Google sign-in and access explanation |
+| `/attendance/[sessionId]` | Generic public shell; authorized member details | Explicit QR/manual check-in and receipt |
+| `/admin/attendance` | Admin | Selected-cohort sessions, local QR and roster corrections |
 | `/auth/callback` | Public callback | Exchange OAuth code and validate access |
 | `/access-denied` | Public | Explain domain, roster, or inactive access failure |
 | `/week/[weekNumber]` | Active member/admin | Published week detail |

@@ -6,6 +6,12 @@
 
 ## Direction
 
+Attendance uses compact green prompts without replacing Continue. Week selectors show
+date/state/count; a large monospace code and local QR share a neutral panel, stacking on
+phones. Searchable rows use 44px Mark present/Undo targets, confirmed Undo and non-absence
+wording. A centered member card has one heading, labeled code input, explicit confirmation,
+inline alerts and a timestamped receipt. Member screens never reveal the expected code.
+
 GAP, the Growth Analyst Program, is an internal consulting-firm analyst development
 portal: clean, modern,
 professional, restrained, and warm. Favor strong typography, whitespace, thin borders,

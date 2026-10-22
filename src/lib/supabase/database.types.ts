@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   private: {
     Tables: {
+      attendance_attempts: {
+        Row: {
+          failed_at: string
+          id: string
+          person_id: string
+          session_id: string
+        }
+        Insert: {
+          failed_at?: string
+          id?: string
+          person_id: string
+          session_id: string
+        }
+        Update: {
+          failed_at?: string
+          id?: string
+          person_id?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      attendance_codes: {
+        Row: {
+          code: string
+          session_id: string
+        }
+        Insert: {
+          code: string
+          session_id: string
+        }
+        Update: {
+          code?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      attendance_history: {
+        Row: {
+          actor_id: string
+          changed_at: string
+          enrollment_id: string
+          id: string
+          present: boolean
+          session_id: string
+          source: string
+        }
+        Insert: {
+          actor_id: string
+          changed_at?: string
+          enrollment_id: string
+          id?: string
+          present: boolean
+          session_id: string
+          source: string
+        }
+        Update: {
+          actor_id?: string
+          changed_at?: string
+          enrollment_id?: string
+          id?: string
+          present?: boolean
+          session_id?: string
+          source?: string
+        }
+        Relationships: []
+      }
       monday_application_links: {
         Row: {
           account_id: string
@@ -319,6 +385,86 @@ export type Database = {
             foreignKeyName: "assignments_week_id_fkey"
             columns: ["week_id"]
             isOneToOne: false
+            referencedRelation: "program_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_records: {
+        Row: {
+          enrollment_id: string
+          id: string
+          present: boolean
+          recorded_at: string | null
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          enrollment_id: string
+          id?: string
+          present: boolean
+          recorded_at?: string | null
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          enrollment_id?: string
+          id?: string
+          present?: boolean
+          recorded_at?: string | null
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "cohort_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_sessions: {
+        Row: {
+          closed_at: string | null
+          closes_at: string
+          id: string
+          opened_at: string
+          updated_at: string
+          week_id: string
+          workshop_date: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closes_at: string
+          id?: string
+          opened_at: string
+          updated_at?: string
+          week_id: string
+          workshop_date: string
+        }
+        Update: {
+          closed_at?: string | null
+          closes_at?: string
+          id?: string
+          opened_at?: string
+          updated_at?: string
+          week_id?: string
+          workshop_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_sessions_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: true
             referencedRelation: "program_weeks"
             referencedColumns: ["id"]
           },
@@ -671,6 +817,7 @@ export type Database = {
         }
         Returns: Json
       }
+      attendance: { Args: { p_action: string; p_data?: Json }; Returns: Json }
       cleanup_uploads: {
         Args: { p_failed?: boolean; p_id?: string; p_owner?: string }
         Returns: Json

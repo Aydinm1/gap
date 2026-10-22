@@ -251,18 +251,33 @@ use new items. Automatic sync, Monday result fields, and reporting remain deferr
 
 ## Explicitly out of scope
 
-### Deferred exception: lightweight attendance
+### Approved exception: week workshop attendance
 
-A future, explicitly requested follow-up is an admin-only phone attendance list: select
-a cohort meeting/week and tap a large button for each person present. Include a clear
-marked state, undo, name search, a present/total count, and persistent Supabase records.
-Unmarked is not automatically absent. Meeting/date structure must be confirmed before
-implementation. This is planning only, outside current P6 work; no self-check-in, QR,
-geolocation, or Monday attendance sync is included. See the deferred tracker in `todo.md`.
+Workshop joins Guide, Template, Reading and Video in ordered Materials. Preserve existing
+materials and the separate presentation link. Admin Attendance retains selected cohort,
+showing week dates/state/present counts. One workshop session maps to each week. Active
+cohorts/published weeks can open a static six-character code/QR for two hours (DB time),
+redisplay unchanged, or close early. Deliberate reopening renews date/code/window but
+retains marks. A searchable phone roster supports Mark present and confirmed Undo,
+including historical corrections with actor/time/history. States are Present/Not recorded.
+
+Open prompts supplement Continue and appear on the matching week. Members explicitly
+confirm at `/attendance/[sessionId]`; scans/GET never mark attendance. Logged-out scans
+see generic sign-in. Fragment codes are captured in tab storage and removed from the
+address bar, never included in OAuth returns. Authorized receipts survive retries/reload.
+Closed, wrong-cohort, invalid-code and save-failure states are actionable. Ten failed
+attempts per person/session in five minutes temporarily block attempts.
+
+Only current approved UC Davis Google members enrolled in the matching active cohort and
+published week can self-check-in. Codes/classmate records remain private. Attendance is
+independent of assignments: no inferred absence/lateness, penalties, percentages, GPS,
+device tracking, Monday sync or realtime. See
+[ADR 0015](decisions/0015-week-workshop-attendance.md); local and hosted acceptance are
+tracked separately in `todo.md`.
 
 ### Current implementation boundaries
 
-Do not add grades, scores, quizzes, rubrics, discussion boards, chat, email, attendance,
+Do not add grades, scores, quizzes, rubrics, discussion boards, chat, email,
 certificates, announcements, peer review, teams, calendars, notifications, analytics,
 leaderboards, study metrics, Google Drive editing, live documents, or AI features.
 

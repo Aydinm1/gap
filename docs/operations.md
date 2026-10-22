@@ -13,6 +13,81 @@ setup error, not mock data. Only unsaved drafts are session-local. Local P6 enab
 file uploads. Local Google callback/admin access and analyst access were user-confirmed;
 hosted setup, second-lead provisioning, and extended Monday checks stay open in `todo.md`.
 
+## Workshop attendance — release
+
+Apply `supabase/migrations/202610210006_workshop_attendance.sql` with
+`npx supabase migration up --local`, never reset/seed a live program. It adds Workshop
+resources and attendance tables/policies/RPCs; it does not change existing materials or
+enroll participants. The separately approved hosted migration is applied; deployment
+and real-session acceptance remain separate from local verification.
+
+1. Sign in as an active admin; open Attendance and select the cohort/week.
+2. Set the workshop date, publish the week and activate the cohort if appropriate, then
+   Open check-in. Display the code/local QR, closing time and instructions to confirm.
+3. Redisplay or Refresh keeps the open code/window. Close ends it early. Reopen deliberately
+   issues another code/two-hour window and can correct the date, retaining all marks.
+4. Members use the dashboard/week prompt or scan. A QR uses a URL fragment and same-tab
+   sessionStorage through sign-in. It is removed from the address bar and excluded from
+   OAuth return URLs. Do not distribute screenshots/logs containing a live code publicly.
+5. Search the phone roster to Mark present or confirm Undo. Corrections work after closing;
+   Attendance history shows actor/time. Not recorded is not an absence or penalty.
+
+`NEXT_PUBLIC_SITE_URL` must be the reachable application origin to generate useful QR
+destinations. On another physical phone, localhost points at that phone, not the developer
+Mac; use the deployed site after its separately authorized release. QR images are generated
+locally with `qrcode`; there is no external QR provider. Browser time only affects display;
+the DB clock and locks enforce the two-hour window. There is no expiry scheduler/realtime
+service, automatic percentages or Monday export. Shared codes are not anti-cheating proof.
+
+Run `npm run test:attendance` against local Supabase. For browser/action coverage, use
+an isolated app server and `GAP_TEST_APP_URL=http://localhost:3004
+GAP_TEST_ACTION_MANIFEST=.next/dev/server/server-reference-manifest.json npm run
+test:attendance` (single shell command; remove line breaks). For a production server use
+`.next/server/server-reference-manifest.json`. The harness creates uniquely identified
+fictional accounts/cohorts, runs desktop/phone flows and deletes only those exact fixtures.
+It never resets the DB or writes to Monday. Real Google QR sign-in and physical-camera
+acceptance remain manual release checks, separate from automated fixture-session handoff.
+
+Private failure attempts are retained; scheduled retention/maintenance is deferred.
+Attendance/history foreign keys intentionally prevent deletion of referenced enrollments
+and weeks. Never remove retained real attendance merely to bypass a foreign-key error.
+
+Local verification (2026-10-21): all nine attendance entries pass, including 1280px/390px
+browser Workshop save/reload/preview order, QR-prefilled clean login return, manual code,
+failed request/lost response recovery, receipt reload and admin mark/Undo. SQL/action tests
+cover current authority, privacy, returning cohorts, expiry/reopening, rate limits,
+concurrent duplicates/closing, versioned corrections and rollback. The 63 unit/docs,
+nine enrollment, 12 program/session, 12 Storage, six assignment, five brief and five written
+entries pass; lint, typecheck, generated-type consistency, Webpack build and diff checks
+pass. Browser regressions run serially against a production build with its matching action
+manifest to avoid development reloads and stale-action IDs. Default Turbopack's earlier
+environment limitation remains separately tracked. Exact fixtures are removed; no real
+analyst work or hosted configuration changed.
+
+The initial attendance audit found nine affected packages, including pinned Next 16.3.5.
+The subsequent approved security update aligns Next/eslint-config-next at 16.4.2 and
+updates Sharp, source-map-js and brace-expansion through compatible lockfile fixes.
+`npm audit --omit=dev` reports zero vulnerabilities. Full audit still reports five high
+findings in the ESLint-only braces → micromatch → fast-glob → Next plugin/config chain.
+The [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) has no published
+patch. Do not use audit --force: its suggested Next lint-config downgrade would break
+the matched supported framework baseline. Keep the tooling follow-up open; no claim of
+a zero-finding full audit or protection from every vulnerability is implied.
+
+Release verification (2026-10-21): Next/eslint-config-next 16.4.2 passes all 63 unit/docs,
+nine attendance, nine enrollment, 12 program/session, 12 Storage, six assignment,
+five PDF-brief and five written-response entries. Desktop/phone checks use isolated
+local fixtures. Lint, typecheck, generated types, dependency-tree and Webpack build pass.
+The stable React pair is retained; no major toolchain upgrade or codemod was required.
+
+Applied only `202610210006_workshop_attendance.sql` to hosted GAP after an explicit
+approval and dry run listing no seeds, role files or Vault updates. Verified its migration
+receipt, all five table RLS flags, Workshop constraint, denied anonymous RPC execution
+and denied member code-table reads. Before/after counts and content fingerprints match
+for nine existing program/roster/work tables; all 26 Auth users remain and new attendance
+tables are empty. No one was checked in or enrolled by release verification. Commit/push
+is authorized; verify Vercel's automatic deployment and real Google/phone attendance next.
+
 ## Local development
 
 1. Install native `fnm` through Apple Silicon Homebrew or the official universal macOS

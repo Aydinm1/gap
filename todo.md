@@ -27,7 +27,7 @@ requires implementation, validation, documentation, and changelog agreement.
   pass. Production-mode desktop/phone program, refresh, sign-out, and mutation checks pass.
 - [ ] Finish extended Monday tests, responsive/accessibility polish, second-lead
   provisioning, and hosted configuration. Local core P5/P6/session verification is
-  complete; this is not hosted-deployment acceptance. Attendance remains deferred.
+  complete; this is not hosted-deployment acceptance. Attendance local work is tracked below.
 
 ## Phase 0 — Documentation and repository foundation
 
@@ -300,6 +300,12 @@ analyst records were changed. P5/P7 broader session gates remain separate and op
   diff checks, and Webpack production build pass.
 - [ ] Recheck the default Turbopack build: this run hit a CSS-worker port-binding
   permission error even with escalation; the Webpack fallback passed without code changes.
+- [x] Update available dependency security fixes: Next/eslint-config-next 16.4.2 and
+  compatible Sharp/source-map-js/brace-expansion lockfile updates. Production-only audit
+  reports zero vulnerabilities; keep the stable matched framework and React pair.
+- [ ] Resolve the five remaining high development-tool findings when an upstream patch
+  is available: braces 3.0.3 and its ESLint-only parent chain have no compatible fix.
+  Do not use audit --force to downgrade eslint-config-next to 14.x; full audit is not clean.
 
 ### Implementation and recovery
 
@@ -370,21 +376,42 @@ do not satisfy them. See ADR 0007.
 
 ## Phase 8 — Final responsive and usability polish
 
-### Mobile attendance tracker — Deferred, planning only
+### Workshop resources and week attendance — local implementation
 
-Requested follow-up, not part of P6 and not authorized for implementation yet.
+Supersedes the earlier admin-only planning limitation. One workshop maps to each week;
+no percentages, penalties, GPS/device tracking, realtime or Monday reporting.
 
-- [ ] Add an admin-only, phone-friendly attendance view: choose a cohort and meeting/week,
-  see its enrolled people, and tap a large “Mark here” button beside each person.
-- [ ] Show marked people clearly, allow undo for accidental taps, and offer name search
-  plus a compact present/total count. Unmarked means not recorded, not automatically absent.
-- [ ] Persist attendance per person and meeting in Supabase; show saving/saved/error
-  feedback, preserve records after reload, and prevent duplicate marks.
-- [ ] Before implementation, confirm whether meetings map one-to-one to weeks or need
-  separate dates; specify admin authorization and retained cohort attendance history.
-- [ ] Verify one-handed phone use, accessible tap targets, undo, failed saves, duplicate
-  taps, and reload persistence. No self-check-in, QR codes, geolocation, or Monday sync
-  in this initial follow-up.
+- [x] Add Workshop resources across the database/type/admin/member/preview contracts,
+  preserving manual order, existing materials, slides and publication privacy.
+- [x] Implement cohort-preserving admin Attendance, dates, static two-hour code/local QR,
+  early close and explicit reopen without resetting attendance. Require active/published.
+- [x] Add searchable phone marking, confirmed Undo, present counts, version checks and
+  actor/time correction history, including closed-session historical corrections.
+- [x] Add member dashboard/week prompts without replacing Continue; generic public QR
+  landing, fragment capture/tab storage, clean login return, explicit confirmation/receipt.
+- [x] Add live identity/roster/enrollment authorization, private codes/failures/audit,
+  unique marks, stable retries, close/check-in locks and ten-failure/five-minute limit.
+- [x] Complete local verification: 63 unit/documentation entries, nine attendance,
+  nine enrollment, 12 program/session, 12 Storage, six assignment, five PDF-brief and
+  five written-response entries pass. Attendance browser checks at 1280px/390px cover
+  Workshop selector save/reload, ordered preview/privacy, dashboard/week prompts,
+  QR-prefilled same-tab sign-in return, manual code, failed/lost save response retry,
+  receipts, admin search/mark/confirmed Undo and reload without overflow. SQL/action
+  tests cover live authorization, rate limits, expiry/reopen, returning cohorts,
+  concurrent check-in/close, rollback and history. Lint, typecheck, generated types,
+  Webpack build and diff checks pass; exact fictional fixtures removed (2026-10-21).
+  Initial dev-server/browser contention and an incorrect action manifest were resolved
+  by serial production-build tests with the matching manifest; no test skips counted.
+- [x] Apply the separately approved hosted attendance migration after a dry run without
+  seeds/roles/Vault changes. Verify five RLS tables, private codes/RPC grants, migration
+  receipt, empty attendance and unchanged fingerprints/counts for nine existing tables
+  and all 26 Auth users. No real people were marked or enrolled by verification.
+- [x] Rerun unit/docs, attendance, enrollment, program/session, Storage, assignment,
+  PDF-brief and written-response regressions on the security-updated dependency tree;
+  lint, typecheck, generated types, dependency tree and Webpack build pass (2026-10-21).
+- [ ] Verify the automatic Vercel deployment and real hosted attendance flow after push.
+- [ ] Verify real Google QR-return and physical-camera scanning on a reachable released
+  origin; automated fixture-session browser handoff is not that manual acceptance.
 
 ### Monday accepted-member intake — Implemented, acceptance in progress
 

@@ -5,6 +5,21 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Updated Next.js and eslint-config-next to matched stable 16.4.2 and applied compatible
+  Sharp/source-map-js/brace-expansion security fixes. Production dependency audit is clean;
+  five development-only braces/lint-chain findings have no compatible upstream patch and
+  remain tracked. No forced framework downgrade or unrelated major upgrade.
+
+- Added Workshop materials and week-based attendance locally: static two-hour check-in
+  code/local QR, explicit member confirmation and receipts, dashboard/week prompts,
+  phone-friendly admin marking/Undo and correction history. Private codes, live enrollment
+  checks, attempt limits and session locks protect attendance independently of assignments.
+  Nine attendance entries and desktop/phone flows pass with unit/docs and program,
+  enrollment, Storage, assignment, PDF and written-response regressions. Lint, typecheck,
+  generated types, Webpack build and diff checks pass on Next 16.4.2. The separately
+  approved hosted migration is applied with unchanged existing record fingerprints;
+  deployment/physical-camera/real Google QR acceptance remains separate.
+
 - Added compact week assignment cards and focused assignment pages with full briefs,
   PDF downloads and submission controls beneath the instructions. Added optional summaries
   and opt-in restricted brief formatting with an admin toolbar/preview. Existing prose,

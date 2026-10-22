@@ -110,6 +110,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
   const navigation = [
     { label: "Review queue", href: `/admin${cohortQuery}`, current: pathname === "/admin" || pathname.startsWith("/admin/submissions") },
     { label: "Weeks", href: `/admin/weeks${cohortQuery}`, current: pathname.startsWith("/admin/weeks") },
+    { label: "Attendance", href: `/admin/attendance${cohortQuery}`, current: pathname.startsWith("/admin/attendance") },
     { label: "Members", href: `/admin/members${cohortQuery}`, current: pathname.startsWith("/admin/members") },
   ];
 
