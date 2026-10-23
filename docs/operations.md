@@ -878,6 +878,13 @@ All 70 unit/documentation tests, lint, typecheck, Webpack production build and d
 checks pass. The default hosted Turbopack build and its logs require a later release;
 no dependencies, lockfile resolutions, credentials or hosted settings changed.
 
+Separately authorized release (2026-10-23): commit `8851c92` was pushed to `main` and
+production deployment `dpl_GDrsxGSeDsU56ZXWZzhrPWrbxGX6` reached READY, including the
+default hosted Turbopack build. All 81 available build events contain neither npm warning;
+the custom install/build commands executed as configured. Custom domains are aliased.
+Slack's image-crawler user agent receives the branded PNG (HTTP 200, 47,870 bytes,
+1200 × 630). Actual Slack card refresh remains a manual check, not a deployment failure.
+
 ## Troubleshooting record
 
 When resolving a recurring operational issue, add a short entry with symptoms, verified

@@ -7,8 +7,8 @@ Keep a Changelog without assigning versions until the first release.
 
 - Added version-specific approval for the reviewed native resolver install script and
   reproducible Vercel installs; strip only unsupported npm cache-dir environment aliases
-  from install/build commands without suppressing other warnings. Hosted verification
-  follows a separately authorized release.
+  from install/build commands without suppressing other warnings. Production release
+  `8851c92` reached READY with neither warning in the hosted build logs (2026-10-23).
 
 - Added a branded static social-link image and OG/Twitter metadata, admin-only Last
   active from visible authorized visits (no historical backfill), and a week-first

@@ -55,8 +55,9 @@ requires implementation, validation, documentation, and changelog agreement.
   Vercel install/build commands that remove unsupported cache-dir environment aliases;
   policy checks, isolated offline clean install/native binding load, 70 unit/docs tests,
   lint, typecheck, Webpack production build and diff checks pass (2026-10-23).
-- [ ] Verify both npm warnings are absent in hosted build logs after releasing these
-  repository settings. No deployment is implied by local validation.
+- [x] Verify both npm warnings are absent in hosted build logs: production deployment
+  `dpl_GDrsxGSeDsU56ZXWZzhrPWrbxGX6` for `8851c92` reached READY on 2026-10-23;
+  all 81 available build events contain neither warning. Hosted Turbopack build passes.
 
 - [x] Standardize the machine and repository on Node.js 24 LTS through `fnm`, `.nvmrc`,
   and the package engine contract.
