@@ -5,6 +5,9 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Replaced the wide social graphic with a square, logo-only preview using the approved
+  compact UC Davis lockup, preventing clipped headlines in Slack's thumbnail layout.
+
 - Added version-specific approval for the reviewed native resolver install script and
   reproducible Vercel installs; strip only unsupported npm cache-dir environment aliases
   from install/build commands without suppressing other warnings. Production release

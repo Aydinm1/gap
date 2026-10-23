@@ -98,10 +98,17 @@ see Last active in Portal access after a visible authorized visit; refresh/navig
 fetches the latest value. Values update at most every five minutes, not continuously.
 Do not describe them as online status. Activity failures must not block app use.
 
-`public/brand/gap-social-preview.png` is a static 1200 × 630 public image. Root OG/Twitter
+`public/brand/gap-social-logo.png` is a static 1200 × 1200 public logo-only image. Root OG/Twitter
 metadata uses NEXT_PUBLIC_SITE_URL (localhost fallback only for unconfigured local work).
-Regenerate after a local build using `node scripts/render-social-preview.mjs`; it uses
-the approved logo and built self-hosted Montserrat, never an external image service.
+Regenerate using `node scripts/render-social-preview.mjs`; it centers the unmodified
+approved compact dark lockup without additional text or an external image service.
+The square composition and Twitter summary card replace the earlier wide headline
+graphic, which Slack cropped into an illegible thumbnail. The old PNG remains available
+for cached references; metadata uses the new filename to avoid reusing its image cache.
+Square-logo verification (2026-10-23): visually inspected the generated logo; anonymous
+local production requests verify image HTTP 200, 1200 × 1200 dimensions and matching
+OG/Twitter summary metadata. All 71 unit/docs tests, lint, typecheck, Webpack build and
+diff checks pass. This new composition is not yet committed or deployed.
 Messaging apps may cache an already-posted preview; repost/refresh in that service after
 deployment. No favicon replacement is needed. Public metadata contains no learner data.
 

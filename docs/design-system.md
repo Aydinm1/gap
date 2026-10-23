@@ -61,6 +61,11 @@ error or overdue state.
 
 ## Logo assets
 
+Social-link thumbnails use only the approved compact dark UC Davis lockup, centered
+with clear space on a neutral 1200 × 1200 square. No extra headline, tagline, footer or
+decorative rule: square messaging-app crops must preserve the entire logo. Use the
+square Twitter summary card; the favicon remains unchanged.
+
 Original approved assets live in `design_references/Official Logos/` and must remain
 unchanged. Runtime copies should be normalized into `public/brand/` with predictable,
 descriptive filenames.

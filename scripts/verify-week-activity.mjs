@@ -58,8 +58,8 @@ test('Last active privacy, visible visits, branded metadata and week-wide admin 
    await request(viewer,'recordActivity',[{personId:other.person,last_active_at:'2100-01-01'}]);assert.equal(await sql(`select count(*) from private.account_activity where person_id=${q(other.person)}`),'0');assert.equal(await sql(`select count(*) from private.account_activity where person_id=${q(viewer.person)}`),'1');
   });
   await t.test('public static image and metadata are available without cookies',{skip:!app},async()=>{
-   const response=await fetch(app+'/brand/gap-social-preview.png');assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/image\/png/);const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.readUInt32BE(16),1200);assert.equal(bytes.readUInt32BE(20),630);
-   const html=await (await fetch(app+'/login')).text();assert.match(html,/property="og:image"/);assert.match(html,/gap-social-preview.png/);assert.match(html,/name="twitter:card" content="summary_large_image"/);
+   const response=await fetch(app+'/brand/gap-social-logo.png');assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/image\/png/);const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.readUInt32BE(16),1200);assert.equal(bytes.readUInt32BE(20),1200);
+   const html=await (await fetch(app+'/login')).text();assert.match(html,/property="og:image"/);assert.match(html,/gap-social-logo.png/);assert.match(html,/name="twitter:card" content="summary"/);
   });
   await t.test('desktop/phone visit timestamps, scoped week/assignment queues and review navigation',{skip:!app},async()=>{
    const {chromium}=await import('playwright-core'),browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true}),screens=await mkdtemp(join(tmpdir(),'gap-week-activity-'));

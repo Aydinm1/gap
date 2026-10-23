@@ -31,6 +31,10 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Phase 0 — Documentation and repository foundation
 
+- [x] Replace the social-link graphic with a square logo-only thumbnail; visually inspect
+  the asset and verify public image/login metadata, 71 unit/docs tests, lint, typecheck,
+  Webpack production build and diff checks locally (2026-10-23). Release remains separate.
+
 - [x] Create the documentation map and domain-specific source-of-truth files.
 - [x] Add AI contributor reading order, documentation rules, and definition of done.
 - [x] Add ADR conventions and record the documentation-system decision.
