@@ -1,0 +1,85 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {randomUUID} from 'node:crypto';
+import {readFile,mkdtemp} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createClient} from '@supabase/supabase-js';
+import {createServerClient} from '@supabase/ssr';
+const exec=promisify(execFile),config=JSON.parse((await exec('./node_modules/.bin/supabase',['status','-o','json'])).stdout);
+assert.equal(new URL(config.API_URL).hostname,'127.0.0.1');
+const opts={auth:{persistSession:false,autoRefreshToken:false}},root=createClient(config.API_URL,config.SERVICE_ROLE_KEY,opts),anon=createClient(config.API_URL,config.ANON_KEY,opts);
+const ok=r=>{assert.ifError(r.error);return r.data;},q=s=>`'${String(s).replaceAll("'","''")}'`;
+const sql=async s=>(await exec('docker',['exec','supabase_db_gap','psql','-X','-U','postgres','-d','postgres','-At','-v','ON_ERROR_STOP=1','-c',s])).stdout.trim();
+const cohort=randomUUID(),week=randomUUID(),assignment=randomUUID(),users=[];
+const app=process.env.GAP_TEST_APP_URL;if(app)assert.ok(['localhost','127.0.0.1'].includes(new URL(app).hostname));
+async function fixture(role,{enrolled=false,active=true}={}){
+ const email=`gap-activity-${randomUUID()}@ucdavis.edu`,person=randomUUID(),id=ok(await root.auth.admin.createUser({email,email_confirm:true})).user.id;
+ users.push({id,person});
+ await sql(`insert into auth.identities(provider_id,user_id,identity_data,provider,created_at,updated_at) values(${q(id)},${q(id)},jsonb_build_object('sub',${q(id)},'email',${q(email)},'email_verified',true),'google',now(),now());insert into public.people(id,email,full_name) values(${q(person)},${q(email)},'Test Participant Fixture');insert into public.approved_members(person_id,email,full_name,role,active) values(${q(person)},${q(email)},'Test Participant Fixture',${q(role)},${active});${enrolled?`insert into public.cohort_enrollments(person_id,cohort_id) values(${q(person)},${q(cohort)});`:''}`);
+ const client=createClient(config.API_URL,config.ANON_KEY,opts),link=ok(await root.auth.admin.generateLink({type:'magiclink',email}));ok(await client.auth.verifyOtp({token_hash:link.properties.hashed_token,type:'magiclink'}));if(active)ok(await client.rpc('sync_profile'));
+ const enrollment=enrolled?await sql(`select id from public.cohort_enrollments where person_id=${q(person)} and cohort_id=${q(cohort)}`):null;
+ return{id,person,email,client,enrollment};
+}
+async function cookies(user){const jar=new Map(),session=ok(await user.client.auth.getSession()).session,ssr=createServerClient(config.API_URL,config.ANON_KEY,{cookies:{getAll:()=>[...jar].map(([name,value])=>({name,value})),setAll:v=>v.forEach(c=>jar.set(c.name,c.value))}});ok(await ssr.auth.setSession(session));return [...jar].map(([name,value])=>({name,value,url:app}));}
+
+const second=randomUUID(),emptyWeek=randomUUID();
+async function request(user,name,args=[]){
+ const manifest=JSON.parse(await readFile('.next/server/server-reference-manifest.json','utf8')),id=Object.entries(manifest.node).find(([,e])=>e.exportedName===name)?.[0];assert.ok(id);
+ const r=await fetch(app+'/admin',{method:'POST',redirect:'manual',headers:{origin:app,'next-action':id,'content-type':'text/plain;charset=UTF-8',cookie:(user?await cookies(user):[]).map(c=>c.name+'='+c.value).join('; ')},body:JSON.stringify(args)});
+ return {body:await r.text(),redirect:r.headers.get('x-action-redirect')??''};
+}
+async function poll(check){for(let n=0;n<50;n++){if(await check())return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out waiting for activity');}
+test('Last active privacy, visible visits, branded metadata and week-wide admin flow',async t=>{
+ try{
+  await sql(`insert into public.program_cohorts(id,quarter,year,starts_on,ends_on,state) values(${q(cohort)},'fall',2988,'2988-09-01','2988-12-01','active');insert into public.program_weeks(id,cohort_id,week_number,title,description,published) values(${q(week)},${q(cohort)},1,'Research workshop','Fixture workshop',true),(${q(emptyWeek)},${q(cohort)},2,'Empty workshop','No assignment',true);insert into public.assignments(id,week_id,title,instructions,due_at,sort_order) values(${q(assignment)},${q(week)},'Research brief','Research carefully',now()+interval '1 day',1),(${q(second)},${q(week)},'SWOT recommendation','Recommend carefully',now()+interval '1 day',2);`);
+  const lead=await fixture('admin'),member=await fixture('member',{enrolled:true}),other=await fixture('member',{enrolled:true}),tester=await fixture('member',{enrolled:true}),viewer=await fixture('viewer'),inactive=await fixture('member',{active:false}),unapproved=await fixture('member'),wrong=await fixture('member');
+  await sql(`delete from public.approved_members where person_id=${q(unapproved.person)};update auth.users set email='wrong-domain-${wrong.id}@example.com' where id=${q(wrong.id)}`);
+  ok(await lead.client.rpc('set_test_participation',{p_id:tester.enrollment,p_is_test:true}));
+  const count=()=>sql(`select count(*) from private.account_activity where person_id in(${users.map(u=>q(u.person)).join(',')})`);
+  await t.test('timestamps start empty; only current authorized users record themselves; reads are admin-only',async()=>{
+   assert.equal(await count(),'0');assert.ok((await anon.rpc('record_activity')).error);for(const identity of [inactive,unapproved,wrong])assert.ok((await identity.client.rpc('record_activity')).error);
+   for(const client of [member.client,viewer.client]){assert.ok((await client.rpc('admin_activity')).error);assert.ok((await client.schema('private').from('account_activity').select('*')).error);}
+   ok(await member.client.rpc('record_activity'));const first=await sql(`select last_active_at from private.account_activity where person_id=${q(member.person)}`);
+   await Promise.all(Array.from({length:8},()=>member.client.rpc('record_activity').then(ok)));
+   assert.equal(await sql(`select last_active_at from private.account_activity where person_id=${q(member.person)}`),first);
+   await sql(`update private.account_activity set last_active_at=clock_timestamp()-interval '6 minutes' where person_id=${q(member.person)}`);
+   ok(await member.client.rpc('record_activity'));assert.notEqual(await sql(`select last_active_at from private.account_activity where person_id=${q(member.person)}`),first);
+   assert.ok(ok(await lead.client.rpc('admin_activity')).some(a=>a.person_id===member.person));
+   await sql(`update public.approved_members set active=false where person_id=${q(member.person)}`);assert.ok((await member.client.rpc('record_activity')).error);await sql(`update public.approved_members set active=true where person_id=${q(member.person)};update public.approved_members set role='member' where person_id=${q(lead.person)}`);assert.ok((await lead.client.rpc('admin_activity')).error);await sql(`update public.approved_members set role='admin' where person_id=${q(lead.person)}`);
+   for(const user of [member,other,tester])for(const a of [assignment,second]){ok(await user.client.rpc('submit_text',{p_assignment_id:a,p_text:'Fixture response'}));const row=ok(await user.client.from('submissions').select('*').eq('assignment_id',a).eq('is_current',true).single());if(user===other || user===member&&a===second)ok(await lead.client.rpc('review_submission',{p_data:{id:row.id,status:'completed',feedback:'Approved',expectedUpdatedAt:row.updated_at}}));}
+  });
+  await t.test('HTTP activity derives identity; anonymous/inactive denied, GET/prefetch do not write',{skip:!app},async()=>{
+   const jar=await cookies(viewer),headers={cookie:jar.map(c=>c.name+'='+c.value).join('; ')};
+   const before=await count();await fetch(app+'/explore',{headers});await fetch(app+'/explore',{headers:{...headers,'next-router-prefetch':'1'}});assert.equal(await count(),before);
+   assert.match((await request(null,'recordActivity')).redirect,/login/);for(const identity of [inactive,unapproved,wrong])assert.match((await request(identity,'recordActivity')).redirect,/access-denied/);
+   await request(viewer,'recordActivity',[{personId:other.person,last_active_at:'2100-01-01'}]);assert.equal(await sql(`select count(*) from private.account_activity where person_id=${q(other.person)}`),'0');assert.equal(await sql(`select count(*) from private.account_activity where person_id=${q(viewer.person)}`),'1');
+  });
+  await t.test('public static image and metadata are available without cookies',{skip:!app},async()=>{
+   const response=await fetch(app+'/brand/gap-social-preview.png');assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/image\/png/);const bytes=Buffer.from(await response.arrayBuffer());assert.equal(bytes.readUInt32BE(16),1200);assert.equal(bytes.readUInt32BE(20),630);
+   const html=await (await fetch(app+'/login')).text();assert.match(html,/property="og:image"/);assert.match(html,/gap-social-preview.png/);assert.match(html,/name="twitter:card" content="summary_large_image"/);
+  });
+  await t.test('desktop/phone visit timestamps, scoped week/assignment queues and review navigation',{skip:!app},async()=>{
+   const {chromium}=await import('playwright-core'),browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true}),screens=await mkdtemp(join(tmpdir(),'gap-week-activity-'));
+   try{for(const width of [1280,390]){
+    const ctx=await browser.newContext({viewport:{width,height:900}});await ctx.addCookies(await cookies(lead));const page=await ctx.newPage();page.setDefaultTimeout(20000);
+    await page.goto(app+'/admin?cohort='+cohort+'&week='+week);await page.getByRole('heading',{name:'Review queue',exact:true}).waitFor();await page.getByRole('heading',{name:'All assignments',exact:true}).waitFor();assert.match(await page.locator('[aria-label="Week completion"]').innerText(),/1 of 2 participants complete/);assert.match(await page.locator('[aria-label="Week completion"]').innerText(),/50%/);
+    await poll(async()=>await sql(`select count(*) from private.account_activity where person_id=${q(lead.person)}`)==='1');const stamp=await sql(`select last_active_at from private.account_activity where person_id=${q(lead.person)}`);
+    assert.equal(await page.getByRole('list',{name:'Assignment progress'}).getByRole('listitem').count(),2);await page.screenshot({path:join(screens,'week-'+width+'.png'),fullPage:true});
+    await page.getByRole('button',{name:/^View assignment.*Research brief/}).click();await page.waitForURL(url=>url.searchParams.get('assignment')===assignment);await page.locator('#submissions').getByRole('heading',{name:'Research brief',exact:true}).waitFor();assert.ok(page.url().includes('assignment='));await page.getByRole('button',{name:'All assignments',exact:true}).click();await page.waitForURL(url=>!url.searchParams.has('assignment'));await page.getByRole('heading',{name:'All assignments',exact:true}).waitFor();assert.ok(!page.url().includes('assignment='));
+    const extraCurrent=ok(await member.client.from('submissions').select('*').eq('assignment_id',second).eq('is_current',true).single());ok(await lead.client.rpc('review_submission',{p_data:{id:extraCurrent.id,status:'submitted',expectedUpdatedAt:extraCurrent.updated_at}}));await page.reload();await page.getByRole('link',{name:/^(Review →|Review submission →)$/}).filter({visible:true}).first().click();await page.getByRole('heading',{name:'Submitted work',exact:true}).waitFor();const back=await page.getByRole('link',{name:'← Review queue',exact:true}).getAttribute('href');assert.ok(!back.includes('assignment='));assert.ok(back.includes('week='+week));const reviewedUrl=page.url();await page.getByLabel('Mark complete',{exact:true}).check();await page.getByRole('button',{name:'Save & review next',exact:true}).click();await page.waitForURL(url=>url.href!==reviewedUrl && url.pathname.includes('/admin/submissions/'));await page.getByText('SWOT recommendation · Submitted',{exact:false}).waitFor();assert.ok(!page.url().includes('assignment='));await page.getByLabel('Mark complete',{exact:true}).check();await page.getByRole('button',{name:'Save & review next',exact:true}).click();await page.waitForURL(url=>url.pathname==='/admin');await page.getByRole('heading',{name:'All assignments',exact:true}).waitFor();const restored=ok(await member.client.from('submissions').select('*').eq('assignment_id',assignment).eq('is_current',true).single());ok(await lead.client.rpc('review_submission',{p_data:{id:restored.id,status:'submitted',expectedUpdatedAt:restored.updated_at}}));await page.reload();await page.getByRole('heading',{name:'All assignments',exact:true}).waitFor();
+    await page.getByRole('combobox',{name:'Participation view',exact:true}).selectOption('test');await page.getByText(tester.email,{exact:true}).filter({visible:true}).first().waitFor();assert.match(await page.locator('[aria-label="Week completion"]').innerText(),/Official week completion: 1 of 2/);
+    await page.getByRole('combobox',{name:'Week',exact:true}).selectOption(emptyWeek);await page.getByText('No assignments in this week yet.',{exact:true}).waitFor();
+    await page.goto(app+'/admin/members?cohort='+cohort);await page.getByRole('button',{name:'Portal access',exact:true}).click();await page.getByRole('searchbox',{name:'Search members',exact:true}).fill(other.email);await page.getByText('Last active: —',{exact:true}).waitFor();
+    await page.getByRole('searchbox',{name:'Search members',exact:true}).fill(member.email);const activity=page.getByText(/^Last active:/);await activity.waitFor();assert.ok(!(await activity.innerText()).includes('—'));await page.screenshot({path:join(screens,'activity-'+width+'.png'),fullPage:true});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await sql(`select last_active_at from private.account_activity where person_id=${q(lead.person)}`),stamp);
+    await ctx.close();
+   }const retryViewer=await fixture('viewer');const retryContext=await browser.newContext();await retryContext.addCookies(await cookies(retryViewer));const retryPage=await retryContext.newPage();const manifest=JSON.parse(await readFile('.next/server/server-reference-manifest.json','utf8')),activityId=Object.entries(manifest.node).find(([,e])=>e.exportedName==='recordActivity')?.[0];assert.ok(activityId);await retryPage.route('**/*',route=>route.request().headers()['next-action']===activityId?route.abort('failed'):route.continue());await retryPage.goto(app+'/explore?cohort='+cohort);await retryPage.getByRole('heading',{name:'Explore GAP',exact:true}).waitFor();await new Promise(r=>setTimeout(r,200));assert.equal(await sql(`select count(*) from private.account_activity where person_id=${q(retryViewer.person)}`),'0');await retryPage.unroute('**/*');await retryPage.reload();await retryPage.getByRole('heading',{name:'Explore GAP',exact:true}).waitFor();await poll(async()=>await sql(`select count(*) from private.account_activity where person_id=${q(retryViewer.person)}`)==='1');await retryContext.close();console.log('Week/activity screenshots: '+screens);}finally{await browser.close();}
+  });
+ }finally{
+  await sql(`update public.submissions set supersedes_submission_id=null where assignment_id in(${q(assignment)},${q(second)});delete from public.submissions where assignment_id in(${q(assignment)},${q(second)});delete from public.assignments where week_id in(${q(week)},${q(emptyWeek)});delete from public.program_weeks where cohort_id=${q(cohort)};delete from public.cohort_enrollments where cohort_id=${q(cohort)};delete from public.program_cohorts where id=${q(cohort)};`);
+  for(const u of users){await sql(`delete from public.profiles where id=${q(u.id)};delete from public.approved_members where person_id=${q(u.person)};delete from public.people where id=${q(u.person)}`);ok(await root.auth.admin.deleteUser(u.id));}
+  assert.equal(await sql(`select count(*) from public.program_cohorts where id=${q(cohort)}`),'0');
+ }
+});

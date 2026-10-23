@@ -1,0 +1,21 @@
+import { getCurrentAdminWeek, getSubmissionRows, type AdminWorkspaceState } from './admin.ts';
+import { assignmentsForWeek } from './types.ts';
+
+export function selectQueueWeek(state: AdminWorkspaceState, cohortId: string, weekId?: string | null, assignmentId?: string | null) {
+ const weeks=state.weeks.filter(w=>w.cohortId===cohortId && w.publicationState==='published').toSorted((a,b)=>a.weekNumber-b.weekNumber);
+ return weeks.find(w=>w.id===weekId) ?? weeks.find(w=>assignmentsForWeek(w).some(a=>a.id===assignmentId)) ?? getCurrentAdminWeek(weeks) ?? weeks.at(-1);
+}
+export function buildWeekQueue(state: AdminWorkspaceState, cohortId: string, weekId: string, now: Date, audience: 'official'|'test'='official') {
+ const week=state.weeks.find(w=>w.id===weekId && w.cohortId===cohortId && w.publicationState==='published');
+ const participants=state.enrollments.filter(e=>e.cohortId===cohortId && e.participationStatus==='enrolled' && !!e.isTest===(audience==='test'));
+ const assignments=week ? assignmentsForWeek(week).map(assignment=>{
+  const rows=getSubmissionRows({state,cohortId,weekId,assignmentId:assignment.id,now,audience});
+  return {assignment,rows,approved:rows.filter(r=>r.state==='completed').length,awaiting:rows.filter(r=>r.state==='submitted').length};
+ }) : [];
+ const rows=assignments.flatMap(a=>a.rows).toSorted((a,b)=>{
+  const priority={submitted:0,revision_requested:1,overdue:2,due_soon:3,upcoming:4,completed:5};
+  return priority[a.state]-priority[b.state] || (a.person?.fullName??'').localeCompare(b.person?.fullName??'') || assignments.findIndex(x=>x.assignment.id===a.assignment.id)-assignments.findIndex(x=>x.assignment.id===b.assignment.id);
+ });
+ const complete=assignments.length ? participants.filter(e=>assignments.every(a=>a.rows.some(r=>r.enrollment.id===e.id && r.state==='completed'))).length : 0;
+ return {assignments,rows,participants:participants.length,complete,rate:assignments.length && participants.length ? complete/participants.length : undefined};
+}

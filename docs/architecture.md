@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -101,6 +101,18 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 7. Database and Storage RLS enforce the same policy independently.
 
 ## Data access and mutations
+
+Visible protected layouts mount a client ActivityRecorder: pathname/visibility events,
+no interval and no storage of page identifiers. The best-effort no-argument action
+authorizes with requireUser and calls user-scoped record_activity; DB repeats live
+authorization and timestamp/throttle rules. Do not record in middleware, requireUser,
+sync_profile or OAuth callbacks. Admin workspace alone loads paginated admin_activity
+into optional roster lastActiveAt; no activity read enters member/Viewer data loaders.
+
+Week overview uses buildWeekQueue/selectQueueWeek: published selected-cohort weeks,
+explicit all-assignment aggregation and approved-only per-person completion. Preserve
+the existing single-assignment selector for its callers. Review links omit assignment
+in all-week mode and preserve filter/search/audience; next review uses that same scope.
 
 Enrollment DTOs retain `isTest` from the nonnull database flag. The live-admin-only
 `saveAdmin('enrollment_test', {id,isTest})` validates UUID/boolean and calls the narrow

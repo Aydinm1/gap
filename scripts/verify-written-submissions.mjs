@@ -127,7 +127,7 @@ test('written submission authorization, history, races and preview isolation',as
     await preview.screenshot({path:join(screens,`admin-review-${width}.png`),fullPage:true});
     await preview.getByLabel('Request revision',{exact:true}).check();await preview.getByLabel('Feedback (required)',{exact:true}).fill('Clear SWOT, add evidence.');await preview.getByRole('button',{name:'Save review',exact:true}).click();await preview.getByText('Review saved.',{exact:true}).waitFor();
     await page.reload();await page.getByText('Clear SWOT, add evidence.',{exact:true}).first().waitFor();
-    const before=await snapshot();let writes=0;preview.on('request',r=>{if(r.method()!=='GET')writes++;});
+    const before=await snapshot();const activityManifest=JSON.parse(await readFile('.next/server/server-reference-manifest.json','utf8')),activityAction=Object.entries(activityManifest.node).find(([,e])=>e.exportedName==='recordActivity')?.[0];let writes=0;preview.on('request',r=>{if(r.method()!=='GET' && r.headers()['next-action']!==activityAction)writes++;});
     await preview.goto(`${app}/admin/preview/week/1?cohort=${cohort}`);await preview.getByRole('link',{name:/^View assignment:/}).click();await preview.getByRole('button',{name:'Preview submission',exact:true}).click();
     await preview.getByRole('button',{name:/^Write response/}).click();await preview.getByLabel('Your response',{exact:true}).fill('Preview SWOT');
     await preview.getByRole('button',{name:/^Upload file/}).click();await preview.getByLabel('Choose file',{exact:true}).setInputFiles({name:'preview.pdf',mimeType:'application/pdf',buffer:pdf});

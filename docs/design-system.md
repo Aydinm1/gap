@@ -1,7 +1,7 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
@@ -210,6 +210,13 @@ descriptive filenames.
   require an explicit PDT/PST choice, and nonexistent spring-forward times are rejected.
 
 ## Accessibility baseline
+
+Admin overview is week-first: one restrained bordered panel, week/scope header, compact
+completion statement and ordered assignment progress, then an integrated queue toolbar.
+Avoid disconnected assignment dropdowns, floating search and four competing summary
+cards. Assignment drill-down returns to All assignments. Keep visible search labels,
+44px actions and per-person/assignment cards on phones. Cohort outcomes are secondary
+disclosure content. Portal access Last active uses quiet Pacific timestamp text or —.
 
 Test participation is an explicit checkbox within participant Edit outcomes, separate
 from lifecycle controls. Read-only rows label test records; removal confirms inclusion

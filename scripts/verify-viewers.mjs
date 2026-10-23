@@ -122,7 +122,7 @@ test('Viewer access is content-only and independent of cohort participation',asy
     }finally{await sql(`delete from public.approved_members where email=${q(email)};delete from public.people where email=${q(email)}`);await adminContext.close();}
     for(const width of [1280,390]){
     const ctx=await browser.newContext({viewport:{width,height:900}});await ctx.addCookies([...(await jar(viewer))].map(([name,value])=>({name,value,url:app})));const page=await ctx.newPage();page.setDefaultTimeout(20000);
-    const before=await snapshot();let writes=0;page.on('request',r=>{if(r.method()!=='GET')writes++;});
+    const before=await snapshot();const activityManifest=JSON.parse(await readFile('.next/server/server-reference-manifest.json','utf8')),activityAction=Object.entries(activityManifest.node).find(([,e])=>e.exportedName==='recordActivity')?.[0];let writes=0;page.on('request',r=>{if(r.method()!=='GET' && r.headers()['next-action']!==activityAction)writes++;});
     await page.goto(`${app}/`);await page.waitForURL('**/explore');await page.getByRole('heading',{name:'Explore GAP',exact:true}).waitFor();
     await page.goto(`${app}/explore?cohort=${cohort}`);await page.getByRole('link',{name:/Week 1 Viewer workshop/}).click();await page.getByRole('link',{name:/View assignment:/}).click();await page.getByRole('heading',{name:'Viewer assignment',exact:true}).waitFor();
     for(const label of ['Overdue','Not submitted','Your submission'])assert.equal(await page.getByText(label,{exact:true}).count(),0);

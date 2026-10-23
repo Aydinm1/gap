@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -382,6 +382,27 @@ do not satisfy them. See ADR 0007.
   pass (2026-10-20); hosted configuration and second-lead provisioning remain open.
 
 ## Phase 8 — Final responsive and usability polish
+
+### Branded previews, Last active and week-first admin
+
+- [x] Add static public branded OG/Twitter image, private Last active without backfill,
+  visible-page recording, admin Portal access timestamp and protected read/write rules.
+- [x] Add week completion/assignment progress overview, all-week queue and scoped
+  drill-down/review/back/next navigation; preserve official/test separation.
+- [x] Verify activity authorization/throttle/failure cases, public metadata/image,
+  desktop/phone queues, empty states, regressions, types/lint/build/docs/diff.
+  Local closeout (2026-10-23): five focused entries cover DB/HTTP privacy, no prefetch
+  recording, concurrent throttling, desktop/390px timestamps, whole-week cross-assignment
+  review-next, test separation and failed-recording retry. Public 1200×630 PNG/metadata
+  checks and visual inspection pass. All 68 unit/docs, 12 program/session, six assignment,
+  five test-participant, eight Viewer, five written, nine attendance, 12 Storage, five
+  PDF-brief and nine enrollment entries pass. Lint/types/generated types, Webpack build
+  and diff checks pass; no skipped browser entries count as acceptance. Earlier stopped
+  test-server and obsolete-selector failures were resolved, not hidden.
+- [x] Apply separately authorized hosted Last active migration (2026-10-23): empty
+  activity table, receipt/RLS/grants verified; all 12 application/Storage fingerprints
+  unchanged. Auth user count stays 28, but its live aggregate changed during verification.
+- [~] Commit/push and verify the authorized production deployment.
 
 ### Test participant enrollments
 

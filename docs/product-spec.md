@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -48,6 +48,31 @@ It should feel like a restrained consulting-firm training portal, not a school L
   instructions, PDF brief, deadline, submissions, feedback, and retained history.
 
 ## Member workflows
+
+### Last active and link previews
+
+Portal access shows one admin-only Last active timestamp per person, formatted in
+Pacific time. Until tracking observes a visit, show —; never backfill from profiles or
+Auth. A visible authorized protected-page visit records database time at most once per
+five minutes. No first-access status, activity filter, heartbeat or online indicator.
+Failure to record must not block GAP. No page, device or IP history is collected.
+
+Public link previews use the approved logo, Growth Analyst Program title and neutral/
+green branding. The static image and generic metadata require no login and reveal no
+private content. Existing favicon remains unchanged.
+
+### Week-first admin overview
+
+The review overview defaults to the latest published week with assignments and All
+assignments. A cohesive week panel leads with participants complete (every assignment
+approved), followed by ordered assignment progress/drill-down and its review toolbar.
+Use enrolled non-test participants as the official denominator, never a fixed count.
+No participants/assignments means no percentage. Revisions/submitted work is not complete.
+Week-wide queue counts are assignment obligations; rows represent person × assignment.
+Keep test views explicit and official outcomes separate. Week, assignment when selected,
+status, name/email search and audience persist through review/back/next navigation.
+No work awaiting review does not mean week completion. Search and status controls sit
+inside the queue toolbar; participant and week selectors belong in the panel header.
 
 ### Test participation
 

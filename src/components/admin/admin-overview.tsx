@@ -1,69 +1,38 @@
-"use client";
+'use client';
+import Link from 'next/link';
+import { useRouter,useSearchParams } from 'next/navigation';
+import { AssignmentStatusBadge } from '@/components/program/assignment-status-badge';
+import { PageContainer } from '@/components/ui/container';
+import { StateMessage } from '@/components/ui/state-message';
+import { filterSubmissionRows,getAdminQueueCounts,type AdminQueueFilter } from '@/lib/program/admin';
+import { buildWeekQueue,selectQueueWeek } from '@/lib/program/week-queue';
+import { calculateCohortMetrics } from '@/lib/program/cohorts';
+import { formatDeadline } from '@/lib/program/state';
+import { useAdminWorkspace } from './admin-workspace';
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { AssignmentStatusBadge } from "@/components/program/assignment-status-badge";
-import { Card } from "@/components/ui/card";
-import { PageContainer } from "@/components/ui/container";
-import { StateMessage } from "@/components/ui/state-message";
-import { filterSubmissionRows, getAdminQueueCounts, getCurrentAdminWeek, getSubmissionRows, type AdminQueueFilter } from "@/lib/program/admin";
-import { calculateCohortMetrics } from "@/lib/program/cohorts";
-import { assignmentsForWeek } from "@/lib/program/types";
-
-import { formatDeadline } from "@/lib/program/state";
-import { useAdminWorkspace } from "./admin-workspace";
-
-const filters: { value: AdminQueueFilter; label: string }[] = [
-  { value: "awaiting_review", label: "Awaiting review" }, { value: "revision_requested", label: "Revisions requested" },
-  { value: "missing", label: "Missing" }, { value: "complete", label: "Complete" }, { value: "all", label: "All" },
-];
-const percentage = (value: number | undefined, numerator: number, denominator: number) => value === undefined ? "—" : `${Math.round(value * 100)}% (${numerator}/${denominator})`;
-const compactPacific = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(iso));
-
-export function AdminOverview() {
-  const workspace = useAdminWorkspace();
-  const router = useRouter();
-  const params = useSearchParams();
-  const cohortWeeks = workspace.weeks.filter((week) => week.cohortId === workspace.selectedCohortId);
-  const currentWeek = getCurrentAdminWeek(cohortWeeks);
-  const choices = cohortWeeks.flatMap((week) => assignmentsForWeek(week).map((assignment) => ({ week, assignment })));
-  const selection = choices.find(({ assignment }) => assignment.id === params.get("assignment")) ?? choices.find(({ week }) => week.id === params.get("week")) ?? choices.find(({ week }) => week.id === currentWeek?.id);
-  const selectedWeek = selection?.week;
-  const selectedAssignment = selection?.assignment;
-  const requestedFilter = params.get("status") as AdminQueueFilter | null;
-  const filter = filters.some((item) => item.value === requestedFilter) ? requestedFilter! : "awaiting_review";
-  const search = params.get("q") ?? "";
-  const audience = params.get('audience') === 'test' ? 'test' : 'official';
-  const officialRows = selectedWeek ? getSubmissionRows({ state: workspace, cohortId: workspace.selectedCohortId, weekId: selectedWeek.id, assignmentId: selectedAssignment?.id, now: new Date() }) : [];
-  const rows = audience === 'official' ? officialRows : selectedWeek ? getSubmissionRows({ state:workspace,cohortId:workspace.selectedCohortId,weekId:selectedWeek.id,assignmentId:selectedAssignment?.id,now:new Date(),audience:'test' }) : [];
-  const visibleRows = filterSubmissionRows(rows, filter, search);
-  const counts = getAdminQueueCounts(rows);
-  const officialCounts = getAdminQueueCounts(officialRows);
-  const cohortEnrollments = workspace.enrollments.filter((item) => item.cohortId === workspace.selectedCohortId);
-  const activeMembers = cohortEnrollments.filter((item) => item.participationStatus === "enrolled" && !item.isTest).length;
-  const metrics = calculateCohortMetrics(cohortEnrollments);
-
-  function updateQuery(values: Record<string, string>) {
-    const next = new URLSearchParams(params.toString());
-    next.set("cohort", workspace.selectedCohortId);
-    Object.entries(values).forEach(([key, value]) => value ? next.set(key, value) : next.delete(key));
-    router.replace(`/admin?${next.toString()}#submissions`);
-  }
-  const returnQuery = new URLSearchParams({ cohort: workspace.selectedCohortId, week: selectedWeek?.id ?? "", status: filter });
-  if (selectedAssignment) returnQuery.set("assignment", selectedAssignment.id);
-  if (search) returnQuery.set("q", search);
-  if (audience === 'test') returnQuery.set('audience','test');
-
-  return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
-    <p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Admin workspace</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">Review queue</h1><p className="mt-3 max-w-3xl text-base leading-7 text-ink-soft">Work through submissions that need a decision, then manage weeks and cohort access.</p>
-    <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Current assignment summary">{[["Active members", activeMembers], ["Awaiting review", officialCounts.awaiting_review], ["Revisions requested", officialCounts.revision_requested], ["Missing", officialCounts.missing]].map(([label, value]) => <Card className="p-5" key={label}><p className="text-sm font-semibold text-ink-soft">{label}</p><p className="mt-2 text-3xl font-bold tracking-[-0.03em]">{value}</p></Card>)}</section>
-    <section id="submissions" className="mt-11" aria-labelledby="submissions-heading">
-      <label className="mb-5 block text-sm font-bold">Participation view<select aria-label="Participation view" className="ml-3 min-h-11 rounded-lg border border-border-strong bg-surface px-3" value={audience} onChange={event=>updateQuery({audience:event.target.value==='test'?'test':''})}><option value="official">Official participants</option><option value="test">Test participants only</option></select></label>
-      {audience === 'test' ? <p className="mb-5 text-sm text-ink-soft">Test submissions only. Summary cards and cohort outcomes above/below always exclude test participants.</p> : null}
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-deep">Submissions</p><h2 id="submissions-heading" className="mt-2 text-2xl font-bold">{selectedWeek ? `Week ${selectedWeek.weekNumber}: ${selectedAssignment?.title}` : "No assignment selected"}</h2>{selectedAssignment ? <p className="mt-2 text-sm text-ink-soft">Deadline {formatDeadline(selectedAssignment.dueAt)} · Pacific time</p> : null}</div><label className="text-sm font-bold text-ink">Assignment<select aria-label="Assignment" value={selectedAssignment?.id ?? ""} onChange={(event) => updateQuery({ assignment: event.target.value, week: choices.find(({ assignment }) => assignment.id === event.target.value)?.week.id ?? "" })} className="mt-2 block min-h-10 w-full rounded-lg border border-border-strong bg-surface px-3 font-semibold lg:w-auto">{choices.map(({ week, assignment }) => <option key={assignment.id} value={assignment.id}>Week {week.weekNumber}: {assignment.title}</option>)}</select></label></div>
-      {selectedWeek ? <><div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"><div className="flex flex-wrap gap-2" aria-label="Filter submissions">{filters.map((item) => <button key={item.value} type="button" onClick={() => updateQuery({ status: item.value })} className={`min-h-10 rounded-full border px-4 text-sm font-bold ${filter === item.value ? "border-action bg-action text-white" : "border-border-strong bg-surface text-ink-soft hover:bg-surface-subtle"}`}>{item.label} <span className="ml-1 opacity-80">{counts[item.value]}</span></button>)}</div><label className="sr-only" htmlFor="queue-search">Search members</label><input id="queue-search" type="search" value={search} onChange={(event) => updateQuery({ q: event.target.value })} placeholder="Search members" className="min-h-11 rounded-lg border border-border-strong bg-surface px-4 text-sm xl:w-72" /></div>
-        {visibleRows.length ? <><div className="mt-5 hidden overflow-hidden rounded-card border border-border bg-surface md:block"><table className="w-full border-collapse text-left text-sm"><thead className="bg-surface-subtle text-xs uppercase tracking-[0.1em] text-ink-faint"><tr><th className="px-5 py-4">Member</th><th className="px-5 py-4">Status</th><th className="px-5 py-4">Submitted</th><th className="px-5 py-4 text-right">Next action</th></tr></thead><tbody>{visibleRows.map((row) => <tr key={row.enrollment.id} className="border-t border-border"><td className="px-5 py-4"><span className="block font-bold">{row.person?.fullName}</span><span className="mt-1 block text-xs text-ink-soft">{row.person?.email}</span></td><td className="px-5 py-4"><AssignmentStatusBadge state={row.state} /></td><td className="px-5 py-4 text-ink-soft">{row.submission ? compactPacific(row.submission.submittedAt) : "—"}</td><td className="px-5 py-4 text-right">{row.submission ? <Link className="inline-flex min-h-11 items-center font-bold text-action hover:text-action-hover" href={`/admin/submissions/${row.submission.id}?${returnQuery.toString()}`}>{row.state === "submitted" ? "Review →" : "View →"}</Link> : <span className="text-ink-faint">Await submission</span>}</td></tr>)}</tbody></table></div><div className="mt-5 grid gap-4 md:hidden">{visibleRows.map((row) => <Card key={row.enrollment.id} className="p-5"><div className="flex items-start justify-between gap-3"><div><p className="font-bold">{row.person?.fullName}</p><p className="mt-1 text-xs text-ink-soft">{row.person?.email}</p></div><AssignmentStatusBadge state={row.state} /></div><p className="mt-4 text-sm text-ink-soft">{row.submission ? `Submitted ${compactPacific(row.submission.submittedAt)}` : "No submission"}</p>{row.submission ? <Link className="mt-3 inline-flex min-h-11 items-center font-bold text-action" href={`/admin/submissions/${row.submission.id}?${returnQuery.toString()}`}>{row.state === "submitted" ? "Review submission →" : "View submission →"}</Link> : null}</Card>)}</div></> : <div className="mt-5"><StateMessage title={filter === "awaiting_review" ? "You’re caught up" : "No matching submissions"}>{filter === "awaiting_review" ? "There are no submissions waiting for a decision in this assignment." : "Try another status or clear the member search."}</StateMessage></div>}</> : <div className="mt-6"><StateMessage title="No assignments yet">Add an assignment to a cohort week to begin tracking submissions.</StateMessage></div>}
-    </section>
-    <section className="mt-14 border-t border-border pt-10" aria-labelledby="outcomes-heading"><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-deep">Cohort snapshot</p><h2 id="outcomes-heading" className="mt-2 text-2xl font-bold">Outcomes</h2><div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Card className="p-5"><p className="text-sm text-ink-soft">Starters</p><p className="mt-2 text-2xl font-bold">{metrics.starters}</p><p className="mt-2 text-xs text-ink-soft">{metrics.withdrew} withdrawn · {metrics.pendingDecisions} pending</p></Card><Card className="p-5"><p className="text-sm text-ink-soft">Advancement</p><p className="mt-2 text-2xl font-bold">{percentage(metrics.advancementRate, metrics.promoted, metrics.promoted + metrics.notPromoted)}</p></Card><Card className="p-5"><p className="text-sm text-ink-soft">Offer yield</p><p className="mt-2 text-2xl font-bold">{percentage(metrics.offerYield, metrics.joined, metrics.joined + metrics.declined)}</p><p className="mt-2 text-xs text-ink-soft">{metrics.pendingResponses} pending responses</p></Card><Card className="p-5"><p className="text-sm text-ink-soft">End-to-end</p><p className="mt-2 text-2xl font-bold">{percentage(metrics.endToEndConversion, metrics.joined, metrics.starters)}</p></Card></div></section>
-  </PageContainer></main>;
+const filters: {value:AdminQueueFilter;label:string}[]=[{value:'awaiting_review',label:'Awaiting review'},{value:'revision_requested',label:'Revisions requested'},{value:'missing',label:'Missing'},{value:'complete',label:'Complete'},{value:'all',label:'All'}];
+const control='min-h-11 rounded-lg border border-border-strong bg-surface px-3 text-sm';
+export function AdminOverview(){
+ const state=useAdminWorkspace(),params=useSearchParams(),router=useRouter();
+ const cohortId=state.selectedCohortId,week=selectQueueWeek(state,cohortId,params.get('week'),params.get('assignment'));
+ const audience=params.get('audience')==='test'?'test':'official';
+ const overview=buildWeekQueue(state,cohortId,week?.id??'',new Date(),audience);
+ const official=audience==='official'?overview:buildWeekQueue(state,cohortId,week?.id??'',new Date(),'official');
+ const selected=overview.assignments.find(a=>a.assignment.id===params.get('assignment'));
+ const filter=filters.find(f=>f.value===params.get('status'))?.value??'awaiting_review',search=params.get('q')??'';
+ const rows=selected?.rows??overview.rows,counts=getAdminQueueCounts(rows),visible=filterSubmissionRows(rows,filter,search);
+ const metrics=calculateCohortMetrics(state.enrollments.filter(e=>e.cohortId===cohortId));
+ const query=new URLSearchParams({cohort:cohortId,week:week?.id??'',status:filter});
+ if(selected)query.set('assignment',selected.assignment.id);if(search)query.set('q',search);if(audience==='test')query.set('audience','test');
+ function update(values:Record<string,string>){const next=new URLSearchParams(query);Object.entries(values).forEach(([k,v])=>v?next.set(k,v):next.delete(k));router.replace('/admin?'+next+'#submissions');}
+ return <main className="pb-20"><PageContainer className="py-9 sm:py-11"><header><p className="text-sm font-bold uppercase tracking-widest text-brand-deep">Admin workspace</p><h1 className="mt-2 text-3xl font-bold sm:text-4xl">Review queue</h1><p className="mt-3 text-ink-soft">See week progress, then review the work that needs you.</p></header>
+ <section className="mt-8 overflow-hidden rounded-card border border-border bg-surface" aria-label="Week overview">
+ <div className="flex flex-wrap items-end justify-between gap-5 border-b border-border px-5 py-5 sm:px-7"><label className="min-w-0 text-sm font-bold">Week<select aria-label="Week" className={'mt-2 block max-w-full '+control} value={week?.id??''} onChange={e=>update({week:e.target.value,assignment:''})}>{state.weeks.filter(w=>w.cohortId===cohortId && w.publicationState==='published').toSorted((a,b)=>a.weekNumber-b.weekNumber).map(w=><option key={w.id} value={w.id}>Week {w.weekNumber} · {w.title}</option>)}</select></label><label className="text-xs font-semibold text-ink-soft">Participation view<select aria-label="Participation view" className={'mt-2 block '+control} value={audience} onChange={e=>update({audience:e.target.value==='test'?'test':''})}><option value="official">Official participants</option><option value="test">Test participants only</option></select></label></div>
+ <div className="px-5 py-6 sm:px-7"><h2 className="text-xl font-bold">{week?'Week '+week.weekNumber:'No published weeks'}</h2><p className="mt-2 text-ink-soft">{week?.title}</p><div className="mt-5" aria-label="Week completion">{!overview.assignments.length?<p className="text-sm text-ink-soft">No assignments in this week yet.</p>:!overview.participants?<p className="text-sm text-ink-soft">No {audience==='test'?'test':'official'} participants enrolled.</p>:<><p className="text-2xl font-bold">{overview.complete} of {overview.participants} {audience==='test'?'test participants':'participants'} complete <span className="text-base font-semibold text-ink-soft">· {Math.round(overview.rate!*100)}%</span></p><p className="mt-2 text-sm text-ink-soft">Every assignment must be approved to complete the week.</p></>}{audience==='test'?<p className="mt-2 text-sm text-ink-soft">Test progress only. Official week completion: {official.complete} of {official.participants} participants.</p>:null}</div>
+ {overview.assignments.length?<ul aria-label="Assignment progress" className="mt-6 divide-y divide-border border-t border-border">{overview.assignments.map(({assignment,approved,awaiting})=><li key={assignment.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><h3 className="break-words font-bold">{assignment.title}</h3><p className="mt-1 text-xs leading-6 text-ink-soft">Due {formatDeadline(assignment.dueAt)}</p><p className="mt-1 text-sm text-ink-soft">{approved}/{overview.participants} approved · {awaiting} awaiting review</p></div><button className="min-h-11 shrink-0 self-start text-sm font-bold text-action" onClick={()=>update({assignment:assignment.id})}>View assignment <span aria-hidden="true">→</span><span className="sr-only">: {assignment.title}</span></button></li>)}</ul>:null}</div>
+ <section id="submissions" aria-label="Submission queue" className="border-t border-border"><div className="bg-surface-subtle/60 px-5 py-5 sm:px-7"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="min-w-0 break-words text-lg font-bold">{selected?selected.assignment.title:'All assignments'}</h2>{selected?<button onClick={()=>update({assignment:''})} className="min-h-11 text-sm font-bold text-action">All assignments</button>:null}</div><div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between"><div className="flex flex-wrap gap-2" aria-label="Filter submissions">{filters.map(f=><button key={f.value} aria-pressed={filter===f.value} onClick={()=>update({status:f.value})} className={'min-h-11 rounded-md px-3 text-xs font-bold '+(filter===f.value?'bg-action text-white':'text-ink-soft hover:bg-surface')}>{f.label} {counts[f.value]}</button>)}</div><label className="text-xs font-semibold text-ink-soft">Search members<input aria-label="Search members" type="search" value={search} onChange={e=>update({q:e.target.value})} placeholder="Name or email" className={'mt-2 block w-full xl:w-56 '+control} /></label></div><p className="mt-3 text-xs text-ink-soft">Counts describe assignment submissions, not unique people.</p></div>
+ {visible.length?<><div className="hidden overflow-x-auto md:block"><table className="w-full text-left text-sm"><thead className="text-xs text-ink-faint"><tr>{['Member','Assignment','Status','Next action'].map(h=><th key={h} className="px-5 py-4">{h}</th>)}</tr></thead><tbody>{visible.map(row=><tr key={row.enrollment.id+':'+row.assignment.id} className="border-t border-border"><td className="px-5 py-4"><p className="font-bold">{row.person?.fullName}</p><p className="mt-1 break-all text-xs text-ink-soft">{row.person?.email}</p></td><td className="px-5 py-4">{row.assignment.title}</td><td className="px-5 py-4"><AssignmentStatusBadge state={row.state}/></td><td className="px-5 py-4">{row.submission?<Link className="inline-flex min-h-11 items-center font-bold text-action" href={'/admin/submissions/'+row.submission.id+'?'+query}>{row.state==='submitted'?'Review →':'View →'}</Link>:<span className="text-ink-faint">Await submission</span>}</td></tr>)}</tbody></table></div><ul className="divide-y divide-border md:hidden">{visible.map(row=><li className="p-5" key={row.enrollment.id+':'+row.assignment.id}><p className="font-bold">{row.person?.fullName}</p><p className="mt-1 break-all text-xs text-ink-soft">{row.person?.email}</p><p className="mt-3 text-sm font-semibold">{row.assignment.title}</p><div className="mt-3"><AssignmentStatusBadge state={row.state}/></div>{row.submission?<Link className="mt-2 inline-flex min-h-11 items-center text-sm font-bold text-action" href={'/admin/submissions/'+row.submission.id+'?'+query}>Review submission →</Link>:null}</li>)}</ul></>:<div className="p-5 sm:p-7"><StateMessage title={filter==='awaiting_review'?'No work awaiting review':'No matching submissions'}>{filter==='awaiting_review'?'Nothing in this view needs a review decision. This does not mean the week is complete.':'Try another status or clear the member search.'}</StateMessage></div>}
+ </section></section>
+ <details className="mt-9 border-t border-border pt-5"><summary className="min-h-11 cursor-pointer text-sm font-bold">Official cohort outcomes</summary><p className="mt-3 text-sm leading-7 text-ink-soft">Starters: {metrics.starters} · Withdrawn: {metrics.withdrew} · Pending decisions: {metrics.pendingDecisions}</p><p className="mt-2 text-sm text-ink-soft">Promoted: {metrics.promoted}/{metrics.promoted+metrics.notPromoted} finalized · Joined: {metrics.joined}/{metrics.joined+metrics.declined} finalized responses · End-to-end: {metrics.joined}/{metrics.starters} starters</p></details>
+ </PageContainer></main>;
 }

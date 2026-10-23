@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -89,6 +89,46 @@ tables are empty. No one was checked in or enrolled by release verification. Com
 is authorized; verify Vercel's automatic deployment and real Google/phone attendance next.
 
 ## Local development
+
+### Last active, social preview and week overview — local implementation
+
+Apply `202610220002_last_active.sql` locally without reset/seed. The private activity
+table starts empty; no existing identity/history is backfilled or reclassified. Admins
+see Last active in Portal access after a visible authorized visit; refresh/navigation
+fetches the latest value. Values update at most every five minutes, not continuously.
+Do not describe them as online status. Activity failures must not block app use.
+
+`public/brand/gap-social-preview.png` is a static 1200 × 630 public image. Root OG/Twitter
+metadata uses NEXT_PUBLIC_SITE_URL (localhost fallback only for unconfigured local work).
+Regenerate after a local build using `node scripts/render-social-preview.mjs`; it uses
+the approved logo and built self-hosted Montserrat, never an external image service.
+Messaging apps may cache an already-posted preview; repost/refresh in that service after
+deployment. No favicon replacement is needed. Public metadata contains no learner data.
+
+Run `npm run test:week-activity` against local Supabase; set GAP_TEST_APP_URL to the
+isolated production server for HTTP/browser checks. Tests own disposable accounts/cohort
+and exact cleanup. Hosted migration, commit/push/deployment and real Google acceptance
+remain separate; the anonymous metadata test does not establish authenticated acceptance.
+
+Local closeout (2026-10-23): the five-entry week/activity suite passes with no skips,
+including wrong-domain/unapproved/inactive/anonymous denial, live admin revocation,
+concurrent five-minute throttling, GET/prefetch non-recording, visible desktop/phone visits,
+failed recording followed by reload recovery, and cross-assignment review-next/back scope.
+The PNG composition is visually inspected and public dimensions/OG/Twitter metadata pass.
+All 68 unit/docs entries and program/session, assignment, test-participant, Viewer,
+written-response, attendance, Storage, PDF and isolated enrollment suites pass. Lint,
+typecheck, generated-type consistency, Webpack build and diff checks pass. The existing
+Turbopack environment limitation is separate. Exact fixture-owned records/files were
+cleaned up; no hosted migration, real account provisioning, push or deployment is claimed.
+
+Hosted release follow-up (2026-10-23): separately authorized migration
+`202610220002_last_active.sql` applied after a dry run listing only that migration,
+without seeds/roles/Vault changes. Verified its receipt, empty activity table, RLS and
+denied anonymous RPC/direct authenticated reads. All twelve captured application/Storage
+table fingerprints match before/after. Auth users remain at 28; that live aggregate
+changed during verification, so full Auth row equivalence is not claimed. The migration
+contains no Auth or existing-program writes. No timestamps were backfilled or identities
+provisioned. Production deployment verification follows this checkpoint.
 
 ### Test participant verification — local only
 

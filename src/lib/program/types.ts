@@ -29,6 +29,7 @@ export type Person = {
 };
 
 export type ApprovedMember = {
+  lastActiveAt?: string;
   id: string;
   personId: string;
   email: string;

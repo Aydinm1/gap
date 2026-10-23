@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -30,6 +30,19 @@ Do not store `overdue`, `due_soon`, or `upcoming`; derive them from deadline and
 submission state.
 
 ## Tables
+
+### Private account activity
+
+`private.account_activity(person_id uuid primary key references people(id) on delete
+cascade, last_active_at timestamptz not null)` starts empty. RLS is enabled and all
+direct public/anon/authenticated/service-role table grants revoked. No backfill or other
+activity fields. `record_activity()` derives the current authorized person, uses DB time
+and conditional upsert throttling (five minutes); it accepts no user/time arguments.
+`admin_activity()` checks live admin authority and returns person/time pairs; admin
+reads paginate deterministically. Both RPCs have authenticated-only execution, empty
+search paths and security-definer boundaries. Wrong-domain, inactive and unapproved
+identities cannot record; ordinary members/Viewers cannot read. Cascade deletion is
+limited to deletion of the linked person, not roster deactivation.
 
 ### Week workshop attendance
 

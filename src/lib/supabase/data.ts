@@ -23,9 +23,10 @@ export const readWorkspace = cache(async (admin = true) => {
     readPages((from, to) => db.from('submissions').select('*').order('submitted_at', { ascending: false }).order('id').range(from, to)),
     readPages((from, to) => db.from('assignment_documents').select('*').eq('is_current', true).eq('state', 'ready').order('id').range(from, to)),
   ]);
+  const activity = admin ? await readPages((from,to)=>db.rpc('admin_activity').order('person_id').range(from,to)) : {data:[]};
   const state: AdminWorkspaceState = {
     people: (people.data ?? []).map(r => ({ id:r.id,email:r.email,fullName:r.full_name })),
-    approvedMembers: (roster.data ?? []).map(r => ({ id:r.id,personId:r.person_id,email:r.email,fullName:r.full_name,role:r.role,active:r.active })),
+    approvedMembers: (roster.data ?? []).map(r => ({ id:r.id,personId:r.person_id,email:r.email,fullName:r.full_name,role:r.role,active:r.active,lastActiveAt:activity.data.find(a=>a.person_id===r.person_id)?.last_active_at })),
     cohorts: (cohorts.data ?? []).map(r => ({ id:r.id,quarter:r.quarter,year:r.year,startsOn:r.starts_on,endsOn:r.ends_on,state:r.state })),
     enrollments: (enrollments.data ?? []).map(r => ({ id:r.id,cohortId:r.cohort_id,personId:r.person_id,participationStatus:r.participation_status,isTest:r.is_test,advancementStatus:r.advancement_status,...(r.promotion_response ? { promotionResponse:r.promotion_response } : {}) }) as CohortEnrollment),
     weeks: (weeks.data ?? []).map((r): AdminWeek => {

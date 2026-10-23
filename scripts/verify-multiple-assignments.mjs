@@ -97,8 +97,8 @@ test('multiple assignments preserve independent history and require all approval
     await editor.getByRole('button',{name:'Save changes',exact:true}).click();await editor.getByText('Week published.',{exact:true}).waitFor();
     assert.deepEqual((await rows()).map(a=>a.id),[first,second]);
     await editor.goto(`${process.env.GAP_TEST_APP_URL}/admin?cohort=${cohort}&assignment=${second}`);
-    assert.equal(await editor.getByLabel('Assignment',{exact:true}).inputValue(),second);
-    await editor.getByRole('heading',{name:'Week 1: Second brief',exact:true}).waitFor();
+    assert.equal(new URL(editor.url()).searchParams.get('assignment'),second);
+    await editor.locator('#submissions').getByRole('heading',{name:'Second brief',exact:true}).waitFor();
     await adminCtx.close();
     const ctx=await browser.newContext({viewport:{width,height:900}});await ctx.addCookies([...(await jar(member))].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));const page=await ctx.newPage();page.setDefaultTimeout(15000);
     await page.goto(`${process.env.GAP_TEST_APP_URL}/`);await page.getByText(/1 of 2 assignments complete$/).waitFor();

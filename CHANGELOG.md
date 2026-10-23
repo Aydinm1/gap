@@ -5,6 +5,14 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added a branded static social-link image and OG/Twitter metadata, admin-only Last
+  active from visible authorized visits (no historical backfill), and a week-first
+  admin overview with all-assignment completion/progress and scoped review drill-down.
+  Activity remains private and nonessential; official/test histories remain separate.
+  Five focused local entries and desktop/phone flows pass alongside existing regressions,
+  68 unit/docs checks, lint/types/generated types and Webpack build. Hosted changes,
+  push/deployment and real Google acceptance remain separate.
+
 - Added local admin-managed Test participant flags independent of roles/lifecycle.
   Test enrollments retain real submission/feedback/file/check-in workflows but do not
   contribute to official totals, default review queues or attendance present counts.

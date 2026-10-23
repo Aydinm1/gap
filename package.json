@@ -26,7 +26,8 @@
     "test:written": "node --experimental-strip-types --test scripts/verify-written-submissions.mjs",
     "test:attendance": "node --experimental-strip-types --test scripts/verify-attendance.mjs",
     "test:viewers": "node --experimental-strip-types --test scripts/verify-viewers.mjs",
-    "test:test-participants": "node --experimental-strip-types --test scripts/verify-test-participants.mjs"
+    "test:test-participants": "node --experimental-strip-types --test scripts/verify-test-participants.mjs",
+    "test:week-activity": "node --experimental-strip-types --test scripts/verify-week-activity.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

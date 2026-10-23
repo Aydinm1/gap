@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   private: {
     Tables: {
+      account_activity: {
+        Row: {
+          last_active_at: string
+          person_id: string
+        }
+        Insert: {
+          last_active_at: string
+          person_id: string
+        }
+        Update: {
+          last_active_at?: string
+          person_id?: string
+        }
+        Relationships: []
+      }
       attendance_attempts: {
         Row: {
           failed_at: string
@@ -818,6 +833,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_activity: {
+        Args: never
+        Returns: {
+          last_active_at: string
+          person_id: string
+        }[]
+      }
       admin_mutate: {
         Args: { p_action: string; p_data: Json }
         Returns: string
@@ -854,6 +876,7 @@ export type Database = {
         }
         Returns: Json
       }
+      record_activity: { Args: never; Returns: undefined }
       review_submission: {
         Args: { p_data: Json }
         Returns: {
