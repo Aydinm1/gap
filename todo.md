@@ -51,6 +51,13 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ### Stable toolchain baseline
 
+- [x] Resolve npm build warnings with version-specific resolver script approval and
+  Vercel install/build commands that remove unsupported cache-dir environment aliases;
+  policy checks, isolated offline clean install/native binding load, 70 unit/docs tests,
+  lint, typecheck, Webpack production build and diff checks pass (2026-10-23).
+- [ ] Verify both npm warnings are absent in hosted build logs after releasing these
+  repository settings. No deployment is implied by local validation.
+
 - [x] Standardize the machine and repository on Node.js 24 LTS through `fnm`, `.nvmrc`,
   and the package engine contract.
 - [x] Use the current secure stable Next.js 16.3 release with matching

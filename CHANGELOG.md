@@ -5,6 +5,11 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added version-specific approval for the reviewed native resolver install script and
+  reproducible Vercel installs; strip only unsupported npm cache-dir environment aliases
+  from install/build commands without suppressing other warnings. Hosted verification
+  follows a separately authorized release.
+
 - Added a branded static social-link image and OG/Twitter metadata, admin-only Last
   active from visible authorized visits (no historical backfill), and a week-first
   admin overview with all-assignment completion/progress and scoped review drill-down.

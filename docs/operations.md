@@ -105,6 +105,15 @@ the approved logo and built self-hosted Montserrat, never an external image serv
 Messaging apps may cache an already-posted preview; repost/refresh in that service after
 deployment. No favicon replacement is needed. Public metadata contains no learner data.
 
+Custom-domain check (2026-10-23): anonymous requests using Slack's link-crawler user
+agent to both `180dcdavis.com` and `www.180dcdavis.com` return the current OG/Twitter
+metadata and the public PNG with HTTP 200; the apex redirects to `www`. An older posted
+card still showing “Program | GAP” does not match the currently served OG title.
+Slack caches crawler responses for roughly 30 minutes; post a new message after cache
+expiry, or try a fresh URL such as `https://www.180dcdavis.com/?preview=20261023`.
+This verifies HTTP availability, not Slack's actual rendered card or its cache state.
+See [Slack's crawler documentation](https://api.slack.com/robots).
+
 Run `npm run test:week-activity` against local Supabase; set GAP_TEST_APP_URL to the
 isolated production server for HTTP/browser checks. Tests own disposable accounts/cohort
 and exact cleanup. Hosted migration, commit/push/deployment and real Google acceptance
@@ -844,6 +853,30 @@ npm run build
 `NEXT_PUBLIC_SITE_URL` is `http://localhost:3000` locally and the final deployment origin
 in production. A Vercel preview origin is used only if preview OAuth is deliberately
 enabled. Never run a formatter in write mode merely to inspect the repository.
+
+## npm build warnings
+
+`vercel.json` runs locked installs with `npm ci` and keeps the existing `npm run build`.
+Both commands remove only inherited `npm_config_cache_dir` and `NPM_CONFIG_CACHE_DIR`:
+these map to unsupported npm `cache-dir`, not the supported `cache` setting. No matching
+project environment variable or repository npm configuration was found during the
+2026-10-23 check; the exact upstream injector is unverified. Valid npm cache settings
+and other warnings remain enabled. No dashboard environment variables need removing.
+
+`package.json` approves only `unrs-resolver@1.12.2` for dependency install scripts.
+Its reviewed postinstall uses `napi-postinstall` to locate the platform-native resolver
+and recover a missing binding from npm; it supports ESLint's import resolver. Keep
+optional dependencies enabled. This is version-specific approval, not a blanket trust
+setting. After dependency updates, run `npm install-scripts ls` and review newly pending
+scripts before approving an exact version. See [npm install-script policy](https://docs.npmjs.com/cli/v11/commands/npm-install-scripts/).
+
+These repository settings take effect on a subsequent deployment containing them;
+local verification alone does not establish warning-free hosted build logs.
+Local validation (2026-10-23): isolated offline `npm ci` installed 436 packages with
+neither warning, the native resolver loaded, and no unreviewed install scripts remained.
+All 70 unit/documentation tests, lint, typecheck, Webpack production build and diff
+checks pass. The default hosted Turbopack build and its logs require a later release;
+no dependencies, lockfile resolutions, credentials or hosted settings changed.
 
 ## Troubleshooting record
 
