@@ -128,7 +128,12 @@ denied anonymous RPC/direct authenticated reads. All twelve captured application
 table fingerprints match before/after. Auth users remain at 28; that live aggregate
 changed during verification, so full Auth row equivalence is not claimed. The migration
 contains no Auth or existing-program writes. No timestamps were backfilled or identities
-provisioned. Production deployment verification follows this checkpoint.
+provisioned. Commit `4d91a35` reached production READY
+(`dpl_4FL5fGzaFpjLhoTbPaYr1ADkNLQ9`) at `https://gap-khaki.vercel.app`. Live login
+metadata advertises the public 1200×630 PNG and Twitter large-image card; anonymous
+admin/Explore visits redirect to login. No error-level runtime logs were returned for
+the release at verification. These smoke checks do not establish authenticated hosted
+Last active or week-review acceptance; verify those with approved real users.
 
 ### Test participant verification — local only
 

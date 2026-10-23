@@ -402,7 +402,10 @@ do not satisfy them. See ADR 0007.
 - [x] Apply separately authorized hosted Last active migration (2026-10-23): empty
   activity table, receipt/RLS/grants verified; all 12 application/Storage fingerprints
   unchanged. Auth user count stays 28, but its live aggregate changed during verification.
-- [~] Commit/push and verify the authorized production deployment.
+- [x] Commit/push and verify the authorized production deployment: `4d91a35` reached
+  Vercel READY on 2026-10-23. Live OG/Twitter metadata, public 1200×630 image and anonymous
+  admin/Explore login protection pass; release error-log scan returned no errors.
+  Authenticated hosted activity/week review acceptance remains a real-user check.
 
 ### Test participant enrollments
 
