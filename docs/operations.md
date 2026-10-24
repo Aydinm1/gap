@@ -108,7 +108,12 @@ for cached references; metadata uses the new filename to avoid reusing its image
 Square-logo verification (2026-10-23): visually inspected the generated logo; anonymous
 local production requests verify image HTTP 200, 1200 × 1200 dimensions and matching
 OG/Twitter summary metadata. All 71 unit/docs tests, lint, typecheck, Webpack build and
-diff checks pass. This new composition is not yet committed or deployed.
+diff checks pass. Separately authorized release: `378de11` was committed/pushed and
+production deployment `dpl_CEQtXkQHGJfR2GbCPoaLZYmDCJuV` reached READY. Live anonymous
+Slack link/image-crawler checks confirm the new PNG returns HTTP 200 at 1200 × 1200,
+with matching OG image and Twitter summary metadata on the custom domain. All 81
+available build events have no warnings/errors; the runtime error scan returned no
+entries. Actual Slack card rendering/cache refresh remains user verification.
 Messaging apps may cache an already-posted preview; repost/refresh in that service after
 deployment. No favicon replacement is needed. Public metadata contains no learner data.
 

@@ -33,7 +33,10 @@ requires implementation, validation, documentation, and changelog agreement.
 
 - [x] Replace the social-link graphic with a square logo-only thumbnail; visually inspect
   the asset and verify public image/login metadata, 71 unit/docs tests, lint, typecheck,
-  Webpack production build and diff checks locally (2026-10-23). Release remains separate.
+  Webpack production build and diff checks locally (2026-10-23).
+- [x] Commit/push and deploy square logo preview: `378de11` reached production READY;
+  live Slack-crawler image/metadata checks pass. No build warnings or runtime errors
+  were returned by the release scans. Actual Slack card refresh remains manual.
 
 - [x] Create the documentation map and domain-specific source-of-truth files.
 - [x] Add AI contributor reading order, documentation rules, and definition of done.

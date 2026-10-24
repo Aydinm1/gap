@@ -7,6 +7,7 @@ Keep a Changelog without assigning versions until the first release.
 
 - Replaced the wide social graphic with a square, logo-only preview using the approved
   compact UC Davis lockup, preventing clipped headlines in Slack's thumbnail layout.
+  Release `378de11` is live; public image and metadata pass Slack-crawler HTTP checks.
 
 - Added version-specific approval for the reviewed native resolver install script and
   reproducible Vercel installs; strip only unsupported npm cache-dir environment aliases
