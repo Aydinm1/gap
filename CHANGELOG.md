@@ -8,6 +8,9 @@ Keep a Changelog without assigning versions until the first release.
 - Refocused the admin review inbox on received/awaiting submission counts by week and
   assignment. Removed participant completion and cohort outcomes from that page; All
   submissions excludes missing work while Not submitted remains separately available.
+  Released with grading references in `11db9ff`; hosted migration applied and production
+  deployment reached READY on www.180dcdavis.com. Anonymous route/privacy smoke checks
+  pass; real authenticated admin acceptance remains pending.
 
 - Added local admin-only assignment grading references: independently saved formatted
   rubrics/model responses, private example PDFs, protected downloads and a comparison

@@ -404,7 +404,7 @@ do not satisfy them. See ADR 0007.
   Local verification (2026-10-25): five week/activity and five test-participant entries
   pass at 1280px/390px, including current-attempt counts, separated scopes, missing-work
   filters and review/back/next navigation. Screenshots visually inspected; 75 unit/docs,
-  lint, typecheck and Webpack build pass. This UI change has not been deployed.
+  lint, typecheck and Webpack build pass. Released with grading references below.
 
 ### Private assignment grading references
 
@@ -424,7 +424,14 @@ do not satisfy them. See ADR 0007.
   limitation remains separate; hosted/real Google acceptance is not implied.
 - [x] Apply separately authorized hosted grading-reference migration (2026-10-25),
   without seeds or role changes. Release code and hosted admin acceptance tracked below.
-- [~] Commit/push and deploy grading references plus the submission-focused review inbox.
+- [x] Commit/push and deploy grading references plus the submission-focused review inbox
+  (2026-10-25): `11db9ff`, production `dpl_9VJTX9mRKcRXHEbj54aajnYUXYha` READY on
+  www.180dcdavis.com. Private bucket/RLS/grants and empty reference tables verified;
+  live login, anonymous admin redirect and denied example download pass. No runtime
+  error logs returned at verification. Real authenticated acceptance remains below.
+- [ ] Update the development-only transitive Zod dependency flagged by npm audit
+  (GHSA-mrhx-c7xc-m3w5; 4.4.3 through ESLint tooling). Production-only audit reports zero
+  advisories; dependency changes and validation are separate follow-up work.
 - [ ] Confirm real hosted admin grading-reference editing/review acceptance.
 
 ### Branded previews, Last active and week-first admin

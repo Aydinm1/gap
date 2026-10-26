@@ -36,6 +36,21 @@ inbox release. The hosted dry run listed only `202610250001_grading_references.s
 that migration was applied without seeds, role or Vault changes. Code deployment and
 hosted smoke verification follow; the local acceptance below is not real admin acceptance.
 
+Hosted release verified: `11db9ff` pushed to main; production deployment
+`dpl_9VJTX9mRKcRXHEbj54aajnYUXYha` reached READY in about 33 seconds (Next.js/Turbopack),
+with www.180dcdavis.com and existing domains aliased. The migration receipt, both new
+tables' RLS, empty references/documents, private 20 MB PDF bucket and service-only
+upload RPC grants are verified. Live login returns 200; anonymous admin navigation
+uses a streamed login redirect without review content; the new example-download route
+returns 401/private-no-store. The runtime-error query returned no entries. No external
+log drains are configured. These smoke checks do not prove real authenticated grading
+acceptance, which remains pending. No reference content or real submissions were changed.
+
+Build audit follow-up: npm reports one high-severity Zod advisory
+(GHSA-mrhx-c7xc-m3w5), version 4.4.3 through development-only ESLint dependencies.
+`npm audit --omit=dev` reports zero advisories. Track a separately validated dependency
+update; this release did not silently rewrite the lockfile or suppress the finding.
+
 Apply `202610250001_grading_references.sql` locally before running the new admin routes;
 do not reset/seed. It creates admin-only reference/PDF metadata and the separate private
 PDF-only `grading-examples` bucket (20 MB), without changing assignment briefs or real
