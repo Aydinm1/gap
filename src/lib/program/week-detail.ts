@@ -5,7 +5,7 @@ import type {
   SubmissionAttempt,
 } from "./types.ts";
 import { findPublishedWeek } from "./catalog.ts";
-import { assignmentsForWeek } from "./types.ts";
+import { assignmentsForWeek, submissionBelongsTo, type MemberTeam } from "./types.ts";
 import {
   deriveAssignmentState,
   formatDeadline,
@@ -24,6 +24,8 @@ export type AssignmentDetail = {
     unsubmittedState: AssignmentDisplayState;
     attempts: readonly SubmissionAttempt[];
     submittedLabels: Readonly<Record<string, string>>;
+    submissionMode?: 'individual' | 'team';
+    team?: MemberTeam;
 };
 
 export type WeekDetailViewModel = {
@@ -66,7 +68,7 @@ export function buildWeekDetail({
     .filter(
       (attempt) =>
         attempt.assignmentId === assignment.id &&
-        attempt.enrollmentId === enrollmentId,
+        submissionBelongsTo(attempt, enrollmentId),
     )
     .toSorted(
       (left, right) =>
@@ -77,6 +79,8 @@ export function buildWeekDetail({
 
   return {
       id: assignment.id,
+      submissionMode: assignment.submissionMode,
+      team: assignment.team,
       title: assignment.title,
       instructions: assignment.instructions,
       summary: assignment.summary,

@@ -398,6 +398,27 @@ do not satisfy them. See ADR 0007.
 
 ## Phase 8 — Final responsive and usability polish
 
+### Admin-assigned teams and shared submissions
+
+- [x] Add cohort teams, individual/team assignment mode, shared submission targets,
+  request receipts, teammate reads/files and version-checked team saves/reviews.
+- [x] Connect admin team setup, member shared work/history and team-based review queues.
+- [x] Verify concurrency, authorization, retained individual work and desktop/phone flows;
+  run regressions, generated types, lint/typecheck/build and documentation/diff checks.
+  Local closeout (2026-10-25): eight team entries pass without skips, including admin
+  team creation/assignment, assignment mode editing, two teammate sessions, stale draft
+  retention, review/feedback, protected history and 1280px/390px layouts. All 77 unit/docs,
+  12 program/session, 12 Storage, seven grading, eight Viewer, nine attendance, five test-
+  participant and six multiple-assignment entries pass with browser checks. Lint,
+  types/generated types, Webpack build and diff checks pass; exact fixtures cleaned.
+  Five week/activity and five written-response entries also pass with no skips.
+  Existing default-local-Turbopack limitation and hosted/real-user acceptance remain separate.
+- [x] Apply separately authorized hosted team migrations (2026-10-25): all four
+  receipts verified, RLS/grants checked, original submission/enrollment/assignment/file
+  fingerprints unchanged. Existing assignments remain Individual; no teams created.
+- [~] Commit/push and deploy the authorized team release, then verify live smoke checks.
+- [ ] Set up real teams and confirm authenticated hosted admin/member acceptance.
+
 - [x] Refocus the review overview on week/assignment submission counts; remove completion/
   outcome metrics, keep official/test separation and URL-preserved review navigation,
   and verify counts, All submissions versus missing work, and desktop/phone layouts.

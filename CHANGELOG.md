@@ -5,6 +5,14 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added local admin-assigned cohort teams and opt-in team assignments with one shared
+  submission/review, teammate feedback/history/private files and per-person completion
+  derivation. Stable targets, request receipts and serialized version checks protect
+  simultaneous saves; existing individual work is preserved. Eight local team checks,
+  desktop/phone flows, 77 unit/docs and program/Storage/grading/Viewer/attendance regressions
+  pass, along with lint/types/generated types and Webpack build. Hosted rollout and real
+  team provisioning remain separate.
+
 - Refocused the admin review inbox on received/awaiting submission counts by week and
   assignment. Removed participant completion and cohort outcomes from that page; All
   submissions excludes missing work while Not submitted remains separately available.

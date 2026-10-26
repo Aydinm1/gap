@@ -186,6 +186,26 @@ to real content requires approval of the full brief, not an automatic migration.
 
 ### Submission rules
 
+### Admin-assigned teams
+
+Admins create cohort teams and assign enrolled participants in Members → Teams. Members
+cannot choose, join, leave, create or edit teams. Each cohort enrollment belongs to at
+most one team; official/test teams cannot mix. Teams are reusable across assignments.
+Individual is the default assignment submission mode. Team mode requires one shared
+submission and one review, visible with history/feedback to authorized teammates. Any
+teammate can submit/replace actionable work; record who submitted. No designated captain.
+Mode cannot change after submission or upload history. Existing work stays individual.
+
+Unassigned members see instructions to contact their lead, not an individual fallback.
+Admins see unassigned setup issues separately from missing team work. Queue counts count
+each team-assignment once; shared approval satisfies that assignment for each participating
+teammate. Attendance and advancement remain individual. Deactivation/withdrawal removes
+team-work access without erasing history. Membership/deletion locks after first committed
+team work; names remain editable. Later membership correction/conversion is deferred.
+Concurrent saves/reviews are serialized and version-checked; one succeeds, stale callers
+retain drafts/files and must refresh. Request IDs and upload receipts make successful retries
+duplicate-safe, not permission to overwrite newer work. Private team files retain history.
+
 - A submission is exactly one of `text`, `file`, or `link`; no combined attachments.
 - Written responses are nonblank plain text, at most 20,000 Unicode characters. Preserve
   paragraphs/line breaks; normalize CRLF/CR to LF. Render escaped text directly in
@@ -214,7 +234,8 @@ to real content requires approval of the full brief, not an automatic migration.
 - Review is metadata, not a submission outcome. Both `revision_requested` and `completed`
   carry `reviewed_at` and `reviewed_by`; requesting a revision requires written feedback.
 - A student may submit before or after the deadline; the real timestamp is always shown.
-- Members may view only their own submissions and feedback.
+- Members may view their individual submissions and authorized shared team work/feedback,
+  never outsiders' or teammates' individual work.
 
 ## Assignment and module states
 
@@ -343,7 +364,7 @@ tracked separately in `todo.md`.
 ### Current implementation boundaries
 
 Do not add grades, scores, quizzes, scored rubrics, discussion boards, chat, email,
-certificates, announcements, peer review, teams, calendars, notifications, analytics,
+certificates, announcements, peer review, self-organized teams, calendars, notifications, analytics,
 leaderboards, study metrics, Google Drive editing, live documents, or AI features.
 
 The cohort outcome summaries and planned Monday reporting set above are the approved

@@ -9,6 +9,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { SubmissionEditor } from "@/components/program/submission-editor";
 import { SubmittedWorkRecord } from "@/components/program/submitted-work-record";
 import type { AssignmentDisplayState, SubmissionAttempt, SubmissionPayload } from "@/lib/program/types";
+import { submissionBelongsTo } from '@/lib/program/types';
 
 
 
@@ -44,16 +45,16 @@ export function SubmissionWorkspace({
   const actionRef = useRef<HTMLButtonElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [announcement, setAnnouncement] = useState("");
-  const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId);
+  const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && submissionBelongsTo(attempt,enrollmentId));
   const presentation = statusPresentation[current?.status ?? unsubmittedState];
 
-  async function submit(payload: SubmissionPayload) {
+  async function submit(payload: SubmissionPayload, requestId?: string) {
     if (readOnly) throw new Error('Preview only — nothing will be submitted.');
     if (payload.type === 'file') throw new Error('Use the file upload control to submit a file.');
     // This form only creates a first attempt; never silently replace a newer one.
     const result = payload.type === 'text'
-      ? await saveText(assignmentId, payload.submittedText)
-      : await saveLink(assignmentId, payload.submittedUrl);
+      ? await saveText(assignmentId, payload.submittedText,undefined,undefined,requestId)
+      : await saveLink(assignmentId, payload.submittedUrl,undefined,undefined,requestId);
     if (result.error) throw new Error(result.error);
     setSubmitting(false);
     setAnnouncement('Submission received.');

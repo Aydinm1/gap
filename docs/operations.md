@@ -15,6 +15,53 @@ hosted setup, second-lead provisioning, and extended Monday checks stay open in 
 
 ## Review inbox simplification — local verification
 
+### Team submission implementation checkpoint (local only)
+
+Apply migrations `202610250002` through `202610250005` in order with local migration up;
+never reset or seed the program. These introduce admin-assigned teams, shared targets,
+team upload authorization, a consistent provisioning/submission lock order and live
+authority rechecks after waiting for locks. All
+existing assignments remain Individual; no real teams or conversions are auto-created.
+In Members → Teams, create a team, choose it, select participants and Save members.
+Official/test teams are separate. In the week editor choose Team submission for a new
+assignment, then save. Submitted/upload history locks mode; committed team work locks
+membership and deletion. A locked team may still be renamed. No membership repair UI.
+
+Run `npm run test:teams` for isolated local DB/Storage cases. Set GAP_TEST_APP_URL to a
+stable production-mode local server for desktop/phone and application-boundary checks;
+use its matching production action manifest. The harness removes only its own cohort,
+users and object paths. Browser skips are pending, not acceptance. Hosted migrations,
+real team setup, commit/push and deployment require separate release authorization.
+
+Local closeout (2026-10-25): eight focused team entries pass without skips, including
+1280px/390px admin creation/member assignment and assignment-mode editing, two teammate
+sessions, stale-save draft retention, submission/reload/replacement, shared review/feedback,
+and team-scoped queues. SQL/Storage/HTTP checks cover first-save/review races, request
+replay, private historical downloads, malformed/forged actions, live access revocation,
+locked membership, upload invalidation after membership changes and mode-change rollback.
+The existing 12 program/session, 12 Storage, seven grading-reference, eight Viewer, nine
+attendance, five test-participant and six multiple-assignment entries also pass with
+their available desktop/phone checks and no skips. Five week/activity and five written-
+response entries also pass, including scoped review-next and non-saving preview flows.
+All 77 unit/docs entries, lint,
+typecheck, generated-type consistency and Webpack production build pass. Screenshots
+were inspected; the test accounts/cohorts and exact object paths were cleaned up.
+Initial duplicated-name browser selection and codegen-schema mismatch were corrected
+and rerun; permission-review timeouts were retried without expanding permissions/scope.
+Default local Turbopack was not rerun. No real teams were created, no existing assignments
+were converted, and no hosted migration, commit/push or deployment was performed.
+
+Authorized release checkpoint (2026-10-25): the dry run listed only team migrations
+`202610250002`–`202610250005`; all four are now applied on hosted GAP without seeds,
+role or Vault changes. Release preflight preserves submission version timestamps during
+ownership backfill (the timestamp-trigger pause is transaction-scoped and locally tested
+with rolled-back fixtures). Before/after original-column hashes match for nine submission
+attempts, 33 enrollment records, two assignments and nine Storage objects. These are
+record totals, not official participant counts. Every attempt has its correct target;
+new team tables have RLS, anonymous team mutation and browser privileged upload execution
+are denied. There are zero teams and zero Team-mode assignments. Code deployment follows;
+real team setup/authenticated hosted acceptance remain separate.
+
 The review overview now reports current submissions received and awaiting review by
 week and assignment, not participant completion or cohort outcomes. All submissions
 excludes unsubmitted obligations; use Not submitted for those. Official/Test scopes

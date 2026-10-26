@@ -28,6 +28,12 @@ export type Person = {
   fullName: string;
 };
 
+export type CohortTeam = {
+  id: string; cohortId: string; name: string; isTest: boolean; version: number; locked: boolean;
+  enrollmentIds: readonly string[];
+};
+export type MemberTeam = { id: string; name: string; members: { enrollmentId: string; personId: string; name: string }[] };
+
 export type ApprovedMember = {
   lastActiveAt?: string;
   id: string;
@@ -92,7 +98,11 @@ export type SubmissionAttempt = {
   updatedAt?: string;
   id: string;
   assignmentId: string;
-  enrollmentId: string;
+  enrollmentId?: string;
+  targetId?: string;
+  teamId?: string;
+  participantEnrollmentIds?: readonly string[];
+  submittedByName?: string;
   status: SubmissionStatus;
   submittedAt: string;
   isCurrent: boolean;
@@ -112,7 +122,13 @@ export type Assignment = {
   instructionsFormat?: 'plain' | 'markdown';
   document?: { id: string; name: string };
   dueAt: string;
+  submissionMode?: 'individual' | 'team';
+  team?: MemberTeam;
 };
+
+export function submissionBelongsTo(attempt: SubmissionAttempt, enrollmentId: string) {
+  return attempt.enrollmentId === enrollmentId || !!attempt.teamId && !!attempt.participantEnrollmentIds?.includes(enrollmentId);
+}
 
 export type WeekCatalogItem = {
   id: string;

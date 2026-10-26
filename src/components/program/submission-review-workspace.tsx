@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { SubmissionEditor } from "@/components/program/submission-editor";
 import { SubmittedWorkRecord } from "@/components/program/submitted-work-record";
 import type { SubmissionAttempt, SubmissionPayload } from "@/lib/program/types";
+import { submissionBelongsTo } from '@/lib/program/types';
 import {
   canReplaceSubmission,
   submissionDisplayName,
@@ -68,21 +69,21 @@ export function SubmissionReviewWorkspace({
   const [replacing, setReplacing] = useState(false);
   const [replacementBase, setReplacementBase] = useState<{ id: string; updatedAt?: string }>();
   const [announcement, setAnnouncement] = useState("");
-  const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId);
+  const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && submissionBelongsTo(attempt,enrollmentId));
 
   if (!current) return <StateMessage title="No submission yet">Return to the week to submit your work.</StateMessage>;
 
-  const previous = attempts.filter((attempt) => !attempt.isCurrent && attempt.assignmentId === assignmentId && attempt.enrollmentId === enrollmentId).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+  const previous = attempts.filter((attempt) => !attempt.isCurrent && attempt.assignmentId === assignmentId && submissionBelongsTo(attempt,enrollmentId)).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const presentation = reviewPresentation[current.status];
   const replacementAllowed = canReplaceSubmission(current);
   const actionLabel = current.status === "revision_requested" ? "Revise submission" : "Replace submission";
 
-  async function submit(payload: SubmissionPayload) {
+  async function submit(payload: SubmissionPayload, requestId?: string) {
     if (payload.type === 'file') throw new Error('Use the file upload control to submit a file.');
     if (!replacementBase) throw new Error('Reopen the replacement form before submitting.');
     const result = payload.type === 'text'
-      ? await saveText(assignmentId, payload.submittedText, replacementBase.id, replacementBase.updatedAt)
-      : await saveLink(assignmentId, payload.submittedUrl, replacementBase.id, replacementBase.updatedAt);
+      ? await saveText(assignmentId, payload.submittedText, replacementBase.id, replacementBase.updatedAt,requestId)
+      : await saveLink(assignmentId, payload.submittedUrl, replacementBase.id, replacementBase.updatedAt,requestId);
     if (result.error) throw new Error(result.error);
     setReplacing(false);
     setAnnouncement('Submission received.');

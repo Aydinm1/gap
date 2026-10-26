@@ -32,6 +32,7 @@
     "test:test-participants": "node --experimental-strip-types --test scripts/verify-test-participants.mjs",
     "test:week-activity": "node --experimental-strip-types --test scripts/verify-week-activity.mjs",
     "test:grading": "node --experimental-strip-types --test scripts/verify-grading.mjs",
+    "test:teams": "node --experimental-strip-types --test scripts/verify-teams.mjs",
     "db:clean:examples": "node scripts/cleanup-grading-examples.mjs"
   },
   "dependencies": {

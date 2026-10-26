@@ -156,6 +156,30 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_requests: {
+        Row: {
+          actor_id: string
+          payload: Json
+          request_id: string
+          submission_id: string
+          target_id: string
+        }
+        Insert: {
+          actor_id: string
+          payload: Json
+          request_id: string
+          submission_id: string
+          target_id: string
+        }
+        Update: {
+          actor_id?: string
+          payload?: Json
+          request_id?: string
+          submission_id?: string
+          target_id?: string
+        }
+        Relationships: []
+      }
       upload_intents: {
         Row: {
           assignment_id: string
@@ -174,6 +198,8 @@ export type Database = {
           path: string
           state: string
           submission_id: string
+          target_id: string | null
+          team_version: number | null
         }
         Insert: {
           assignment_id: string
@@ -192,6 +218,8 @@ export type Database = {
           path: string
           state?: string
           submission_id?: string
+          target_id?: string | null
+          team_version?: number | null
         }
         Update: {
           assignment_id?: string
@@ -210,6 +238,8 @@ export type Database = {
           path?: string
           state?: string
           submission_id?: string
+          target_id?: string | null
+          team_version?: number | null
         }
         Relationships: []
       }
@@ -218,8 +248,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_mutate_before_teams: {
+        Args: { p_action: string; p_data: Json }
+        Returns: string
+      }
       can_learn: { Args: { p_cohort: string }; Returns: boolean }
       can_read_content: { Args: { p_cohort: string }; Returns: boolean }
+      can_read_target: { Args: { p_target: string }; Returns: boolean }
+      can_read_team: { Args: { p_team: string }; Returns: boolean }
       current_member: {
         Args: never
         Returns: Database["public"]["Tables"]["approved_members"]["Row"][]
@@ -256,6 +292,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_viewer: { Args: never; Returns: boolean }
+      manage_team_impl: {
+        Args: { p_action: string; p_data: Json }
+        Returns: string
+      }
       may_download: { Args: { p_path: string }; Returns: boolean }
       may_download_brief: { Args: { p_path: string }; Returns: boolean }
       may_read_grading_example: { Args: { p_path: string }; Returns: boolean }
@@ -263,6 +303,27 @@ export type Database = {
       may_upload_brief: { Args: { p_path: string }; Returns: boolean }
       may_upload_grading_example: { Args: { p_path: string }; Returns: boolean }
       my_person_id: { Args: never; Returns: string }
+      resolve_submission_target: {
+        Args: { p_assignment: string }
+        Returns: Database["public"]["Tables"]["submission_targets"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "submission_targets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      save_week_before_teams: { Args: { p_data: Json }; Returns: string }
+      submission_gate: { Args: never; Returns: undefined }
+      team_file_upload_impl: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_data?: Json
+          p_intent?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
@@ -414,6 +475,7 @@ export type Database = {
           instructions: string
           instructions_format: string
           sort_order: number
+          submission_mode: string
           summary: string | null
           title: string
           updated_at: string
@@ -426,6 +488,7 @@ export type Database = {
           instructions: string
           instructions_format?: string
           sort_order?: number
+          submission_mode?: string
           summary?: string | null
           title: string
           updated_at?: string
@@ -438,6 +501,7 @@ export type Database = {
           instructions?: string
           instructions_format?: string
           sort_order?: number
+          submission_mode?: string
           summary?: string | null
           title?: string
           updated_at?: string
@@ -586,6 +650,41 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cohort_teams: {
+        Row: {
+          cohort_id: string
+          id: string
+          is_test: boolean
+          locked: boolean
+          name: string
+          version: number
+        }
+        Insert: {
+          cohort_id: string
+          id?: string
+          is_test?: boolean
+          locked?: boolean
+          name: string
+          version?: number
+        }
+        Update: {
+          cohort_id?: string
+          id?: string
+          is_test?: boolean
+          locked?: boolean
+          name?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cohort_teams_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "program_cohorts"
             referencedColumns: ["id"]
           },
         ]
@@ -829,10 +928,53 @@ export type Database = {
           },
         ]
       }
+      submission_targets: {
+        Row: {
+          assignment_id: string
+          enrollment_id: string | null
+          id: string
+          team_id: string | null
+        }
+        Insert: {
+          assignment_id: string
+          enrollment_id?: string | null
+          id?: string
+          team_id?: string | null
+        }
+        Update: {
+          assignment_id?: string
+          enrollment_id?: string | null
+          id?: string
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_targets_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_targets_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "cohort_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_targets_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "cohort_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submissions: {
         Row: {
           assignment_id: string
-          enrollment_id: string
+          enrollment_id: string | null
           feedback: string | null
           file_path: string | null
           file_size: number | null
@@ -845,14 +987,17 @@ export type Database = {
           status: Database["public"]["Enums"]["submission_status"]
           submission_type: Database["public"]["Enums"]["submission_type"]
           submitted_at: string
+          submitted_by: string | null
           submitted_text: string | null
           submitted_url: string | null
           supersedes_submission_id: string | null
+          target_id: string
+          team_id: string | null
           updated_at: string
         }
         Insert: {
           assignment_id: string
-          enrollment_id: string
+          enrollment_id?: string | null
           feedback?: string | null
           file_path?: string | null
           file_size?: number | null
@@ -865,14 +1010,17 @@ export type Database = {
           status?: Database["public"]["Enums"]["submission_status"]
           submission_type: Database["public"]["Enums"]["submission_type"]
           submitted_at?: string
+          submitted_by?: string | null
           submitted_text?: string | null
           submitted_url?: string | null
           supersedes_submission_id?: string | null
+          target_id: string
+          team_id?: string | null
           updated_at?: string
         }
         Update: {
           assignment_id?: string
-          enrollment_id?: string
+          enrollment_id?: string | null
           feedback?: string | null
           file_path?: string | null
           file_size?: number | null
@@ -885,9 +1033,12 @@ export type Database = {
           status?: Database["public"]["Enums"]["submission_status"]
           submission_type?: Database["public"]["Enums"]["submission_type"]
           submitted_at?: string
+          submitted_by?: string | null
           submitted_text?: string | null
           submitted_url?: string | null
           supersedes_submission_id?: string | null
+          target_id?: string
+          team_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -913,10 +1064,61 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "submissions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "submissions_supersedes_submission_id_fkey"
             columns: ["supersedes_submission_id"]
             isOneToOne: false
             referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "submission_targets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "cohort_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_memberships: {
+        Row: {
+          enrollment_id: string
+          team_id: string
+        }
+        Insert: {
+          enrollment_id: string
+          team_id: string
+        }
+        Update: {
+          enrollment_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_memberships_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "cohort_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_memberships_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "cohort_teams"
             referencedColumns: ["id"]
           },
         ]
@@ -993,6 +1195,7 @@ export type Database = {
         }
         Returns: Json
       }
+      manage_team: { Args: { p_action: string; p_data: Json }; Returns: string }
       monday_import: {
         Args: {
           p_action: string
@@ -1002,6 +1205,7 @@ export type Database = {
         }
         Returns: Json
       }
+      my_team: { Args: { p_enrollment: string }; Returns: Json }
       record_activity: { Args: never; Returns: undefined }
       review_submission: {
         Args: { p_data: Json }
@@ -1043,6 +1247,17 @@ export type Database = {
           p_expected_id?: string
           p_expected_updated_at?: string
           p_url: string
+        }
+        Returns: string
+      }
+      submit_response: {
+        Args: {
+          p_assignment: string
+          p_expected?: string
+          p_request: string
+          p_type: string
+          p_value: string
+          p_version?: string
         }
         Returns: string
       }

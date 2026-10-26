@@ -81,7 +81,7 @@ updates without shared protected caching or realtime.
 | `/admin/weeks` | Admin | Week listing and publication state |
 | `/admin/weeks/[id]` | Admin | Week, assignment, and resource editing |
 | `/admin/members` | Admin | Approved-roster management |
-| `/api/submissions/[id]/download` | Active owner/admin | Private current/historical file attachment |
+| `/api/submissions/[id]/download` | Active individual owner/authorized teammate/admin | Private current/historical file attachment |
 
 In Next.js 16, dynamic `params`, `searchParams`, `cookies()`, and `headers()` are async.
 Use the installed documentation rather than legacy examples.
@@ -120,6 +120,22 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 7. Database and Storage RLS enforce the same policy independently.
 
 ## Data access and mutations
+
+Shared ownership: cohort teams and memberships are read only into the authorized admin
+workspace. Members first resolve their own enrollment, then `my_team`; their loader
+explicitly fetches that team's attempts in addition to their own individual history.
+No broad admin loader or service-key reads are used. Minimal team context reaches team
+assignment DTOs only; Explore and admin preview receive mode but no real team roster/work.
+Pure `submissionBelongsTo` selectors derive member progress from shared attempts without
+copying rows or inventing an individual owner. Admin rows use owner keys (team or
+enrollment); team names and member disclosure replace the individual queue cell.
+
+`saveTeam` repeats admin authorization/runtime validation and calls user-scoped manage_team.
+Text/link actions preserve their existing interfaces with an optional retry request ID,
+calling submit_response; editor retries retain their ID for the same payload/base version.
+File operations retain prepare/finalize/cancel and protected submission-ID download routes.
+Actual submitter and owning target are distinct. Review-next/back retains week, assignment,
+search and Official/Test scope. Existing mutation wrappers preserve older API entrypoints.
 
 Visible protected layouts mount a client ActivityRecorder: pathname/visibility events,
 no interval and no storage of page identifiers. The best-effort no-argument action
@@ -228,7 +244,8 @@ views. Drafts remain session-local; saved attempts come from server reads.
 Member reads do not reuse the admin workspace loader. After live authorization they
 query only the authenticated person's enrolled participation, choose the latest active
 cohort using the shared quarter ordering, and retrieve that cohort's published weeks,
-their resources/assignments, and the selected enrollment's complete attempt history.
+their resources/assignments, the selected enrollment's complete individual attempt history,
+and explicitly scoped shared team attempts when assigned.
 Draft cards still come only from `week_catalog`. This explicit scope also applies to
 admins opening the member portal, regardless of their broader RLS permissions. No
 qualifying enrollment short-circuits to the empty state without program-wide queries.

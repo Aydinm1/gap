@@ -32,7 +32,7 @@ export function SubmissionEditor({
   description: string;
   layout?: "rail" | "wide";
   onCancel?: () => void;
-  onSubmit: (payload: SubmissionPayload) => void | Promise<void>;
+  onSubmit: (payload: SubmissionPayload, requestId?: string) => void | Promise<void>;
   expected?: { id: string; updatedAt?: string };
   onFileSaved?: () => void;
   preview?: boolean;
@@ -40,6 +40,7 @@ export function SubmissionEditor({
   const router = useRouter();
   const task = useRef<ReturnType<typeof uploadTask> | undefined>(undefined);
   const busy = useRef(false);
+  const request = useRef<{key:string;id:string} | undefined>(undefined);
   const [progress, setProgress] = useState<number>();
   const [finalizing, setFinalizing] = useState(false);
   const [hasTask, setHasTask] = useState(false);
@@ -71,7 +72,11 @@ export function SubmissionEditor({
     if (preview || busy.current) return;
     busy.current = true;
     setSaving(true);
-    try { await onSubmit(payload); clearDraft(); }
+    try {
+      const key=JSON.stringify({payload,expected});
+      if(request.current?.key!==key) request.current={key,id:crypto.randomUUID()};
+      await onSubmit(payload,request.current.id); clearDraft();
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not submit. Your draft has been kept.'); }
     finally { busy.current = false; setSaving(false); }
   }

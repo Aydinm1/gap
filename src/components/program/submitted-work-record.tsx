@@ -26,6 +26,7 @@ export function SubmittedWorkRecord({
         "text-ink-soft",
         density === "compact" ? "mt-1 text-xs leading-5" : "mt-2 text-sm leading-6",
       )}>Submitted {formatSubmissionTime(attempt.submittedAt)}</p>
+      {attempt.teamId&&attempt.submittedByName?<p className="mt-1 text-sm text-ink-soft">Submitted by {attempt.submittedByName} for your team</p>:null}
       <div className={cn("grid gap-3", density === "compact" ? "mt-5" : "mt-6")}>
         {children}
       </div>

@@ -278,9 +278,43 @@ per-assignment/enrollment uniqueness still govern submissions and upload operati
 
 ### `submissions`
 
+Team-ownership extension (local): `submission_targets` uniquely identifies an assignment
+and either an enrollment or a cohort team. Existing attempts are backfilled without
+changing IDs/content. Attempts have a required `target_id`, nullable individual
+`enrollment_id`, nullable `team_id`, and optional `submitted_by` person (historical
+individual attempts are not assigned an invented submitter). The scope trigger validates
+matching target/assignment/cohort/owner and same-target history. A unique partial index
+enforces one current attempt per target. The legacy enrollment index remains compatible.
+
+`cohort_teams` stores cohort/name, official/test scope, version and locked flag;
+`team_memberships` uniquely maps an enrollment to a team. Only live admins mutate through
+`manage_team`; direct authenticated writes are denied. Version-checked membership edits
+require matching cohort, enrolled status and test scope, and stop after submitted work.
+Test-flag changes require leaving an unlocked team first. `my_team` returns only the
+caller's team ID/name and teammate names/person/enrollment IDs, not emails or a directory.
+
+`submit_response` resolves the caller's target; private request receipts bind actor/request
+UUID to exact target/payload/version and saved attempt. Legacy submit_link/submit_text
+interfaces delegate with new request IDs. Browser actions pass stable retry IDs.
+Prepare/finalize/review/mode/team mutations serialize through provisioning lock
+`(180,20260914)` then the shared transaction advisory gate, before target/current-attempt
+locks. This ordering prevents reverse dependencies with live roster/enrollment edits.
+Upload intents retain the initiating enrollment/actor plus target and team version;
+membership changes invalidate pending uploads. Immutable paths retain initiating Auth UUID.
+Cleanup's existing terminal intent claims remain compatible and never acquire the gate.
+
+Team submission/PDF reads require current active-roster, enrolled participation in the
+matching active cohort; admins retain review access. Individual historical reads stay
+as before. Viewers/outsiders cannot read targets, shared work or committed files. The
+following original column list describes individual submissions; `enrollment_id` is
+nullable for team-owned attempts. See [ADR 0020](decisions/0020-admin-assigned-team-submissions.md).
+
 - `id uuid primary key`
 - `assignment_id uuid not null references assignments(id) on delete restrict`
-- `enrollment_id uuid not null references cohort_enrollments(id) on delete restrict`
+- `target_id uuid not null references submission_targets(id) on delete restrict`
+- `enrollment_id uuid references cohort_enrollments(id) on delete restrict` (individual only)
+- `team_id uuid references cohort_teams(id) on delete restrict` (team only)
+- `submitted_by uuid references people(id) on delete restrict` (nullable for legacy attempts)
 - `submission_type submission_type not null`
 - `original_filename text`
 - `file_path text`
@@ -297,11 +331,11 @@ per-assignment/enrollment uniqueness still govern submissions and upload operati
 - `submitted_at timestamptz not null`
 - `updated_at timestamptz not null`
 
-Constraints require the assignment week and enrollment to belong to the same cohort and
+Constraints require the assignment week and owning enrollment/team to belong to the same cohort and
 exactly one valid file, URL, or written-text payload according to `submission_type`.
 Non-file attempts have null filename/path/size/MIME; text and URL are mutually exclusive.
-Files require nonnull size and MIME. A partial unique index permits only one current submission per user
-and assignment. Resubmission atomically sets the previous row to non-current and inserts
+Files require nonnull size and MIME. A partial unique index permits only one current submission per target
+(assignment and individual/team owner). Resubmission atomically sets the previous row to non-current and inserts
 a new row pointing to it. Historical records are never silently overwritten.
 
 ## Safe week catalog
@@ -338,7 +372,8 @@ execution. Enum/access changes are ordered separate migrations (007 then 008).
 | Published weeks/resources/assignments | Read | Read/write all |
 | Draft content | No access | Read/write |
 | Own submissions/history/feedback | Read and create; replace through authorized mutation | Read/write all |
-| Other members' submissions | No access | Read/write |
+| Shared team submissions | Read/submit for own authorized team only | Read/review |
+| Other members' individual submissions | No access | Read/write |
 
 Authority comes from `auth.uid()`, a confirmed UC Davis email with a Google identity in
 Auth, and the current active approved roster joined to its person. Profiles are mirrors,
@@ -468,8 +503,9 @@ not an inference that every submitted assignment was approved.
 - INSERT requires an exact pending, unexpired upload intent owned by `auth.uid()`,
   live active-roster authority, enrolled participation in an active cohort, and a
   published assignment. A path prefix alone never authorizes an upload.
-- SELECT requires a committed submission associated with the live active owner or
-  admin. This includes historical attempts regardless of current cohort participation.
+- SELECT requires a committed submission associated with the live active individual owner,
+  authorized teammate or admin. Individual historical attempts remain readable regardless
+  of current cohort participation; team history requires enrolled active-cohort participation.
   Uncommitted objects cannot be read by members or reviewers. No browser UPDATE or
   DELETE policy exists. Admins cannot upload on behalf of members.
 - Replacement creates a new uniquely named object; old objects remain available with
@@ -479,7 +515,8 @@ not an inference that every submitted assignment was approved.
 
 ### Private upload ledger
 
-`private.upload_intents` stores owner Auth UUID, assignment/enrollment, reserved unique
+`private.upload_intents` stores owner Auth UUID, assignment/initiating enrollment/target,
+team version when applicable, reserved unique
 submission UUID, unique generated path, original filename, expected bytes/MIME,
 expected current attempt ID/update timestamp, created/one-hour expiry timestamps,
 state (`pending`, `committed`, `abandoned`), and cleanup timestamp/failure flag.
@@ -489,10 +526,11 @@ Service-only `file_upload(actor, action, intent, data)` checks the verified acto
 roster on every call. Prepare authorizes context and reserves the server-generated path;
 get exposes only that actor's intent; cancel irreversibly abandons uncommitted work.
 Only trusted server code may invoke finalize after bounded content inspection. It
-locks intent → enrollment → current submission, rechecks authorization and the original
-version, verifies Storage metadata, and atomically supersedes/inserts/commits. Link saves
-use enrollment → current submission and reviews lock the current submission, so no
-reverse intent dependency exists. Committed retries return the same receipt. Stale and
+acquires the provisioning/submission gates, then locks intent → target → current submission,
+rechecks authorization and the original version, verifies Storage metadata, and atomically
+supersedes/inserts/commits. Link/text saves and reviews use the same gates and target/current
+ownership; cleanup never acquires a target/gate, so no reverse intent dependency exists.
+Committed retries return the same receipt. Stale and
 invalid finalizations abandon the intent without changing submission history.
 
 `cleanup_uploads` is service-only. It locks and terminally abandons up to 100 expired or

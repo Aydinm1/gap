@@ -8,6 +8,7 @@ import type {
   Resource,
   SubmissionAttempt,
   WeekPublicationState,
+  CohortTeam,
 } from "./types.ts";
 import { deriveAssignmentState } from "./state.ts";
 import { assignmentsForWeek } from "./types.ts";
@@ -32,6 +33,7 @@ export type AdminWorkspaceState = {
   enrollments: readonly CohortEnrollment[];
   weeks: readonly AdminWeek[];
   submissions: readonly SubmissionAttempt[];
+  teams?: readonly CohortTeam[];
 };
 
 export type AdminQueueFilter = "awaiting_review" | "revision_requested" | "missing" | "complete" | "all";
@@ -83,6 +85,7 @@ export function validateAdminWeek(week: AdminWeek, options: { forPublish?: boole
   const assignments = assignmentsForWeek(week);
   if (new Set(assignments.map((assignment) => assignment.id)).size !== assignments.length) return "Each assignment must have a unique identifier.";
   for (const assignment of assignments) {
+    if (assignment.submissionMode && !['individual','team'].includes(assignment.submissionMode)) return 'Choose Individual or Team submission.';
     if (assignment.summary && Array.from(assignment.summary).length > 300) return "Keep each assignment summary to 300 characters or fewer.";
     if (Array.from(assignment.instructions).length > 50000) return "Keep assignment instructions to 50,000 characters or fewer.";
     if (assignment.instructionsFormat && !['plain','markdown'].includes(assignment.instructionsFormat)) return "Choose a valid instruction format.";
@@ -96,7 +99,7 @@ export function validateAdminWeek(week: AdminWeek, options: { forPublish?: boole
 export function filterSubmissionRows(rows: readonly AdminSubmissionRow[], filter: AdminQueueFilter, search = "") {
   const query = search.trim().toLowerCase();
   return rows.filter((row) => {
-    const matchesSearch = !query || `${row.person?.fullName ?? ""} ${row.person?.email ?? ""}`.toLowerCase().includes(query);
+    const matchesSearch = !query || `${row.team?.name??''} ${row.person?.fullName ?? ""} ${row.person?.email ?? ""} ${row.members.map(m=>m.fullName+' '+m.email).join(' ')}`.toLowerCase().includes(query);
     if (!matchesSearch || filter === "all") return matchesSearch;
     if (filter === "awaiting_review") return row.state === "submitted";
     if (filter === "revision_requested") return row.state === "revision_requested";
@@ -169,10 +172,18 @@ export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now, 
   const assignments = assignmentsForWeek(week);
   const assignment = assignmentId ? assignments.find((item) => item.id === assignmentId) : assignments[0];
   if (!assignment) return [];
-  return enrollments.map((enrollment) => {
+  const owners = assignment.submissionMode==='team'
+    ? (state.teams??[]).filter(t=>t.cohortId===cohortId&&t.isTest===(audience==='test')).flatMap(team=>{
+      const members=enrollments.filter(e=>team.enrollmentIds.includes(e.id));
+      return members.length?[{enrollment:members[0],team,memberEnrollmentIds:members.map(e=>e.id)}]:[];
+    })
+    : enrollments.map(enrollment=>({enrollment,team:undefined,memberEnrollmentIds:[enrollment.id]}));
+  return owners.map(({enrollment,team,memberEnrollmentIds}) => {
     const person = state.people.find((item) => item.id === enrollment.personId);
-    const submission = state.submissions.find((item) => item.assignmentId === assignment.id && item.enrollmentId === enrollment.id && item.isCurrent);
+    const submission = state.submissions.find((item) => item.assignmentId === assignment.id && (team?item.teamId===team.id:item.enrollmentId === enrollment.id) && item.isCurrent);
     return {
+      team,ownerKey:team?.id??enrollment.id,memberEnrollmentIds,
+      members:memberEnrollmentIds.flatMap(id=>{const e=enrollments.find(e=>e.id===id);const p=state.people.find(p=>p.id===e?.personId);return p?[p]:[];}),
       enrollment,
       assignment,
       person,

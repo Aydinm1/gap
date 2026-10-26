@@ -43,12 +43,13 @@ export function AdminSubmissionReview({ submissionId, reference }: { submissionI
   useEffect(() => { const guard = (event: MouseEvent) => { const anchor = (event.target as Element).closest("a"); if (dirty && anchor && !window.confirm("Discard your unsaved review?")) { event.preventDefault(); event.stopPropagation(); } }; document.addEventListener("click", guard, true); return () => document.removeEventListener("click", guard, true); }, [dirty]);
 
   if (!submission) return <PageContainer className="py-16"><StateMessage title="Submission not found">Return to the review queue and choose a current submission in this cohort.</StateMessage></PageContainer>;
-  const enrollment = workspace.enrollments.find((item) => item.id === submission.enrollmentId && item.cohortId === workspace.selectedCohortId);
+  const team=workspace.teams?.find(t=>t.id===submission.teamId&&t.cohortId===workspace.selectedCohortId);
+  const enrollment = workspace.enrollments.find((item) => (team?team.enrollmentIds.includes(item.id):item.id === submission.enrollmentId) && item.cohortId === workspace.selectedCohortId);
   const person = workspace.people.find((item) => item.id === enrollment?.personId);
   const week = workspace.weeks.find((item) => item.cohortId === workspace.selectedCohortId && assignmentsForWeek(item).some((assignment) => assignment.id === submission.assignmentId));
   if (!enrollment || !week) return <PageContainer className="py-16"><StateMessage title="Submission not found">This submission does not belong to the selected cohort.</StateMessage></PageContainer>;
   const currentSubmission = submission;
-  const history = workspace.submissions.filter((item) => item.enrollmentId === submission.enrollmentId && item.assignmentId === submission.assignmentId && !item.isCurrent).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+  const history = workspace.submissions.filter((item) => (team?item.teamId===team.id:item.enrollmentId === submission.enrollmentId) && item.assignmentId === submission.assignmentId && !item.isCurrent).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const assignment = assignmentsForWeek(week).find((item) => item.id === submission.assignmentId);
   const weekWide = params.get('week') === week.id && !params.has('assignment');
   const allRows = buildWeekQueue(workspace,workspace.selectedCohortId,week.id,new Date(),enrollment.isTest?'test':'official').rows;
@@ -80,7 +81,7 @@ export function AdminSubmissionReview({ submissionId, reference }: { submissionI
   return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
     <Link href={backHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← Review queue</Link>
     {enrollment.isTest ? <p className="mt-4 text-sm font-bold text-ink-soft">Test submission · Excluded from official cohort statistics</p> : null}
-    <header className="mt-6"><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {week.weekNumber.toString().padStart(2, "0")} · Submission review</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{person?.fullName ?? "Member submission"}</h1><p className="mt-3 text-base text-ink-soft">{assignment?.title} · Submitted {formatSubmissionTime(submission.submittedAt)}</p></header>
+    <header className="mt-6"><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {week.weekNumber.toString().padStart(2, "0")} · Submission review</p><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{team?.name??person?.fullName ?? "Member submission"}</h1><p className="mt-3 text-base text-ink-soft">{assignment?.title} · Submitted {formatSubmissionTime(submission.submittedAt)}</p>{team?<p className="mt-3 text-sm text-ink-soft">{team.enrollmentIds.map(id=>workspace.people.find(p=>p.id===workspace.enrollments.find(e=>e.id===id)?.personId)?.fullName).filter(Boolean).join(' · ')}</p>:null}</header>
 
     <div className="mt-9 grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)] lg:gap-10">
       <section aria-labelledby="submitted-work-heading"><h2 id="submitted-work-heading" className="text-2xl font-bold">Submitted work</h2><p className="mt-2 text-sm leading-6 text-ink-soft">Read the member’s response or open their submitted work before leaving feedback.</p><div className="mt-5"><SubmittedWorkRecord attempt={submission}><ViewAttempt attempt={submission} announce={setMessage} /></SubmittedWorkRecord></div>

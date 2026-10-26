@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+- [ADR 0020: Admin-assigned teams and shared submission targets](0020-admin-assigned-team-submissions.md)
+
 **Status:** Active
 **Last updated:** 2026-10-25
 **Source of truth for:** Durable decision history and ADR format

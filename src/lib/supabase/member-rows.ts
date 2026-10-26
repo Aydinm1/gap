@@ -15,13 +15,17 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
   }))).filter(row => row !== null);
   const cohort = cohorts.sort(compareCohorts).at(-1);
   const enrollment = enrollments.data.find(row => row.cohort_id === cohort?.id);
-  if (!cohort || !enrollment) return { cohort: undefined, enrollment: undefined, weeks: [], resources: [], assignments: [], submissions: [], catalog: [], documents: [] };
+  if (!cohort || !enrollment) return { cohort: undefined, enrollment: undefined, team: undefined, weeks: [], resources: [], assignments: [], submissions: [], catalog: [], documents: [] };
+  const teamResult = await db.rpc('my_team', {p_enrollment:enrollment.id});
+  if (teamResult.error) throw new Error('Your team could not be loaded. Please retry.');
+  const team = teamResult.data as {id:string;name:string;members:{enrollmentId:string;personId:string;name:string}[]} | null;
   const [weeks, submissions, catalog] = await Promise.all([
     readPages((from, to) => db.from('program_weeks').select('*').eq('cohort_id', cohort.id).eq('published', true).order('id').range(from, to)),
     readPages((from, to) => db.from('submissions').select('*').eq('enrollment_id', enrollment.id).order('submitted_at', { ascending: false }).order('id').range(from, to)),
     db.rpc('week_catalog', { p_cohort_id: cohort.id }),
   ]);
   if (catalog.error) throw new Error('Program modules could not be loaded.');
+  const teamSubmissions = team ? await readPages((from,to)=>db.from('submissions').select('*').eq('team_id',team.id).order('submitted_at',{ascending:false}).order('id').range(from,to)) : {data:[]};
   const ids = weeks.data.map(row => row.id); // At most six published weeks.
   const [resources, assignments] = ids.length ? await Promise.all([
     readPages((from, to) => db.from('resources').select('*').in('week_id', ids).order('sort_order').order('created_at').order('id').range(from, to)),
@@ -29,5 +33,5 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
   ]) : [{ data: [] }, { data: [] }];
   const assignmentIds = assignments.data.map(a => a.id);
   const documents = assignmentIds.length ? await readPages((from, to) => db.from('assignment_documents').select('*').in('assignment_id', assignmentIds).eq('is_current', true).eq('state', 'ready').order('id').range(from, to)) : { data: [] };
-  return { cohort, enrollment, weeks: weeks.data, resources: resources.data, assignments: assignments.data, submissions: submissions.data, catalog: catalog.data ?? [], documents: documents.data };
+  return { cohort, enrollment, team:team??undefined, weeks: weeks.data, resources: resources.data, assignments: assignments.data, submissions: [...submissions.data,...teamSubmissions.data], catalog: catalog.data ?? [], documents: documents.data };
 }

@@ -6,7 +6,7 @@ import type {
   ProgramWeek,
   SubmissionAttempt,
 } from "./types.ts";
-import { assignmentsForWeek, isPublishedWeek } from "./types.ts";
+import { assignmentsForWeek, isPublishedWeek, submissionBelongsTo } from "./types.ts";
 import {
   countCompletedModules,
   deriveAssignmentState,
@@ -79,7 +79,7 @@ export function buildProgramDashboard({
   const cohortWeeks = weeks.filter((week) => week.cohortId === cohort.id);
   const currentSubmissions = submissions.filter(
     (submission) =>
-      submission.isCurrent && submission.enrollmentId === enrollment.id,
+      submission.isCurrent && submissionBelongsTo(submission, enrollment.id),
   );
   const submissionsByAssignment = new Map(
     currentSubmissions.map((submission) => [submission.assignmentId, submission]),

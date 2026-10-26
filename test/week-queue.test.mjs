@@ -6,6 +6,13 @@ const enrollment=(id,isTest=false)=>({id,personId:id,cohortId:'cohort',participa
 const state={people:[{id:'a',fullName:'A'},{id:'b',fullName:'B'},{id:'test',fullName:'Test'}],cohorts:[],approvedMembers:[],enrollments:[enrollment('a'),enrollment('b'),enrollment('test',true)],weeks:[{id:'week',cohortId:'cohort',weekNumber:1,title:'Workshop',publicationState:'published',assignments:[assignment('one'),assignment('two')]}],submissions:[]};
 const attempt=(id,enrollmentId,assignmentId,status='completed',isCurrent=true)=>({id,enrollmentId,assignmentId,status,isCurrent,submittedAt:'2026-10-01T00:00:00Z',payload:{type:'text',submittedText:'Work'}});
 const now=new Date('2026-10-22T00:00:00Z');
+test('team queues count work once and give shared approval to each teammate without test inflation',()=>{
+ const teams=[{id:'team',cohortId:'cohort',name:'Research',isTest:false,enrollmentIds:['a','b']},{id:'test-team',cohortId:'cohort',name:'Test research',isTest:true,enrollmentIds:['test']}];
+ const s={...state,teams,weeks:[{...state.weeks[0],assignments:[{...assignment('one'),submissionMode:'team'},assignment('two')]}],submissions:[{...attempt('shared',undefined,'one'),teamId:'team'},attempt('a2','a','two'),attempt('b2','b','two'),{...attempt('testing',undefined,'one','submitted'),teamId:'test-team'}]};
+ const result=buildWeekQueue(s,'cohort','week',now);assert.equal(result.rows.length,3);assert.equal(result.received,3);assert.equal(result.complete,2);assert.equal(result.assignments[0].rows[0].team.id,'team');
+ assert.equal(buildWeekQueue(s,'cohort','week',now,'test').awaiting,1);
+ const unassigned=buildWeekQueue({...s,teams:[]},'cohort','week',now);assert.equal(unassigned.assignments[0].rows.length,0);assert.equal(unassigned.assignments[0].unassigned,2);assert.equal(unassigned.complete,0);
+});
 test('week completion requires every current approved assignment, not submitted coverage',()=>{
  const s={...state,submissions:[attempt('a1','a','one'),attempt('a2','a','two'),attempt('b1','b','one'),attempt('b2','b','two','revision_requested'),attempt('old','b','two','completed',false),attempt('t1','test','one'),attempt('t2','test','two')]};
  const result=buildWeekQueue(s,'cohort','week',now);assert.equal(result.participants,2);assert.equal(result.complete,1);assert.equal(result.rate,.5);assert.equal(result.rows.length,4);assert.equal(new Set(result.rows.map(r=>r.enrollment.id+':'+r.assignment.id)).size,4);assert.equal(result.assignments[0].approved,2);assert.equal(buildWeekQueue(s,'cohort','week',now,'test').complete,1);

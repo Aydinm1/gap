@@ -6,6 +6,13 @@
 
 ## Direction
 
+Teams reuse Members' restrained form/card language. Admin-only setup shows unassigned
+participants, team name/scope and a labeled member checkbox list with explicit saves.
+Locked membership is explained, not silently disabled. Member team assignments show
+one compact team/name list and one-submission guidance above the existing workspace.
+Review rows use team names and expandable teammate lists; queue counts stay submission-
+focused. Actual submitters are identified on shared work records. No team-picker for members.
+
 Grading references use one restrained collapsible panel, explicitly labeled Admins only.
 In the assignment editor it contains separately labeled Rubric/Example response formatting
 controls, an independent Save grading reference action and a distinct private example PDF
