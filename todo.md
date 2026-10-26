@@ -416,7 +416,10 @@ do not satisfy them. See ADR 0007.
 - [x] Apply separately authorized hosted team migrations (2026-10-25): all four
   receipts verified, RLS/grants checked, original submission/enrollment/assignment/file
   fingerprints unchanged. Existing assignments remain Individual; no teams created.
-- [~] Commit/push and deploy the authorized team release, then verify live smoke checks.
+- [x] Commit/push and deploy the authorized team release: `9588070`, production
+  `dpl_4DzugZEVsx9WT8CjGJTBmdnNkyzB` READY on www.180dcdavis.com. Login, logged-out
+  admin/member redirects and private-download denial pass; runtime error scan returned
+  no entries. Production-only dependency audit is clean; existing dev advisory stays open.
 - [ ] Set up real teams and confirm authenticated hosted admin/member acceptance.
 
 - [x] Refocus the review overview on week/assignment submission counts; remove completion/

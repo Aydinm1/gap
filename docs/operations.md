@@ -62,6 +62,16 @@ new team tables have RLS, anonymous team mutation and browser privileged upload 
 are denied. There are zero teams and zero Team-mode assignments. Code deployment follows;
 real team setup/authenticated hosted acceptance remain separate.
 
+Team production release: `9588070` committed/pushed to main; deployment
+`dpl_4DzugZEVsx9WT8CjGJTBmdnNkyzB` reached READY in about 45 seconds with the custom
+domain aliases. Hosted Next.js/Turbopack build passes. Live /login returns 200;
+logged-out /admin/members and /week/1 stream sign-in redirects; anonymous submission
+download returns 401/private-no-store. No runtime error logs were returned; no external
+log drains are configured. Build audit still reports one high-severity dependency finding;
+the production-only audit returns zero (existing development-tooling follow-up remains
+open). No real teams or assignment-mode conversions were performed. Actual signed-in
+admin/member team acceptance remains a separate real-user check.
+
 The review overview now reports current submissions received and awaiting review by
 week and assignment, not participant completion or cohort outcomes. All submissions
 excludes unsubmitted obligations; use Not submitted for those. Official/Test scopes

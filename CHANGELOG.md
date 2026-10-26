@@ -12,6 +12,9 @@ Keep a Changelog without assigning versions until the first release.
   desktop/phone flows, 77 unit/docs and program/Storage/grading/Viewer/attendance regressions
   pass, along with lint/types/generated types and Webpack build. Hosted rollout and real
   team provisioning remain separate.
+  Authorized release `9588070` is live on www.180dcdavis.com; all four hosted migrations
+  are verified with original submission/enrollment/assignment/file fingerprints preserved.
+  Anonymous route/download protections pass; real team setup remains admin-controlled.
 
 - Refocused the admin review inbox on received/awaiting submission counts by week and
   assignment. Removed participant completion and cohort outcomes from that page; All
