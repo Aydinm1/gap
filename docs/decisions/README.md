@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 **Source of truth for:** Durable decision history and ADR format
 
 Create an ADR for decisions that materially affect architecture, schema, security,
@@ -53,6 +53,8 @@ Living documents must reflect the current accepted result. ADRs explain the reas
 do not override a later source-of-truth update and superseding ADR.
 
 ## Accepted decisions
+
+- [ADR 0019: Private assignment grading references](0019-private-assignment-grading-references.md)
 
 - [ADR 0018: Minimal Last active and explicit week review scope](0018-last-active-and-week-review-scope.md)
 

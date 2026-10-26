@@ -5,6 +5,17 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Refocused the admin review inbox on received/awaiting submission counts by week and
+  assignment. Removed participant completion and cohort outcomes from that page; All
+  submissions excludes missing work while Not submitted remains separately available.
+
+- Added local admin-only assignment grading references: independently saved formatted
+  rubrics/model responses, private example PDFs, protected downloads and a comparison
+  panel beside submission review. References are excluded from learner/Viewer previews;
+  no scoring or review-status changes. Seven grading entries and desktop/phone flows
+  pass alongside 74 unit/docs and existing PDF, Storage and program regressions. Lint,
+  types, generated types and Webpack build pass. Hosted migration/deployment are separate.
+
 - Replaced the wide social graphic with a square, logo-only preview using the approved
   compact UC Davis lockup, preventing clipped headlines in Slack's thumbnail layout.
   Release `378de11` is live; public image and metadata pass Slack-crawler HTTP checks.

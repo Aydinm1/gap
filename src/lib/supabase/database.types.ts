@@ -258,8 +258,10 @@ export type Database = {
       is_viewer: { Args: never; Returns: boolean }
       may_download: { Args: { p_path: string }; Returns: boolean }
       may_download_brief: { Args: { p_path: string }; Returns: boolean }
+      may_read_grading_example: { Args: { p_path: string }; Returns: boolean }
       may_upload: { Args: { p_path: string }; Returns: boolean }
       may_upload_brief: { Args: { p_path: string }; Returns: boolean }
+      may_upload_grading_example: { Args: { p_path: string }; Returns: boolean }
       my_person_id: { Args: never; Returns: string }
     }
     Enums: {
@@ -365,6 +367,41 @@ export type Database = {
             columns: ["expected_id"]
             isOneToOne: false
             referencedRelation: "assignment_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assignment_grading_references: {
+        Row: {
+          assignment_id: string
+          example: string
+          file_version: number
+          rubric: string
+          text_version: number
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          example?: string
+          file_version?: number
+          rubric?: string
+          text_version?: number
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          example?: string
+          file_version?: number
+          rubric?: string
+          text_version?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_grading_references_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: true
+            referencedRelation: "assignments"
             referencedColumns: ["id"]
           },
         ]
@@ -550,6 +587,62 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "people"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      grading_example_documents: {
+        Row: {
+          assignment_id: string
+          cleanup_after: string | null
+          cleanup_failed: boolean
+          created_at: string
+          expected_file_version: number
+          expires_at: string
+          file_size: number
+          id: string
+          is_current: boolean
+          original_filename: string
+          owner_id: string
+          path: string
+          state: string
+        }
+        Insert: {
+          assignment_id: string
+          cleanup_after?: string | null
+          cleanup_failed?: boolean
+          created_at?: string
+          expected_file_version: number
+          expires_at?: string
+          file_size: number
+          id?: string
+          is_current?: boolean
+          original_filename: string
+          owner_id: string
+          path: string
+          state?: string
+        }
+        Update: {
+          assignment_id?: string
+          cleanup_after?: string | null
+          cleanup_failed?: boolean
+          created_at?: string
+          expected_file_version?: number
+          expires_at?: string
+          file_size?: number
+          id?: string
+          is_current?: boolean
+          original_filename?: string
+          owner_id?: string
+          path?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grading_example_documents_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignment_grading_references"
+            referencedColumns: ["assignment_id"]
           },
         ]
       }
@@ -854,6 +947,30 @@ export type Database = {
         Returns: Json
       }
       attendance: { Args: { p_action: string; p_data?: Json }; Returns: Json }
+      cleanup_grading_examples: {
+        Args: { p_failed?: boolean; p_id?: string; p_owner?: string }
+        Returns: {
+          assignment_id: string
+          cleanup_after: string | null
+          cleanup_failed: boolean
+          created_at: string
+          expected_file_version: number
+          expires_at: string
+          file_size: number
+          id: string
+          is_current: boolean
+          original_filename: string
+          owner_id: string
+          path: string
+          state: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "grading_example_documents"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       cleanup_uploads: {
         Args: { p_failed?: boolean; p_id?: string; p_owner?: string }
         Returns: Json
@@ -864,6 +981,15 @@ export type Database = {
           p_actor: string
           p_data?: Json
           p_intent?: string
+        }
+        Returns: Json
+      }
+      grading_example: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_data?: Json
+          p_id?: string
         }
         Returns: Json
       }
@@ -883,6 +1009,28 @@ export type Database = {
           id: string
           updated_at: string
         }[]
+      }
+      save_grading_reference: {
+        Args: {
+          p_assignment: string
+          p_example: string
+          p_rubric: string
+          p_version: number
+        }
+        Returns: {
+          assignment_id: string
+          example: string
+          file_version: number
+          rubric: string
+          text_version: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "assignment_grading_references"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       save_program_week: { Args: { p_data: Json }; Returns: string }
       set_test_participation: {

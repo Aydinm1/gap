@@ -1,10 +1,19 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
+
+Grading references use one restrained collapsible panel, explicitly labeled Admins only.
+In the assignment editor it contains separately labeled Rubric/Example response formatting
+controls, an independent Save grading reference action and a distinct private example PDF
+section. On review, Rubric/Example tabs sit above Feedback and decision in the existing
+right column; mobile stacks submitted work → reference → feedback. A bounded, keyboard-
+focusable text region prevents long guidance from dominating the page. Empty references
+use a quiet Add grading reference link rather than another empty card. Tabs have arrow/
+Home/End keyboard operation and retain review input. No score widgets or new queue filters.
 
 Viewer Explore retains member typography, modules, locked icons, materials and focused
 assignment pages. Label the switcher “Browsing cohort” and profile “Viewer.” Omit personal
@@ -216,12 +225,14 @@ descriptive filenames.
 
 ## Accessibility baseline
 
-Admin overview is week-first: one restrained bordered panel, week/scope header, compact
-completion statement and ordered assignment progress, then an integrated queue toolbar.
+Admin overview is a week-first review inbox: one restrained bordered panel, week/scope
+header, compact received/awaiting submission counts and ordered assignment counts,
+then an integrated queue toolbar. Remove repeated week descriptions and completion heroes.
 Avoid disconnected assignment dropdowns, floating search and four competing summary
 cards. Assignment drill-down returns to All assignments. Keep visible search labels,
-44px actions and per-person/assignment cards on phones. Cohort outcomes are secondary
-disclosure content. Portal access Last active uses quiet Pacific timestamp text or —.
+44px actions and per-person/assignment cards on phones. Cohort outcomes/advancement
+belong in Members, not even a secondary disclosure on the review page. Portal access
+Last active uses quiet Pacific timestamp text or —.
 
 Test participation is an explicit checkbox within participant Edit outcomes, separate
 from lifecycle controls. Read-only rows label test records; removal confirms inclusion

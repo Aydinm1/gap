@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -64,12 +64,15 @@ private content. Existing favicon remains unchanged.
 ### Week-first admin overview
 
 The review overview defaults to the latest published week with assignments and All
-assignments. A cohesive week panel leads with participants complete (every assignment
-approved), followed by ordered assignment progress/drill-down and its review toolbar.
-Use enrolled non-test participants as the official denominator, never a fixed count.
-No participants/assignments means no percentage. Revisions/submitted work is not complete.
-Week-wide queue counts are assignment obligations; rows represent person × assignment.
-Keep test views explicit and official outcomes separate. Week, assignment when selected,
+assignments. A compact week panel leads with received-submission and awaiting-review
+counts, followed by ordered assignment rows with their received/awaiting counts and
+drill-down. Do not show participant completion percentages, advancement, promotion or
+cohort-outcome summaries on the review page; outcome management remains in Members.
+Received counts include one current attempt per enrolled person × assignment, regardless
+of review status, not retained historical attempts. All submissions excludes missing work;
+Not submitted is a separate filter for outstanding obligations. Official counts exclude
+test enrollments; test views show only test submissions and an explicit exclusion note.
+Week, assignment when selected,
 status, name/email search and audience persist through review/back/next navigation.
 No work awaiting review does not mean week completion. Search and status controls sit
 inside the queue toolbar; participant and week selectors belong in the panel header.
@@ -339,13 +342,31 @@ tracked separately in `todo.md`.
 
 ### Current implementation boundaries
 
-Do not add grades, scores, quizzes, rubrics, discussion boards, chat, email,
+Do not add grades, scores, quizzes, scored rubrics, discussion boards, chat, email,
 certificates, announcements, peer review, teams, calendars, notifications, analytics,
 leaderboards, study metrics, Google Drive editing, live documents, or AI features.
 
 The cohort outcome summaries and planned Monday reporting set above are the approved
 operational-reporting exceptions. Do not expand GAP into charts, engagement analytics,
 or a full-club CRM.
+
+### Private grading references
+
+Admins may attach reference-only grading guidance to each assignment: optional rubric
+and model-response text (50,000 Unicode characters each, using the existing safe heading,
+bold, list and link formatting), plus one current example PDF up to 20 MB. These are
+private to current active admins, not visible to Members, Viewers or member previews.
+No points, criterion ratings or automatic review decisions are introduced.
+
+Within the week editor, a collapsible Grading reference section saves text independently
+from the week. Save an assignment before adding its reference; upload/replace/remove PDF
+actions save immediately and require their own explicit controls. Removing/replacing a
+PDF retains committed history; text edits have stale-save protection and preserved input.
+Review shows Rubric/Example tabs in one collapsible panel above Feedback and decision,
+alongside submitted work on desktop and after it on phones. Empty references show a quiet
+Add grading reference link. Tab changes retain unsaved feedback; editing respects existing
+unsaved-review safeguards. PDFs remain download-first; no embedded viewer is introduced.
+See [ADR 0019](decisions/0019-private-assignment-grading-references.md).
 
 ## MVP acceptance criteria
 

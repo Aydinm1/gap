@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -397,6 +397,35 @@ do not satisfy them. See ADR 0007.
   pass (2026-10-20); hosted configuration and second-lead provisioning remain open.
 
 ## Phase 8 — Final responsive and usability polish
+
+- [x] Refocus the review overview on week/assignment submission counts; remove completion/
+  outcome metrics, keep official/test separation and URL-preserved review navigation,
+  and verify counts, All submissions versus missing work, and desktop/phone layouts.
+  Local verification (2026-10-25): five week/activity and five test-participant entries
+  pass at 1280px/390px, including current-attempt counts, separated scopes, missing-work
+  filters and review/back/next navigation. Screenshots visually inspected; 75 unit/docs,
+  lint, typecheck and Webpack build pass. This UI change has not been deployed.
+
+### Private assignment grading references
+
+- [x] Implement separate admin-only versioned rubric/example text, optional private PDF
+  lifecycle/download/cleanup and independent assignment editor/review comparison controls.
+- [x] Verify authorization, formatting, save/reload, stale/concurrent changes, retries,
+  cancellation, cleanup, private DTOs and desktop/phone comparison/review navigation.
+  Local 1280px/390px checks cover failed text save, lost finalization response, transfer
+  cancellation, confirmed removal, unsaved navigation, comparison without lost feedback,
+  and next-assignment references. SQL/HTTP/Storage deny non-admins and revoked/inactive/
+  wrong-domain access; concurrent writes and cleanup retries preserve committed history.
+- [x] Run 74 unit/docs, seven grading, five assignment-PDF, 12 Storage and 12 program
+  entries, including browser checks; lint, typecheck, generated-type consistency,
+  Webpack production build and diff checks pass. Exact grading fixtures/files removed.
+  Earlier stale-manifest/mixed-build test runs were rerun successfully using the stable
+  production server and matching action manifest (2026-10-25). Default local Turbopack
+  limitation remains separate; hosted/real Google acceptance is not implied.
+- [x] Apply separately authorized hosted grading-reference migration (2026-10-25),
+  without seeds or role changes. Release code and hosted admin acceptance tracked below.
+- [~] Commit/push and deploy grading references plus the submission-focused review inbox.
+- [ ] Confirm real hosted admin grading-reference editing/review acceptance.
 
 ### Branded previews, Last active and week-first admin
 

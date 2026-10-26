@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/container";
@@ -12,11 +13,14 @@ import { useAdminWorkspace } from "./admin-workspace";
 
 import { AssignmentBriefUpload } from "./assignment-brief-upload";
 import { AssignmentInstructionsEditor } from './assignment-instructions-editor';
+import { GradingReferenceEditor } from './grading-reference';
+import type { GradingReference } from '@/lib/grading/types';
 
 const input = "mt-2 min-h-11 w-full rounded-lg border border-border-strong bg-surface px-3.5 text-base text-ink";
 
-export function AdminWeekEditor({ weekId }: { weekId: string }) {
+export function AdminWeekEditor({ weekId, references = [] }: { weekId: string; references?: GradingReference[] }) {
   const workspace = useAdminWorkspace();
+  const router = useRouter();
   const source = workspace.weeks.find((week) => week.id === weekId && week.cohortId === workspace.selectedCohortId);
   const [draft, setDraft] = useState<AdminWeek | undefined>(source ? structuredClone(source) : undefined);
   const [savedDraft, setSavedDraft] = useState(source);
@@ -24,10 +28,26 @@ export function AdminWeekEditor({ weekId }: { weekId: string }) {
   const [deadlines, setDeadlines] = useState<Record<string, string>>(() => Object.fromEntries(source ? assignmentsForWeek(source).map((assignment) => [assignment.id, formatPacificDateTimeInput(assignment.dueAt)]) : []));
   const [zones, setZones] = useState<Record<string, "PDT" | "PST" | undefined>>({});
   const [saving, startSaving] = useTransition();
+  const [referenceChanges, setReferenceChanges] = useState<Record<string, boolean>>({});
+  const referenceDirty = Object.values(referenceChanges).some(Boolean);
+  const referenceChanged = useCallback((id: string, value: boolean) => setReferenceChanges(current => current[id] === value ? current : { ...current, [id]: value }), []);
   const dirty = Boolean(savedDraft && draft && (JSON.stringify(draft) !== JSON.stringify(savedDraft) || assignmentsForWeek(draft).some((assignment) => deadlines[assignment.id] !== formatPacificDateTimeInput(assignment.dueAt))));
   const setUnsavedChanges = workspace.setUnsavedChanges;
-  useEffect(() => { setUnsavedChanges(dirty); return () => setUnsavedChanges(false); }, [dirty, setUnsavedChanges]);
-  useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (dirty) event.preventDefault(); }; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  useEffect(() => { setUnsavedChanges(dirty || referenceDirty); return () => setUnsavedChanges(false); }, [dirty, referenceDirty, setUnsavedChanges]);
+  useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (dirty || referenceDirty) event.preventDefault(); }; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty, referenceDirty]);
+  useEffect(() => {
+    if (!referenceDirty) return;
+    const guard = (event: MouseEvent) => {
+      const anchor = (event.target as Element).closest('a');
+      if (!anchor || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target === '_blank') return;
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname.startsWith('/api/') || url.pathname === window.location.pathname && url.search === window.location.search) return;
+      event.preventDefault(); event.stopPropagation();
+      if (window.confirm('Discard your unsaved grading reference or week changes?')) router.push(url.pathname + url.search + url.hash);
+    };
+    document.addEventListener('click', guard, true);
+    return () => document.removeEventListener('click', guard, true);
+  }, [referenceDirty, router]);
   if (!source || !draft) return <PageContainer className="py-16"><StateMessage title="Week not found">Choose a week from the currently selected cohort.</StateMessage></PageContainer>;
 
   function patch(values: Partial<AdminWeek>) { setDraft((current) => current ? { ...current, ...values } : current); setMessage(""); }
@@ -49,7 +69,7 @@ export function AdminWeekEditor({ weekId }: { weekId: string }) {
       // Compare edits with the successfully saved draft, not regenerated resource IDs.
       setDraft(candidate);
       setSavedDraft(candidate);
-      workspace.setUnsavedChanges(false);
+      workspace.setUnsavedChanges(referenceDirty);
       setMessage(publicationState === "published" ? "Week published." : "Draft saved.");
     });
   }
@@ -57,7 +77,7 @@ export function AdminWeekEditor({ weekId }: { weekId: string }) {
   function moveResource(index: number, direction: -1 | 1) { if (!draft) return; const next = [...draft.resources]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; patch({ resources: next }); }
   function updateAssignment(id: string, values: Partial<Assignment>) { if (!draft) return; patch({ assignment: undefined, assignments: assignmentsForWeek(draft).map((assignment) => assignment.id === id ? { ...assignment, ...values } : assignment) }); }
 
-  return <main className="pb-28"><PageContainer className="py-9 sm:py-11"><Link href={`/admin/weeks?cohort=${workspace.selectedCohortId}`} onClick={(event) => { if (dirty && !window.confirm("Discard your unsaved week changes?")) event.preventDefault(); }} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← All weeks</Link><header className="mt-6"><div className="flex flex-wrap items-center gap-3"><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {draft.weekNumber.toString().padStart(2, "0")}</p><span className="text-sm font-semibold capitalize text-ink-faint">{source.publicationState}</span></div><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{draft.title || `Week ${draft.weekNumber}`}</h1></header>
+  return <main className="pb-28"><PageContainer className="py-9 sm:py-11"><Link href={`/admin/weeks?cohort=${workspace.selectedCohortId}`} onClick={(event) => { if ((dirty || referenceDirty) && !window.confirm("Discard your unsaved week or grading reference changes?")) event.preventDefault(); }} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← All weeks</Link><header className="mt-6"><div className="flex flex-wrap items-center gap-3"><p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {draft.weekNumber.toString().padStart(2, "0")}</p><span className="text-sm font-semibold capitalize text-ink-faint">{source.publicationState}</span></div><h1 className="mt-2 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{draft.title || `Week ${draft.weekNumber}`}</h1></header>
     <div className="mt-10 space-y-8">
       <Card className="p-6 sm:p-8"><h2 className="text-xl font-bold">Week</h2><div className="mt-6 grid gap-6"><label className="text-sm font-bold">Title<input className={input} value={draft.title} onChange={(event) => patch({ title: event.target.value })} /></label><label className="text-sm font-bold">Description<textarea rows={4} className={`${input} py-3`} value={draft.description} onChange={(event) => patch({ description: event.target.value })} /></label><label className="text-sm font-bold">Presentation URL<input className={input} type="url" value={draft.slidesUrl ?? ""} onChange={(event) => patch({ slidesUrl: event.target.value || undefined })} placeholder="https://..." /></label></div></Card>
       <section aria-label="Assignments" className="space-y-6">
@@ -71,6 +91,7 @@ export function AdminWeekEditor({ weekId }: { weekId: string }) {
               <AssignmentInstructionsEditor value={assignment.instructions} format={assignment.instructionsFormat} onChange={values => updateAssignment(assignment.id, values)} />
               <div className="grid gap-4 sm:grid-cols-[1fr_auto]"><label className="text-sm font-bold">Deadline (Pacific time)<input className={input} type="datetime-local" value={deadlines[assignment.id] ?? ""} onChange={(event) => { setDeadlines((current) => ({ ...current, [assignment.id]: event.target.value })); setZones((current) => ({ ...current, [assignment.id]: undefined })); setMessage(""); }} /></label><label className="text-sm font-bold">DST choice<select className={input} value={zones[assignment.id] ?? ""} onChange={(event) => setZones((current) => ({ ...current, [assignment.id]: event.target.value ? event.target.value as "PDT" | "PST" : undefined }))}><option value="">Automatic</option><option value="PDT">PDT</option><option value="PST">PST</option></select></label></div>
               {persisted ? <AssignmentBriefUpload key={persisted.id} assignment={persisted} /> : <p className="text-sm text-ink-soft">Save the assignment draft first, then attach its PDF.</p>}
+              <GradingReferenceEditor assignmentId={assignment.id} initial={references.find(r => r.assignmentId === assignment.id)} persisted={Boolean(persisted)} onDirty={referenceChanged} />
             </div>
           </Card>;
         })}

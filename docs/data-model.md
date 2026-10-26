@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Conventions
@@ -215,6 +215,32 @@ Enforce unique `(cohort_id, week_number)` so every cohort may have its own six w
 Order by `sort_order`, then `created_at` for deterministic rendering.
 
 ### `assignments`
+
+Private grading references are separate from these published rows. Migration
+`202610250001_grading_references.sql` adds `assignment_grading_references` keyed by
+assignment ID, with optional/default-empty `rubric` and `example` text (each <=50,000),
+monotonic `text_version`/`file_version` and a database `updated_at`. No backfill is made.
+Authenticated SELECT requires `private.is_admin()`; no direct browser writes are granted.
+`save_grading_reference` checks live authority and expected text version under the
+assignment lock; an identical last-save retry is idempotent. Other stale writes fail.
+
+`grading_example_documents` holds owner, assignment, immutable generated path, original
+filename, expected bytes, expected file version, pending/ready/abandoned state, one-hour
+expiry, current flag and cleanup lease/failure state. One current document per assignment
+is enforced by a partial unique index. Restrictive FKs retain reference and file history.
+PDF-only private `grading-examples` Storage is capped at 20,971,520 bytes. Exact-path
+INSERT requires the owning current admin and unexpired pending intent. SELECT requires
+a live admin and committed document. No browser UPDATE/DELETE policy is granted.
+
+Service-only `grading_example` sets the verified server actor and repeats live admin
+authorization; prepare/get/finalize/cancel/remove lock assignment → reference → document.
+Finalization requires server format inspection plus matching Storage metadata/size.
+File-version changes serialize first uploads/replacements/removal without modifying text
+versions. Stale finalization abandons its intent; repeated ready finalization returns the
+same document. Removal retains committed bytes. `cleanup_grading_examples` is service-only,
+abandons expired work before deletion through the Storage API, and leases/revisits paths
+for late-transfer cleanup. Committed and historical ready files are never cleanup targets.
+Members and Viewers cannot read these rows or files, even when enrolled in the assignment.
 
 - `id uuid primary key`
 - `week_id uuid not null references program_weeks(id) on delete restrict`

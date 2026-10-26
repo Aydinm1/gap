@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -12,6 +12,68 @@ workflow and session-authorization acceptance passed on 2026-10-20. Missing conf
 setup error, not mock data. Only unsaved drafts are session-local. Local P6 enables private
 file uploads. Local Google callback/admin access and analyst access were user-confirmed;
 hosted setup, second-lead provisioning, and extended Monday checks stay open in `todo.md`.
+
+## Review inbox simplification — local verification
+
+The review overview now reports current submissions received and awaiting review by
+week and assignment, not participant completion or cohort outcomes. All submissions
+excludes unsubmitted obligations; use Not submitted for those. Official/Test scopes
+and review/back/next URLs remain separate and intact. No migration is required for
+this UI change; the grading-reference work below has its own local migration.
+
+Local verification (2026-10-25): five week/activity and five test-participant entries
+pass with production-mode desktop/phone flows at 1280px/390px. Checks cover received
+versus awaiting counts, missing-work filters, test exclusion and scoped review navigation;
+screenshots were inspected. A phone-only test initially selected a hidden desktop row;
+the selector was corrected to target the visible participant and the suite passed.
+All 75 unit/docs tests, lint, typecheck and Webpack production build pass. These checks
+use exact disposable fixtures, not real participants. Hosted release remains separate.
+
+## Private grading references — local implementation
+
+Release update (2026-10-25): the user authorized the combined grading-reference/review
+inbox release. The hosted dry run listed only `202610250001_grading_references.sql`;
+that migration was applied without seeds, role or Vault changes. Code deployment and
+hosted smoke verification follow; the local acceptance below is not real admin acceptance.
+
+Apply `202610250001_grading_references.sql` locally before running the new admin routes;
+do not reset/seed. It creates admin-only reference/PDF metadata and the separate private
+PDF-only `grading-examples` bucket (20 MB), without changing assignment briefs or real
+work. Existing assignments start without reference rows. No hosted migration is implied.
+
+In Weeks → assignment → Grading reference, save the assignment first. Reference text has
+its own Save grading reference action; PDF upload/replace/remove saves immediately.
+Members and Viewers never see either. Reviewers use the Rubric/Example tabs and protected
+Download example PDF. A stale text save retains input: copy it before reloading to reconcile.
+After a page reload an unfinished browser file must be selected again. Cancel/retry
+controls retain recoverable failures; committed file history is never deleted in-place.
+
+Run `npm run test:grading` against local Supabase. For HTTP and desktop/phone checks, use
+`GAP_TEST_APP_URL=http://localhost:3004 npm run test:grading` with a production server
+and matching `.next/server/server-reference-manifest.json`. Tests create/remove exact
+fictional fixture IDs only. `npm run db:clean:examples -- --owner <fixture-auth-uuid>`
+limits cleanup to that owner; omit the owner only for deliberate local maintenance.
+Claims expire after five minutes and revisit even previously removed abandoned paths,
+so late transfers are retryable. No ready/current/historical committed PDF is targeted.
+Failures are recorded; scheduled hosted cleanup and malware scanning remain deferred.
+Implementation checks and acceptance are tracked in `todo.md`; release is separate.
+
+Local acceptance (2026-10-25): 74 unit/docs, seven grading-reference, five assignment-PDF,
+12 Storage and 12 program entries pass, including isolated production-mode 1280px/390px
+browser flows. Grading checks cover private text/PDF access at SQL, Storage and HTTP
+boundaries, concurrent/stale saves, rollback, retries/lost responses, transfer cancellation,
+confirmed PDF removal, retained historical bytes, scoped cleanup failure/retry/late files,
+unsaved navigation, tab comparison and assignment-specific review-next behavior. The
+final pass fixed a cancellation-message race by ignoring results from a canceled task.
+Screenshots were visually inspected. Lint, typecheck, generated types, Webpack build and
+diff checks pass. Stale development-manifest and mixed-build test attempts were rerun
+against a stable production server with `GAP_TEST_ACTION_MANIFEST` set to the production
+manifest; do not run a build while a test server is serving its output. Default local
+Turbopack was not rerun. Final typecheck also encountered byte-identical generated
+` 2.ts` cache duplicates; these were moved out of `.next/types` to a recoverable temp
+directory, leaving canonical generated files/source intact, and typecheck passed again.
+The upstream filesystem cause was not verified. Fixture cleanup was verified; no real analyst records, hosted
+migrations, commit/push, deployments or external configuration changed.
 
 ## Workshop attendance — release
 

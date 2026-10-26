@@ -8,10 +8,29 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-23
+**Last updated:** 2026-10-25
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
+
+The review inbox derives received/awaiting totals from current person × assignment
+queue rows, separately per official/test audience. All submissions omits rows without
+a submission; missing obligations remain available through Not submitted. The existing
+completion selector is retained for callers/tests, but completion/outcome metrics are
+not presented on the review overview. No data model or mutation contract changes.
+
+Private grading references use explicit admin page props, not the broad workspace or
+shared member Assignment contract. Admin edit/review routes load only the relevant
+assignment IDs through a user-scoped RLS loader in `src/lib/grading/`. Client editors
+save reference text independently; safe formatting reuses the instruction renderer and
+toolbar with distinct labels. Local feedback state is not remounted when switching tabs.
+Server Actions check live admin authorization; ordinary text saves use a user-scoped RPC.
+Only inspected PDF preparation/finalization/cancellation/removal use the privileged Storage
+client and narrow service-only RPC. File bytes transfer directly through authenticated
+resumable Storage, never through Server Actions. `/api/grading-examples/[id]/download`
+looks up the authorized committed row and streams a user-scoped attachment, no-store.
+The local cleanup command uses Storage API deletion after a service-only abandonment claim.
+See [ADR 0019](decisions/0019-private-assignment-grading-references.md).
 
 Viewer Explore has a dedicated user-scoped published-content loader and role-checked
 layout/data boundary, never the broad admin workspace or admin-preview loader. Portal

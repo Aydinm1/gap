@@ -18,3 +18,11 @@ test('empty participant/assignment denominators never imply 100 percent completi
  assert.equal(buildWeekQueue({...state,enrollments:[]},'cohort','week',now).rate,undefined);
  const empty=buildWeekQueue({...state,weeks:[{...state.weeks[0],assignments:[]}]},'cohort','week',now);assert.equal(empty.complete,0);assert.equal(empty.rate,undefined);assert.equal(empty.rows.length,0);
 });
+test('review counts represent current received submissions, not completion, people or historical attempts',()=>{
+ const s={...state,submissions:[attempt('a1','a','one','submitted'),attempt('a2','a','two','revision_requested'),attempt('b1','b','one'),attempt('old','a','one','submitted',false),attempt('t1','test','one','submitted')]};
+ const result=buildWeekQueue(s,'cohort','week',now);
+ assert.equal(result.received,3);assert.equal(result.awaiting,1);assert.equal(result.complete,0);
+ assert.deepEqual(result.assignments.map(a=>[a.received,a.awaiting]),[[2,1],[1,0]]);
+ const testQueue=buildWeekQueue(s,'cohort','week',now,'test');assert.equal(testQueue.received,1);assert.equal(testQueue.awaiting,1);
+ const empty=buildWeekQueue({...state,enrollments:[]},'cohort','week',now);assert.equal(empty.received,0);assert.equal(empty.awaiting,0);
+});
