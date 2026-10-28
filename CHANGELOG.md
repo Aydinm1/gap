@@ -5,6 +5,15 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Simplified Teams into a selector-header panel with a read-only assigned roster,
+  explicit membership editing, secondary rename/delete actions and numbered Add team
+  suggestions. Existing teams and locks are preserved; naming conflicts require a new
+  confirmation. Review counts now share compact Montserrat body typography.
+
+- Added a reusable GAP release skill and compact operations runbook, separating
+  code-only deployments from conditional migration/backfill checks and avoiding
+  duplicate Git-triggered/CLI deployments. No hosted changes are part of this update.
+
 - Added local admin-assigned cohort teams and opt-in team assignments with one shared
   submission/review, teammate feedback/history/private files and per-person completion
   derivation. Stable targets, request receipts and serialized version checks protect

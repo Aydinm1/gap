@@ -27,6 +27,7 @@ Before making any change:
 | [`architecture.md`](architecture.md) | Routes, boundaries, auth/data flow, mutation patterns | Exact database policy definitions |
 | [`data-model.md`](data-model.md) | Tables, relationships, statuses, RLS, Storage | Page composition and visual styling |
 | [`operations.md`](operations.md) | Setup, environment, external configuration, deployment | Product behavior |
+| [`release.md`](release.md) | Routine release procedure, conditional migration checks (operations companion) | New release authorization or environment setup |
 | [`ideas.md`](ideas.md) | Unapproved possibilities and follow-up questions | Approved requirements |
 | [`decisions/`](decisions/README.md) | Historical durable decisions and rationale | Current behavior when superseded |
 | [`../todo.md`](../todo.md) | Work order, progress, validation gates | Canonical product or technical rules |

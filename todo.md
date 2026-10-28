@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-27
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -9,6 +9,13 @@ This file tracks approved work. Product and technical rules live in `docs/`; com
 requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
+
+- [x] Polish review counts and Teams: selector-header/read-only roster, explicit editing,
+  secondary rename/delete and numbered creation (2026-10-27). Eight team and five
+  week/activity entries pass without skips, including 1280px/390px flows, naming conflicts,
+  selection retention, canceled dirty switches, stale saves, locks and review navigation.
+  Screenshots inspected; 79 unit/docs, lint, typecheck, generated types, Webpack build
+  and diff checks pass. Exact fixtures cleaned; no migration, commit or release performed.
 
 - [x] Persistent local Supabase program, real Google sign-in, and a real approved admin
   are operational; the user completed a real Monday enrollment import successfully.
@@ -30,6 +37,11 @@ requires implementation, validation, documentation, and changelog agreement.
   complete; this is not hosted-deployment acceptance. Attendance local work is tracked below.
 
 ## Phase 0 — Documentation and repository foundation
+
+- [x] Capture the repeat release workflow in `docs/release.md` and a reusable
+  `gap-release` skill, installed in the local Codex skills directory. Both skill copies
+  validate; all 77 unit/documentation tests and diff checks pass (2026-10-25).
+  This documentation task does not authorize another release.
 
 - [x] Replace the social-link graphic with a square logo-only thumbnail; visually inspect
   the asset and verify public image/login metadata, 71 unit/docs tests, lint, typecheck,

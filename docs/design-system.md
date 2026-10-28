@@ -1,13 +1,17 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-27
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
 
-Teams reuse Members' restrained form/card language. Admin-only setup shows unassigned
-participants, team name/scope and a labeled member checkbox list with explicit saves.
+Teams use one restrained management panel with a labeled team selector in its header,
+member count/scope and lock explanation below. The default view lists assigned participants;
+Edit members reveals the checkbox roster with assigned participants first and explicit
+Save/Cancel. Rename and confirmed Delete live behind Team actions. Add team opens compact
+numbered creation controls rather than a permanent name field. Admin-only setup shows unassigned
+participants without turning them into the default roster.
 Locked membership is explained, not silently disabled. Member team assignments show
 one compact team/name list and one-submission guidance above the existing workspace.
 Review rows use team names and expandable teammate lists; queue counts stay submission-
@@ -235,6 +239,9 @@ descriptive filenames.
 Admin overview is a week-first review inbox: one restrained bordered panel, week/scope
 header, compact received/awaiting submission counts and ordered assignment counts,
 then an integrated queue toolbar. Remove repeated week descriptions and completion heroes.
+Summary counts use Montserrat at body size (14px), not a separate oversized display line.
+Numbers inherit their labels' font/weight; awaiting-review phrases and filter labels use
+semibold rather than mixing large bold and light text. Allow wrapping on phones.
 Avoid disconnected assignment dropdowns, floating search and four competing summary
 cards. Assignment drill-down returns to All assignments. Keep visible search labels,
 44px actions and per-person/assignment cards on phones. Cohort outcomes/advancement

@@ -1,6 +1,6 @@
 <!-- BEGIN:nextjs-agent-rules -->
 
-# This is NOT the Next.js you know
+## This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
@@ -55,6 +55,13 @@ remains, stop and resolve it explicitly rather than silently choosing a new rule
   changes.
 - Do not claim that Supabase, Google Cloud, or Vercel configuration is complete unless
   it was actually verified. Record manual steps precisely.
+
+## Routine release requests
+
+For GAP commit/push/deploy requests, use `gap-release` when available and read
+`docs/release.md`. Its conditional migration path avoids repeatedly loading historical
+release notes or inventorying production data for code-only changes. Release instructions
+do not grant permission to migrate, push or deploy beyond the user's current request.
 
 ## Definition of done
 

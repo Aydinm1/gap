@@ -13,7 +13,23 @@ setup error, not mock data. Only unsaved drafts are session-local. Local P6 enab
 file uploads. Local Google callback/admin access and analyst access were user-confirmed;
 hosted setup, second-lead provisioning, and extended Monday checks stay open in `todo.md`.
 
+## Routine releases
+
+Use the [GAP release runbook](release.md) for repeat commit/push, conditional hosted
+migration and Vercel verification. It records known targets and the lighter code-only
+path; do not repeat backfill/data-preservation inventories when no data change is pending.
+Environment setup below is separate from routine release execution.
+
 ## Review inbox simplification — local verification
+
+UI polish (2026-10-27): Teams now has a selector-header/read-only roster, explicit
+member editing, secondary rename/delete and numbered creation. Review counts use
+14px Montserrat with restrained semibold emphasis. Local desktop/phone checks cover
+creation conflicts, selection after creation/saves, canceled dirty switches, stale-save
+input retention, rename, confirmed deletion, locks and review navigation. Eight team
+and five week/activity entries pass without skips; 79 unit/docs, lint, typecheck,
+generated-type consistency, Webpack build and diff checks pass. Screenshots are inspected
+at 1280px/390px; exact fixtures are cleaned. No schema or hosted changes, commit or deploy.
 
 ### Team submission implementation checkpoint (local only)
 

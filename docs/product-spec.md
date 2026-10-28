@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-27
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -191,6 +191,14 @@ to real content requires approval of the full brief, not an automatic migration.
 Admins create cohort teams and assign enrolled participants in Members → Teams. Members
 cannot choose, join, leave, create or edit teams. Each cohort enrollment belongs to at
 most one team; official/test teams cannot mix. Teams are reusable across assignments.
+The Teams panel defaults to the first official team (or first test team when no official
+team exists). Its header selects the team; membership is read-only until Edit members.
+Renaming is a secondary explicit action. Add team suggests one number above the highest
+existing numbered team in the cohort, across official/test scopes, starting at Team 1.
+Existing names are preserved; no bulk creation or automatic renaming occurs. A conflicting
+name refreshes the suggestion and requires confirmation again. Successful creation selects
+the new team; saves retain selection. Membership Save/Cancel, navigation warnings and
+existing submission locks remain enforced.
 Individual is the default assignment submission mode. Team mode requires one shared
 submission and one review, visible with history/feedback to authorized teammates. Any
 teammate can submit/replace actionable work; record who submitted. No designated captain.

@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-27
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -131,6 +131,10 @@ copying rows or inventing an individual owner. Admin rows use owner keys (team o
 enrollment); team names and member disclosure replace the individual queue cell.
 
 `saveTeam` repeats admin authorization/runtime validation and calls user-scoped manage_team.
+Its additive success ID selects newly created teams; a safe name-conflict code lets the
+client refresh its numbered suggestion without automatically retrying creation. Team
+selection is local to the cohort panel, ordered by name with official teams first;
+successful mutations refresh the workspace while preserving that selection.
 Text/link actions preserve their existing interfaces with an optional retry request ID,
 calling submit_response; editor retries retain their ID for the same payload/base version.
 File operations retain prepare/finalize/cancel and protected submission-ID download routes.
