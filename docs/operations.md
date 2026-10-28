@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-28
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -14,6 +14,32 @@ file uploads. Local Google callback/admin access and analyst access were user-co
 hosted setup, second-lead provisioning, and extended Monday checks stay open in `todo.md`.
 
 ## Routine releases
+
+Manual completion (local implementation): apply `202610280001` locally, never reset.
+Admin → Review queue → choose Week 1 and its specific Individual assignment → Not
+submitted → Mark complete for each participant who should receive credit. Confirm the
+person/assignment. Complete → Undo completion rescinds only that credit. Existing
+submissions still use review; next week's Team assignments are unchanged. No actual
+participant credits are seeded or automatically applied. Run `npm run test:completion`
+with a stable local production server in `GAP_TEST_APP_URL` for desktop/phone and HTTP
+checks; omitted app checks are pending, not passes.
+
+Authorized hosted follow-up (2026-10-28): migration `202610280001` applied after a
+single-migration dry run. Receipt, enabled RLS, denied direct client writes and anon
+RPC execution, and authenticated RPC execution verified. Credit ledger remains empty;
+real completion grants require explicit admin action. Code release follows this migration.
+
+Local verification (2026-10-28): seven completion entries pass without skips, including
+desktop/phone admin grant/cancel/reload/undo, member Complete/reload and reopened input
+after undo. RLS/HTTP tests deny unauthorized callers; concurrency, audit receipts,
+existing-work preservation and prepared-file finalization restrictions pass. The 12
+program/session, 12 Storage and eight team regressions pass with their browser checks;
+80 unit/docs, lint, typecheck, generated types, Webpack build and diff checks pass.
+Screenshots were inspected and exact fixture records/objects cleaned up. Initial parallel
+program/team runs timed out; separate reruns pass. Duplicate generated `.next/dev/types`
+artifacts were moved to `/private/tmp/gap-generated-types.DjgUgs` before typechecking,
+without editing source or changing project dependencies. No hosted data or configuration
+changed. Real Google acceptance remains separate from these fixture sessions.
 
 Use the [GAP release runbook](release.md) for repeat commit/push, conditional hosted
 migration and Vercel verification. It records known targets and the lighter code-only

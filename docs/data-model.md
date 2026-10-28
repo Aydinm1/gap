@@ -1,8 +1,32 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-28
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
+
+## Manual assignment completion
+
+`assignment_completions` is a separate, audited credit ledger: UUID receipt,
+assignment/enrollment FKs, database `granted_at`/`granted_by` person and paired nullable
+`revoked_at`/`revoked_by`. A partial unique index permits one unrevoked receipt per
+assignment/enrollment. FKs retain assignment/enrollment history. Only live admins can
+read all receipts; eligible active members read their own current published credit via
+RLS. Browser table writes are denied, including for admins.
+
+`set_assignment_completion(action, assignment, enrollment, credit?)` is a user-scoped
+admin RPC. It takes the provisioning/submission gate before checking authority and
+locking records. Grants validate same cohort, published Individual assignment, active
+cohort, enrolled participation and active non-Viewer roster access. Existing current
+attempts require normal review. Grant/revoke retries are idempotent; revoke identifies
+the exact receipt and never changes a later grant. Actor/time come from verified
+identity/database time, not parameters. No cohort outcome or submission mutation occurs.
+
+Submission target resolution and the insertion trigger block text/link/file commits
+while current credit exists, including previously prepared uploads. The mode-change
+guard preserves credit history. Member loaders fetch only their chosen enrollment's
+current credit, scoped again to its published assignments. Preview/Explore contain no
+real credit. Credit contributes to completion, not actual received/awaiting counts.
+See [ADR 0021](decisions/0021-manual-assignment-completion.md).
 
 ## Conventions
 

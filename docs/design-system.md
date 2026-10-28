@@ -1,10 +1,16 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
+
+Manual completion stays in existing review rows/cards: a quiet 44px Mark complete action
+for missing Individual work, confirmed with the person and assignment. Complete rows
+show “Manually completed,” its Pacific timestamp and confirmed Undo completion. Do not
+add a score, synthetic attachment or new hero card. Members see the existing Complete
+badge with a short GAP-lead credit notice instead of a submission button.
 
 Teams use one restrained management panel with a labeled team selector in its header,
 member count/scope and lock explanation below. The default view lists assigned participants;
@@ -115,7 +121,7 @@ descriptive filenames.
   and PDF panel. Keep a visible Add assignment action and the common week save bar.
   Members see compact assignment cards, followed by shared materials. Each card has
   title, deadline, optional summary, status icon/text and View assignment. Module rows
-  show approved counts such as “1 of 3 assignments complete.”
+  show earned completion counts (approved work or explicit admin credit), such as “1 of 3 assignments complete.”
   Queue dropdown labels include week number and assignment title.
 
 - **Admin member preview:** expose “Preview as member” beside the cohort switcher.

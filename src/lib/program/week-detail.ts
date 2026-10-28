@@ -13,6 +13,7 @@ import {
 } from "./state.ts";
 
 export type AssignmentDetail = {
+    completionCredit?: { id: string; grantedAt: string };
     id: string;
     title: string;
     instructions: string;
@@ -79,6 +80,7 @@ export function buildWeekDetail({
 
   return {
       id: assignment.id,
+      completionCredit: assignment.completionCredit,
       submissionMode: assignment.submissionMode,
       team: assignment.team,
       title: assignment.title,

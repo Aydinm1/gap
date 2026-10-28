@@ -31,6 +31,7 @@ export function deriveAssignmentState(
   submission: SubmissionAttempt | undefined,
   now: Date,
 ): AssignmentDisplayState {
+  if (assignment.completionCredit) return "completed";
   if (submission?.status === "revision_requested") return "revision_requested";
   if (submission?.status === "completed") return "completed";
   if (submission?.status === "submitted") return "submitted";
@@ -47,7 +48,7 @@ export function isModuleComplete(submission: SubmissionAttempt | undefined) {
 
 export function countCompletedModules(submissions: readonly SubmissionAttempt[], weeks: readonly ProgramWeek[]) {
   const current = new Map(submissions.filter((item) => item.isCurrent).map((item) => [item.assignmentId, item]));
-  return weeks.filter((week) => isPublishedWeek(week) && assignmentsForWeek(week).length > 0 && assignmentsForWeek(week).every((item) => isModuleComplete(current.get(item.id)))).length;
+  return weeks.filter((week) => isPublishedWeek(week) && assignmentsForWeek(week).length > 0 && assignmentsForWeek(week).every((item) => item.completionCredit || isModuleComplete(current.get(item.id)))).length;
 }
 
 export function findCurrentActionableWeek(
@@ -57,7 +58,7 @@ export function findCurrentActionableWeek(
   return weeks.toSorted((a, b) => a.weekNumber - b.weekNumber).find((week): week is PublishedWeek => {
     if (!isPublishedWeek(week)) return false;
     const assignments = assignmentsForWeek(week);
-    return !assignments.length || assignments.some((item) => !isModuleComplete(submissionsByAssignment.get(item.id)));
+    return !assignments.length || assignments.some((item) => !item.completionCredit && !isModuleComplete(submissionsByAssignment.get(item.id)));
   });
 }
 
@@ -71,7 +72,7 @@ export function findNearestActionableAssignment(
     if (!isPublishedWeek(week)) continue;
     for (const assignment of assignmentsForWeek(week)) {
     const submission = submissionsByAssignment.get(assignment.id);
-    if (submission?.status === "completed" || submission?.status === "submitted") continue;
+    if (assignment.completionCredit || submission?.status === "completed" || submission?.status === "submitted") continue;
     if (!nearest || assignment.dueAt < nearest.dueAt) nearest = assignment;
     }
   }

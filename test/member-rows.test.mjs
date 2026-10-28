@@ -9,6 +9,7 @@ function database(tables, failTable) {
     const query={
       select(){return query;},order(){return query;},
       eq(key,value){filters.push([key,[value]]);return query;},
+      is(key,value){filters.push([key,[value]]);return query;},
       in(key,values){filters.push([key,values]);return query;},
       async range(from,to){return result(from,to);},
       async maybeSingle(){const value=result();return {...value,data:value.data?.[0]??null};},
@@ -28,6 +29,7 @@ test('member loader scopes database queries even when the client has admin visib
     program_weeks:[{id:'published',cohort_id:'current',published:true},{id:'draft',cohort_id:'current',published:false},{id:'foreign',cohort_id:'foreign',published:true}],
     resources:[{id:'own',week_id:'published'},{id:'hidden',week_id:'draft'}],
     assignments:[{id:'own',week_id:'published'},{id:'hidden',week_id:'draft'}],
+    assignment_completions:[{id:'own-credit',assignment_id:'own',enrollment_id:'own',revoked_at:null},{id:'foreign-credit',assignment_id:'own',enrollment_id:'foreign',revoked_at:null},{id:'hidden-credit',assignment_id:'hidden',enrollment_id:'own',revoked_at:null},{id:'revoked-credit',assignment_id:'own',enrollment_id:'own',revoked_at:'2026-10-01'}],
     submissions:[...Array.from({length:1001},(_,id)=>({id,enrollment_id:'own'})),{id:'foreign',enrollment_id:'foreign'}],
   });
   const rows=await readMemberRows(db,'me');
@@ -36,6 +38,7 @@ test('member loader scopes database queries even when the client has admin visib
   assert.deepEqual(rows.weeks.map(w=>w.id),['published']);
   assert.deepEqual(rows.resources.map(w=>w.id),['own']);
   assert.deepEqual(rows.assignments.map(w=>w.id),['own']);
+  assert.deepEqual(rows.completionCredits.map(credit=>credit.id),['own-credit']);
   assert.ok(db.calls.filter(c=>c.table).every(c=>c.filters.length>0));
   assert.ok(!db.calls.some(c=>['people','approved_members','profiles'].includes(c.table)));
 });

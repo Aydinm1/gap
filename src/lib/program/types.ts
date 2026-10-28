@@ -114,6 +114,8 @@ export type SubmissionAttempt = {
 };
 
 export type Assignment = {
+  /** Member-scoped manual credit; never a fabricated submission. */
+  completionCredit?: { id: string; grantedAt: string };
   id: string;
   weekNumber: number;
   title: string;
@@ -129,6 +131,11 @@ export type Assignment = {
 export function submissionBelongsTo(attempt: SubmissionAttempt, enrollmentId: string) {
   return attempt.enrollmentId === enrollmentId || !!attempt.teamId && !!attempt.participantEnrollmentIds?.includes(enrollmentId);
 }
+
+export type AssignmentCompletion = {
+  id: string; assignmentId: string; enrollmentId: string;
+  grantedAt: string; grantedBy: string;
+};
 
 export type WeekCatalogItem = {
   id: string;

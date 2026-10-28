@@ -49,6 +49,7 @@ export default async function SubmissionReviewPage({ params, searchParams }: Sub
             assignmentId={assignment.id}
             enrollmentId={detail.enrollmentId}
             initialAttempts={attempts}
+            completionCredit={assignment.completionCredit}
           />
         </div>
       </PageContainer>

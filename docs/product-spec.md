@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -139,8 +139,8 @@ module row. An open workshop check-in is a secondary compact action beside the g
 (below it on phones), not a full-width banner competing with Continue. Assignment details, deadlines,
 and feedback summaries belong on the week and submission pages, not the dashboard.
 Awaiting-review work remains visible in module status but is not a next-step priority.
-Only approved (`completed`) assignments count toward completion. A week is complete
-when it has at least one assignment and all its assignments are approved. Show partial
+Approved (`completed`) assignments or explicit admin completion credit count toward completion. A week is complete
+when it has at least one assignment and all its assignments are approved or credited. Show partial
 progress such as “1 of 3 assignments complete”; a no-assignment week has no automatic
 completion event. Draft assignments remain hidden with their draft week.
 
@@ -185,6 +185,26 @@ See [proposed Notion SWOT formatting](examples/notion-swot-assignment.md); apply
 to real content requires approval of the full brief, not an automatic migration.
 
 ### Submission rules
+
+### Manual completion for legacy individual assignments
+
+For early assignments where one person submitted on behalf of teammates before team
+setup, admins may grant completion to an enrolled participant with no current submission.
+In Review queue → choose the assignment → Not submitted, use Mark complete and confirm
+the named person/assignment. Complete shows the manual timestamp and confirmed Undo completion.
+Credit applies only to that assignment/enrollment, not the entire week or cohort. A week
+completes only when all its assignments are approved or explicitly credited.
+
+Members see Complete, the grant timestamp and “Your GAP lead marked this assignment
+complete. No submission is required.” Dashboard progress/continuation and missing-work
+filters honor credit. Received/awaiting totals still count actual submissions only.
+No attempt, file, feedback or teammate-access grant is created. Existing work must be
+reviewed normally. Granting is limited to published Individual assignments in active
+cohorts and currently enrolled, active non-Viewer roster identities. Test credit remains
+separate from official counts. Team-mode work continues through normal shared review.
+Undo removes only the credit and restores the ordinary unsubmitted state. Both grant
+and revoke are audited; existing work/history is never rewritten. Submitted work racing
+with a grant wins or fails transactionally, and uploads cannot commit after a grant.
 
 ### Admin-assigned teams
 

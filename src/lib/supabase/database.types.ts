@@ -313,6 +313,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      resolve_submission_target_before_credit: {
+        Args: { p_assignment: string }
+        Returns: Database["public"]["Tables"]["submission_targets"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "submission_targets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       save_week_before_teams: { Args: { p_data: Json }; Returns: string }
       submission_gate: { Args: never; Returns: undefined }
       team_file_upload_impl: {
@@ -370,6 +380,65 @@ export type Database = {
             foreignKeyName: "approved_members_person_id_fkey"
             columns: ["person_id"]
             isOneToOne: true
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assignment_completions: {
+        Row: {
+          assignment_id: string
+          enrollment_id: string
+          granted_at: string
+          granted_by: string
+          id: string
+          revoked_at: string | null
+          revoked_by: string | null
+        }
+        Insert: {
+          assignment_id: string
+          enrollment_id: string
+          granted_at?: string
+          granted_by: string
+          id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+        }
+        Update: {
+          assignment_id?: string
+          enrollment_id?: string
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_completions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignment_completions_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "cohort_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignment_completions_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignment_completions_revoked_by_fkey"
+            columns: ["revoked_by"]
+            isOneToOne: false
             referencedRelation: "people"
             referencedColumns: ["id"]
           },
@@ -1237,6 +1306,15 @@ export type Database = {
         }
       }
       save_program_week: { Args: { p_data: Json }; Returns: string }
+      set_assignment_completion: {
+        Args: {
+          p_action: string
+          p_assignment: string
+          p_credit?: string
+          p_enrollment: string
+        }
+        Returns: string
+      }
       set_test_participation: {
         Args: { p_id: string; p_is_test: boolean }
         Returns: string

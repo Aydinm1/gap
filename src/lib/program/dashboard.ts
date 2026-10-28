@@ -106,7 +106,7 @@ export function buildProgramDashboard({
       }
 
       const assignments = assignmentsForWeek(week);
-      const completedAssignments = assignments.filter((item) => submissionsByAssignment.get(item.id)?.status === "completed").length;
+      const completedAssignments = assignments.filter((item) => item.completionCredit || submissionsByAssignment.get(item.id)?.status === "completed").length;
       const complete = assignments.length > 0 && completedAssignments === assignments.length;
       const states = assignments.map((item) => deriveAssignmentState(item, submissionsByAssignment.get(item.id), now));
       const assignmentState = complete ? "completed" : (["revision_requested", "overdue", "due_soon", "upcoming", "submitted"] as const).find((state) => states.includes(state));

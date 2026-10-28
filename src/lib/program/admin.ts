@@ -9,6 +9,7 @@ import type {
   SubmissionAttempt,
   WeekPublicationState,
   CohortTeam,
+  AssignmentCompletion,
 } from "./types.ts";
 import { deriveAssignmentState } from "./state.ts";
 import { assignmentsForWeek } from "./types.ts";
@@ -34,6 +35,7 @@ export type AdminWorkspaceState = {
   weeks: readonly AdminWeek[];
   submissions: readonly SubmissionAttempt[];
   teams?: readonly CohortTeam[];
+  completionCredits?: readonly AssignmentCompletion[];
 };
 
 export type AdminQueueFilter = "awaiting_review" | "revision_requested" | "missing" | "complete" | "all";
@@ -104,7 +106,7 @@ export function filterSubmissionRows(rows: readonly AdminSubmissionRow[], filter
     if (filter === "awaiting_review") return row.state === "submitted";
     if (filter === "revision_requested") return row.state === "revision_requested";
     if (filter === "complete") return row.state === "completed";
-    return !row.submission;
+    return !row.submission && !row.completionCredit;
   });
 }
 
@@ -112,7 +114,7 @@ export function getAdminQueueCounts(rows: readonly AdminSubmissionRow[]) {
   return {
     awaiting_review: rows.filter((row) => row.state === "submitted").length,
     revision_requested: rows.filter((row) => row.state === "revision_requested").length,
-    missing: rows.filter((row) => !row.submission).length,
+    missing: rows.filter((row) => !row.submission && !row.completionCredit).length,
     complete: rows.filter((row) => row.state === "completed").length,
     all: rows.length,
   };
@@ -181,6 +183,7 @@ export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now, 
   return owners.map(({enrollment,team,memberEnrollmentIds}) => {
     const person = state.people.find((item) => item.id === enrollment.personId);
     const submission = state.submissions.find((item) => item.assignmentId === assignment.id && (team?item.teamId===team.id:item.enrollmentId === enrollment.id) && item.isCurrent);
+    const completionCredit = !team ? state.completionCredits?.find(credit => credit.assignmentId === assignment.id && credit.enrollmentId === enrollment.id) : undefined;
     return {
       team,ownerKey:team?.id??enrollment.id,memberEnrollmentIds,
       members:memberEnrollmentIds.flatMap(id=>{const e=enrollments.find(e=>e.id===id);const p=state.people.find(p=>p.id===e?.personId);return p?[p]:[];}),
@@ -188,7 +191,8 @@ export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now, 
       assignment,
       person,
       submission,
-      state: deriveAssignmentState(assignment, submission, now),
+      completionCredit,
+      state: deriveAssignmentState({ ...assignment, completionCredit }, submission, now),
     };
   }).toSorted((left, right) => {
     const priority = { submitted: 0, revision_requested: 1, overdue: 2, due_soon: 3, upcoming: 4, completed: 5 } as const;

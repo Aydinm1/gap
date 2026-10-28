@@ -28,8 +28,10 @@ export const readWorkspace = cache(async (admin = true) => {
     readPages((from,to)=>db.from('cohort_teams').select('*').order('id').range(from,to)),
     readPages((from,to)=>db.from('team_memberships').select('*').order('enrollment_id').range(from,to)),
   ]);
+  const completionCredits = await readPages((from,to)=>db.from('assignment_completions').select('*').is('revoked_at',null).order('id').range(from,to));
   const teams: CohortTeam[] = teamRows.data.map(t=>({id:t.id,cohortId:t.cohort_id,name:t.name,isTest:t.is_test,version:t.version,locked:t.locked,enrollmentIds:memberships.data.filter(m=>m.team_id===t.id).map(m=>m.enrollment_id)}));
   const state: AdminWorkspaceState = {
+    completionCredits: completionCredits.data.map(r=>({id:r.id,assignmentId:r.assignment_id,enrollmentId:r.enrollment_id,grantedAt:r.granted_at,grantedBy:r.granted_by})),
     teams,
     people: (people.data ?? []).map(r => ({ id:r.id,email:r.email,fullName:r.full_name })),
     approvedMembers: (roster.data ?? []).map(r => ({ id:r.id,personId:r.person_id,email:r.email,fullName:r.full_name,role:r.role,active:r.active,lastActiveAt:activity.data.find(a=>a.person_id===r.person_id)?.last_active_at })),
@@ -63,7 +65,8 @@ export const readMember = cache(async () => {
     const full = rows.weeks.find(w => w.id===r.id);
     const assignments = rows.assignments.filter(a => a.week_id===r.id).map(a => {
       const document = rows.documents.find(d => d.assignment_id === a.id);
-      return { id:a.id,submissionMode:a.submission_mode as 'individual'|'team',team:a.submission_mode==='team'?team:undefined,weekNumber:r.week_number,title:a.title,instructions:a.instructions,summary:a.summary ?? undefined,instructionsFormat:a.instructions_format as 'plain' | 'markdown',dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
+      const credit = rows.completionCredits.find(credit=>credit.assignment_id===a.id);
+      return { id:a.id,completionCredit:credit?{id:credit.id,grantedAt:credit.granted_at}:undefined,submissionMode:a.submission_mode as 'individual'|'team',team:a.submission_mode==='team'?team:undefined,weekNumber:r.week_number,title:a.title,instructions:a.instructions,summary:a.summary ?? undefined,instructionsFormat:a.instructions_format as 'plain' | 'markdown',dueAt:a.due_at,document:document ? { id:document.id,name:document.original_filename } : undefined };
     });
     if (r.published && full) return { id:r.id,cohortId:r.cohort_id,weekNumber:r.week_number,title:full.title,description:full.description,publicationState:'published',slidesUrl:full.slides_url ?? undefined,
       resources:rows.resources.filter(a => a.week_id===r.id).map(a => ({ id:a.id,title:a.title,description:a.description ?? undefined,type:a.resource_type as Resource['type'],url:a.url,sortOrder:a.sort_order })),

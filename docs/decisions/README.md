@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+- [ADR 0021: Manual assignment completion](0021-manual-assignment-completion.md)
+
 - [ADR 0020: Admin-assigned teams and shared submission targets](0020-admin-assigned-team-submissions.md)
 
 **Status:** Active

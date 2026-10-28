@@ -22,7 +22,7 @@ export function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHr
       <section aria-label="Assignment instructions" className="py-9 sm:py-11"><AssignmentBrief instructions={assignment.instructions} format={assignment.instructionsFormat} /></section>
       {assignment.submissionMode==='team' ? <section aria-label="Your team" className="mb-6 rounded-card border border-border bg-surface-subtle p-5"><h2 className="font-bold">{assignment.team?.name ?? 'Team assignment'}</h2><p className="mt-2 text-sm text-ink-soft">One submission for your team. Any teammate can submit or replace work before it is complete.</p>{assignment.team ? <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">{assignment.team.members.map(m=><li key={m.enrollmentId}>{m.name}</li>)}</ul> : !preview&&!browse ? <p className="mt-3 text-sm font-bold">Ask your GAP lead to assign your team before submitting.</p>:null}</section>:null}
       <Card className="p-6 sm:p-8">{browse ? <PracticeSubmission key={assignment.id} assignmentId={assignment.id} /> : assignment.submissionMode==='team'&&!assignment.team&&!preview ? <p className="text-sm text-ink-soft">Submission opens after your admin assigns your team.</p> : <SubmissionWorkspace assignmentId={assignment.id} enrollmentId={enrollmentId}
-        unsubmittedState={assignment.unsubmittedState} initialAttempts={assignment.attempts} readOnly={preview}
+        unsubmittedState={assignment.unsubmittedState} initialAttempts={assignment.attempts} readOnly={preview} completionCredit={assignment.completionCredit}
         reviewPath={`/week/${weekNumber}/submission?assignment=${encodeURIComponent(assignment.id)}`} />}</Card>
     </div>
   </PageContainer></main>;

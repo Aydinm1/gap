@@ -59,10 +59,12 @@ export function SubmissionReviewWorkspace({
   assignmentId,
   enrollmentId,
   initialAttempts,
+  completionCredit,
 }: {
   assignmentId: string;
   enrollmentId: string;
   initialAttempts: readonly SubmissionAttempt[];
+  completionCredit?: {id:string;grantedAt:string};
 }) {
   const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
@@ -71,6 +73,7 @@ export function SubmissionReviewWorkspace({
   const [announcement, setAnnouncement] = useState("");
   const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && submissionBelongsTo(attempt,enrollmentId));
 
+  if (completionCredit) return <StateMessage title="Assignment complete">Your GAP lead marked this assignment complete. No submission is required.</StateMessage>;
   if (!current) return <StateMessage title="No submission yet">Return to the week to submit your work.</StateMessage>;
 
   const previous = attempts.filter((attempt) => !attempt.isCurrent && attempt.assignmentId === assignmentId && submissionBelongsTo(attempt,enrollmentId)).toSorted((a, b) => b.submittedAt.localeCompare(a.submittedAt));

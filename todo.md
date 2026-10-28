@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -9,6 +9,17 @@ This file tracks approved work. Product and technical rules live in `docs/`; com
 requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
+
+- [x] Add auditable manual completion/undo for legacy missing Individual assignments;
+  credit updates progress and missing/complete filters without fabricated attempts or
+  shared files/feedback (2026-10-28). Seven completion, 12 program, 12 Storage and eight
+  team entries pass without skips, including 1280px/390px grant/reload/undo, permissions,
+  concurrency and pending-upload checks. Screenshots inspected; 80 unit/docs, lint,
+  typecheck, generated types, Webpack build and diff checks pass; exact fixtures cleaned.
+- [x] Apply authorized hosted migration `202610280001`; receipt, RLS and restricted
+  write/RPC grants verified (2026-10-28). New credit ledger is empty.
+- [ ] Grant real Week 1 completion credits explicitly and verify member acceptance.
+  No real participant's completion has been changed locally or hosted.
 
 - [x] Polish review counts and Teams: selector-header/read-only roster, explicit editing,
   secondary rename/delete and numbered creation (2026-10-27). Eight team and five

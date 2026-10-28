@@ -5,6 +5,14 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added local admin Mark complete/Undo completion for legacy Individual assignments
+  without submissions. Separate audited credit clears missing-work warnings and counts
+  toward progress without inventing attempts or sharing another participant's work.
+  Existing review history and next-week Team submissions remain unchanged.
+  Local grant/undo desktop/phone and authorization/race checks pass, alongside program,
+  upload and team regressions. Authorized hosted migration `202610280001` is verified;
+  no real completion credits were automatically granted.
+
 - Simplified Teams into a selector-header panel with a read-only assigned roster,
   explicit membership editing, secondary rename/delete actions and numbered Add team
   suggestions. Existing teams and locks are preserved; naming conflicts require a new

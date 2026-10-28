@@ -10,6 +10,7 @@ import { SubmissionEditor } from "@/components/program/submission-editor";
 import { SubmittedWorkRecord } from "@/components/program/submitted-work-record";
 import type { AssignmentDisplayState, SubmissionAttempt, SubmissionPayload } from "@/lib/program/types";
 import { submissionBelongsTo } from '@/lib/program/types';
+import { formatSubmissionTime } from '@/lib/program/state';
 
 
 
@@ -31,6 +32,7 @@ export function SubmissionWorkspace({
   readOnly = false,
   initialAttempts,
   reviewPath,
+  completionCredit,
 }: {
   assignmentId: string;
   enrollmentId: string;
@@ -40,6 +42,7 @@ export function SubmissionWorkspace({
   readOnly?: boolean;
   initialAttempts: readonly SubmissionAttempt[];
   reviewPath: string;
+  completionCredit?: {id:string;grantedAt:string};
 }) {
   const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
@@ -47,6 +50,13 @@ export function SubmissionWorkspace({
   const [announcement, setAnnouncement] = useState("");
   const current = attempts.find((attempt) => attempt.isCurrent && attempt.assignmentId === assignmentId && submissionBelongsTo(attempt,enrollmentId));
   const presentation = statusPresentation[current?.status ?? unsubmittedState];
+
+  if (completionCredit && !readOnly) return <section aria-label="Submission">
+    <h2 className="text-xl font-bold">Your submission</h2>
+    <div className="mt-3"><Badge tone="success">Complete</Badge></div>
+    <p className="mt-4 text-sm leading-6 text-ink-soft">Your GAP lead marked this assignment complete. No submission is required.</p>
+    <p className="mt-2 text-xs text-ink-soft">{formatSubmissionTime(completionCredit.grantedAt)}</p>
+  </section>;
 
   async function submit(payload: SubmissionPayload, requestId?: string) {
     if (readOnly) throw new Error('Preview only — nothing will be submitted.');

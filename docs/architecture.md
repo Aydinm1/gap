@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -120,6 +120,15 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 7. Database and Storage RLS enforce the same policy independently.
 
 ## Data access and mutations
+
+Manual completion uses an admin Server Action with runtime UUID/action validation and
+the user-scoped completion RPC. Completion credit is a separate read model, not an
+attempt. Admin queues join active credit by assignment/enrollment; member reads scope
+credit to the chosen enrollment and published assignments, attaching only its receipt
+ID and timestamp to member assignment DTOs. Shared completion selectors honor credit;
+received counts still require real attempts. Writes refresh protected views after
+success, with confirmation/retry and explicit undo. The RPC/submission gate and insertion
+guard prevent concurrent link/file/text saves from bypassing credit.
 
 Shared ownership: cohort teams and memberships are read only into the authorized admin
 workspace. Members first resolve their own enrollment, then `my_team`; their loader
