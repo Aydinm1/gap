@@ -12,7 +12,7 @@ export function buildWeekQueue(state: AdminWorkspaceState, cohortId: string, wee
   const rows=getSubmissionRows({state,cohortId,weekId,assignmentId:assignment.id,now,audience});
   return {assignment,rows,unassigned:assignment.submissionMode==='team'?participants.filter(e=>!(state.teams??[]).some(t=>t.enrollmentIds.includes(e.id))).length:0,received:rows.filter(r=>r.submission).length,approved:rows.filter(r=>r.state==='completed').length,awaiting:rows.filter(r=>r.state==='submitted').length};
  }) : [];
- const rows=assignments.flatMap(a=>a.rows).toSorted((a,b)=>{
+ const rows=assignments.filter(a=>a.assignment.workflow!=='cases').flatMap(a=>a.rows).toSorted((a,b)=>{
   const priority={submitted:0,revision_requested:1,overdue:2,due_soon:3,upcoming:4,completed:5};
   return priority[a.state]-priority[b.state] || (a.person?.fullName??'').localeCompare(b.person?.fullName??'') || assignments.findIndex(x=>x.assignment.id===a.assignment.id)-assignments.findIndex(x=>x.assignment.id===b.assignment.id);
  });

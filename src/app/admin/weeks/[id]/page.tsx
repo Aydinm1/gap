@@ -1,3 +1,5 @@
+import { readCaseExercise } from '@/lib/cases/data';
+import { caseTemplate } from '@/lib/cases/content';
 import type { Metadata } from "next";
 import { AdminWeekEditor } from "@/components/admin/admin-week-editor";
 import { readWorkspace } from '@/lib/supabase/data';
@@ -11,5 +13,6 @@ export default async function AdminWeekPage({ params }: { params: Promise<{ id: 
   const week = state.weeks.find(w => w.id === id);
   const references = await readGradingReferences(week ? assignmentsForWeek(week).map(a => a.id) : []);
   const guided=Object.fromEntries(await Promise.all((week?assignmentsForWeek(week):[]).map(async a=>[a.id,await readGuidedProject(a.id)])));
-  return <AdminWeekEditor key={id} weekId={id} references={references} guided={guided} />;
+  const cases=Object.fromEntries(await Promise.all((week?assignmentsForWeek(week):[]).map(async a=>[a.id,await readCaseExercise(a.id,true)])));
+  return <AdminWeekEditor key={id} weekId={id} references={references} guided={guided} cases={cases} caseTemplate={caseTemplate} />;
 }

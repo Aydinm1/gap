@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+- [ADR 0023: Individual case exercises](0023-individual-case-exercises.md)
+
 - [ADR 0022: Guided team projects](0022-guided-team-projects.md)
 
 - [ADR 0021: Manual assignment completion](0021-manual-assignment-completion.md)

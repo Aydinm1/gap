@@ -1107,3 +1107,33 @@ Slack's image-crawler user agent receives the branded PNG (HTTP 200, 47,870 byte
 When resolving a recurring operational issue, add a short entry with symptoms, verified
 cause, safe resolution, and date. Never include tokens, secrets, private submission URLs,
 or personal data.
+
+## Local eight-case challenge verification
+
+Run `npm run test:cases` against local Supabase; optionally set
+`GAP_TEST_APP_URL=http://localhost:3004` against a matching production build to exercise
+Chrome at desktop and phone widths. The harness rejects non-local targets, provisions
+isolated fixture identities/cohorts, and deletes only its exact records afterward. Fixture
+sessions do not verify real Google OAuth. The migration is additive; never reset/seed the
+live local program. Hosted migration/release and real Week 2 setup remain separate.
+To configure an assignment: save Individual mode, keep its week unpublished, expand
+Assignment workflow, select Eight-case challenge, inspect/edit the prefilled content and
+save its workflow. Keep a short introduction in the ordinary Instructions field, which
+the existing week publication validation still requires. Detailed exercise directions
+live in Challenge overview. Publish through the existing week editor once ready. Content locks
+when a participant saves their first case; completion needs explicit Finish challenge.
+
+Local evidence: six case-harness entries and nine guided-harness entries passed without
+skips, including 390px/1280px case comparison, setup/save/reload, input retention/retry,
+Finish and non-writing admin preview. 84 unit/documentation tests, lint, TypeScript,
+generated-type consistency and the Webpack production build passed. This is local fixture
+evidence only; hosted and real Google acceptance remain separate release checks.
+
+Final program/session (12), private Storage (12), Teams (8) and manual completion (7)
+entries also passed without skips, including their browser checks. Multiple-assignment
+and Viewer database regressions passed; Viewer browser checks were not rerun in this
+change. For production-build program checks, set
+`GAP_TEST_ACTION_MANIFEST=.next/server/server-reference-manifest.json` to avoid a stale
+development action manifest. A transient Teams confirmation timeout passed on rerun.
+The separate legacy enrollment harness could not start without its labeled disposable
+PostgreSQL container (`GAP_TEST_CONTAINER`); it was not redirected to the live local DB.

@@ -5,6 +5,22 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added Present check-in to admin Attendance: a standalone large QR/code presentation,
+  optional browser fullscreen, Escape/exit and full-window fallback. Existing session,
+  code, closing time and recorded attendance remain unchanged.
+  Desktop/phone fullscreen/fallback, focus return, short viewport and expired-state
+  checks pass locally with the full nine-entry attendance suite; no hosted changes.
+
+- Added the Individual Eight-case challenge workflow with supplied editable scenarios,
+  private save-to-reveal reference approaches, durable answers, optimistic conflicts and
+  duplicate-safe retries. Finish challenge locks answers and completes progress without
+  document submissions, scores or grading queue entries. Existing assignments remain
+  unchanged; hosted migration and real Week 2 configuration are separately authorized.
+  Local case/guided/program/Storage/team/completion browser suites pass, alongside
+  84 unit/docs checks, lint, types, generated types and the Webpack production build.
+  Separately authorized hosted migration `202610290003` is verified with unchanged
+  existing work/attendance fingerprints and empty private exercise configuration/runs.
+
 - Clarified guided research saves: each save updates current team answers, which remain
   editable until the final submission. Expanded regression coverage to check all three
   updated answers are shared; the separate admin history snapshot remains unchanged.

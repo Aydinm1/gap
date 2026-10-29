@@ -54,6 +54,13 @@ phones. Searchable rows use 44px Mark present/Undo targets, confirmed Undo and n
 wording. A centered member card has one heading, labeled code input, explicit confirmation,
 inline alerts and a timestamped receipt. Member screens never reveal the expected code.
 
+Present check-in uses a viewport-filling accessible modal above the admin shell, with
+optional browser fullscreen. Use a large uncropped QR on white, high-contrast six-character
+code, workshop title, closing time and short explicit check-in directions. Pair QR/code
+on wide screens and stack on phones; allow scrolling at short heights/zoom. Keep an exit
+button visible in the header, trap focus natively and restore focus to the launch button
+on exit/Escape. No roster, correction controls, new session or automatic attendance writes.
+
 GAP, the Growth Analyst Program, is an internal consulting-firm analyst development
 portal: clean, modern,
 professional, restrained, and warm. Favor strong typography, whitespace, thin borders,
@@ -290,3 +297,13 @@ forward arrow for available work, and lock for upcoming modules. Retain text lab
 - Ensure targets are at least 44 by 44 CSS pixels where practical.
 - Do not hide essential information behind hover.
 - Respect reduced-motion preferences and use motion only to clarify state.
+
+## Eight-case challenge presentation
+
+Use the existing member assignment typography, neutral cards and green primary action.
+A compact wrapping case navigator and accessible progress indicator show saved cases.
+Keep the overview in a disclosure. Save reveals two comparison sections: Your saved
+response and Reference approach, side-by-side on wide screens and stacked on phones.
+Label references as one possible approach, not an answer key. Fields have visible labels,
+radio options have generous targets, errors retain input, and Finish confirms the final
+read-only transition. Preview clearly labels its local-only behavior.

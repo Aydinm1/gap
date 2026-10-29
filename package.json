@@ -35,6 +35,7 @@
     "test:teams": "node --experimental-strip-types --test scripts/verify-teams.mjs",
     "test:completion": "node --experimental-strip-types --test scripts/verify-completion.mjs",
     "test:guided": "node --experimental-strip-types --test scripts/verify-guided.mjs",
+    "test:cases": "node --experimental-strip-types --test scripts/verify-cases.mjs",
     "db:clean:examples": "node scripts/cleanup-grading-examples.mjs"
   },
   "dependencies": {

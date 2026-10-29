@@ -90,6 +90,118 @@ export type Database = {
         }
         Relationships: []
       }
+      case_answers: {
+        Row: {
+          case_number: number
+          framework: string
+          method: string
+          priority: string
+          reviewed_at: string | null
+          run_id: string
+          saved_at: string
+          updated_at: string
+        }
+        Insert: {
+          case_number: number
+          framework: string
+          method: string
+          priority: string
+          reviewed_at?: string | null
+          run_id: string
+          saved_at?: string
+          updated_at?: string
+        }
+        Update: {
+          case_number?: number
+          framework?: string
+          method?: string
+          priority?: string
+          reviewed_at?: string | null
+          run_id?: string
+          saved_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_answers_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "case_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      case_configs: {
+        Row: {
+          assignment_id: string
+          content: Json
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          content: Json
+          version?: number
+        }
+        Update: {
+          assignment_id?: string
+          content?: Json
+          version?: number
+        }
+        Relationships: []
+      }
+      case_receipts: {
+        Row: {
+          actor_id: string
+          payload: Json
+          request_id: string
+          result: Json
+        }
+        Insert: {
+          actor_id: string
+          payload: Json
+          request_id: string
+          result: Json
+        }
+        Update: {
+          actor_id?: string
+          payload?: Json
+          request_id?: string
+          result?: Json
+        }
+        Relationships: []
+      }
+      case_runs: {
+        Row: {
+          assignment_id: string
+          completed_at: string | null
+          enrollment_id: string
+          id: string
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          completed_at?: string | null
+          enrollment_id: string
+          id?: string
+          version?: number
+        }
+        Update: {
+          assignment_id?: string
+          completed_at?: string | null
+          enrollment_id?: string
+          id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_runs_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "case_configs"
+            referencedColumns: ["assignment_id"]
+          },
+        ]
+      }
       guided_configs: {
         Row: {
           assignment_id: string
@@ -436,6 +548,7 @@ export type Database = {
       can_read_content: { Args: { p_cohort: string }; Returns: boolean }
       can_read_target: { Args: { p_target: string }; Returns: boolean }
       can_read_team: { Args: { p_team: string }; Returns: boolean }
+      case_enrollment: { Args: { p_assignment: string }; Returns: string }
       current_member: {
         Args: never
         Returns: Database["public"]["Tables"]["approved_members"]["Row"][]
@@ -492,6 +605,16 @@ export type Database = {
       may_upload_grading_example: { Args: { p_path: string }; Returns: boolean }
       my_person_id: { Args: never; Returns: string }
       resolve_submission_target: {
+        Args: { p_assignment: string }
+        Returns: Database["public"]["Tables"]["submission_targets"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "submission_targets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      resolve_submission_target_before_cases: {
         Args: { p_assignment: string }
         Returns: Database["public"]["Tables"]["submission_targets"]["Row"]
         SetofOptions: {
@@ -1419,6 +1542,15 @@ export type Database = {
         Returns: Json
       }
       attendance: { Args: { p_action: string; p_data?: Json }; Returns: Json }
+      case_progress: {
+        Args: { p_enrollment?: string }
+        Returns: {
+          answered: number
+          assignment_id: string
+          completed_at: string
+          enrollment_id: string
+        }[]
+      }
       cleanup_grading_examples: {
         Args: { p_failed?: boolean; p_id?: string; p_owner?: string }
         Returns: {
@@ -1475,6 +1607,15 @@ export type Database = {
         }
         Returns: Json
       }
+      mutate_case_exercise: {
+        Args: {
+          p_action: string
+          p_assignment: string
+          p_data: Json
+          p_request: string
+        }
+        Returns: Json
+      }
       mutate_guided_project: {
         Args: {
           p_action: string
@@ -1485,6 +1626,14 @@ export type Database = {
         Returns: Json
       }
       my_team: { Args: { p_enrollment: string }; Returns: Json }
+      read_case_exercise: {
+        Args: {
+          p_assignment: string
+          p_enrollment?: string
+          p_preview?: boolean
+        }
+        Returns: Json
+      }
       read_guided_project: {
         Args: { p_assignment: string; p_team?: string }
         Returns: Json

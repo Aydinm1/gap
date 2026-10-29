@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SubmissionReviewWorkspace } from "@/components/program/submission-review-workspace";
 import { PageContainer } from "@/components/ui/container";
 import { readWeek } from '@/lib/supabase/data';
@@ -28,6 +28,7 @@ export default async function SubmissionReviewPage({ params, searchParams }: Sub
   const selected = (await searchParams).assignment;
   const assignment = selected === undefined ? detail.assignments[0] : detail.assignments.find((item) => item.id === selected);
   if (!assignment) notFound();
+  if (assignment.workflow==='cases') redirect(`/week/${weekNumber}/assignments/${assignment.id}`);
 
   const attempts = assignment.attempts;
 

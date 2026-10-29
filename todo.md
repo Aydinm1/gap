@@ -10,6 +10,29 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
 
+- [x] Add standalone attendance QR/code presentation with browser fullscreen/fallback,
+  keyboard exit/focus return and responsive layout. Nine attendance entries pass without
+  skips, including desktop/phone viewport coverage, denied-fullscreen fallback, short
+  screens, expiry hiding the QR/code, and unchanged session/attendance snapshots.
+  84 unit/docs tests, lint, typecheck, Webpack build and diff checks pass. No real
+  attendance or prior eight-case implementation changes were discarded; not released.
+
+- [x] Implement and locally verify the Individual Eight-case challenge: editable saved
+  answers, private references, explicit automatic completion, preview and queue exclusion.
+  Six local case checks pass without skips, including desktop/phone setup, retained-input
+  retry, save/reveal, edit/reload, final freeze, zero-write preview and HTTP admin guards.
+  Nine Guided project checks pass without skips. 84 unit/docs tests, lint, typecheck,
+  generated-type consistency, Webpack build and diff checks pass. Fixture identities are
+  not real Google acceptance; no hosted configuration or real assignment was changed.
+  Program/session (12), Storage (12), Teams (8) and manual completion (7) entries also
+  pass without skips. The standalone enrollment harness still needs its disposable
+  labeled test container; Viewer browser checks were not rerun for this change.
+- [x] Apply the separately authorized hosted case-exercise migration `202610290003`:
+  receipt, private RLS/grants and constraints verified; existing assignments, submissions
+  and attendance fingerprints/counts unchanged. No real case configuration/run created.
+- [ ] Configure the real Individual Week 2 case assignment and verify signed-in hosted
+  member/admin use after release. No real assignment is changed by the template/tests.
+
 - [x] Clarify guided research copy and verify each save updates all current team answers
   until final submission; retain the separate internal history snapshot. Focused local
   DB checks, 82 unit/docs tests, lint, typecheck, Webpack build and diff checks pass.

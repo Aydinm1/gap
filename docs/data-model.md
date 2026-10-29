@@ -596,3 +596,23 @@ See [ADR 0009](decisions/0009-private-upload-lifecycle.md).
 - Regenerate checked-in database TypeScript types after schema changes.
 - Test policies as anonymous, member, admin, inactive roster member, and cross-user
   access before release.
+
+## Private individual case exercises
+
+Migration `202610290003` extends `assignments.workflow` with `cases` (Individual only).
+Private `case_configs` stores eight ordered scenarios/references; `case_runs` is unique
+per assignment/enrollment with optimistic version and optional `completed_at`;
+`case_answers` is unique per run/case and stores method, framework, priority and database
+save/update/reference-acknowledgment times. `case_receipts` stores actor/request receipts.
+All four tables have RLS and no direct browser/service-role table privileges. Narrow
+`read_case_exercise`, `mutate_case_exercise` and `case_progress` RPCs enforce live verified
+identity/roster/role, active enrolled participation, matching cohort and published week.
+Members receive their own answers and only saved-case references; admin configuration
+and preview are separately authorized. Viewer common-content reads exclude references.
+Run completion requires eight saved answers and explicit progression; finished answers
+cannot change. Assignment locking serializes configuration/saves and receipts make lost
+response retries safe. Configure requires an unpublished week and no participant work;
+existing submission/upload/manual-credit/guided history prevents workflow conversion.
+Document/manual-credit inserts for exercises are denied. Aggregate completion exposes
+no answers/references and drives progress independently of grading submissions. See
+[ADR 0023](decisions/0023-individual-case-exercises.md).

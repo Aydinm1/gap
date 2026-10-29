@@ -19,7 +19,7 @@ function database(tables, failTable) {
       return {error:table===failTable?new Error('Unavailable'):null,data:(tables[table]??[]).filter(row=>filters.every(([key,values])=>values.includes(row[key]))).slice(from,to+1)};
     }
     return query;
-  },async rpc(name,args){calls.push({name,args});return {data:name==='my_team'?tables.my_team??null:[],error:null};}};
+  },rpc(name,args){calls.push({name,args});if(name==='case_progress')return {order(){return this;},async range(from,to){return {data:(tables.case_progress??[]).filter(p=>p.enrollment_id===args.p_enrollment).slice(from,to+1),error:null};}};return Promise.resolve({data:name==='my_team'?tables.my_team??null:[],error:null});}};
 }
 
 test('member loader scopes database queries even when the client has admin visibility',async()=>{

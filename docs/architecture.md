@@ -44,6 +44,9 @@ a service-key client or new public API. Its generic landing sits outside the pro
 portal layout to capture QR fragments before login. Anonymous output contains no workshop
 details; authorized reads fetch matching enrollment/context and own receipt. Codes are
 only serialized to admin screens; `qrcode` generates PNGs server-side, not externally.
+The admin-only presentation component reuses that authorized session/code/QR projection
+inside a native modal dialog. Browser fullscreen is an optional client capability, with
+a full-window fallback; no new route, API, code generation or mutation is involved.
 Tab storage carries pending input across same-tab sign-in; OAuth returns use a clean path.
 Actions/DB transactions independently check live access. Refresh/revalidation provide
 updates without shared protected caching or realtime.
@@ -386,3 +389,16 @@ URLs, credentials, or private submission payloads into club reporting.
 - Distinguish authentication failure, roster denial, validation failure, and transient
   backend failure.
 - Never cache authenticated responses in a way that could share sessions between users.
+
+## Eight-case exercise boundary
+
+`lib/cases` owns typed runtime validation, authorized server reads/actions and the
+server-only supplied challenge template. The admin week editor fetches private editable
+content only after admin authorization. AssignmentContent branches on `workflow=cases`
+and loads a user-scoped RPC projection; standard submission routes redirect exercises
+to their assignment screen. The small client exercise flow saves explicit responses,
+retains failed input, reveals returned references and uses versioned, stable request IDs.
+Preview is local-only; no case mutation or upload action is sent. Member dashboard/week
+loaders fetch enrollment-scoped paginated completion projections, not private answers.
+Admin progress uses a separate projection; grading queues exclude exercise obligations.
+No service-key content reads or shared caches are introduced.

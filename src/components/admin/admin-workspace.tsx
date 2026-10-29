@@ -82,6 +82,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
     selectedCohortId, setSelectedCohortId: changeCohort, setUnsavedChanges, navigate,
     people, approvedMembers, cohorts, enrollments, weeks, submissions, teams:initialState.teams,
     completionCredits:initialState.completionCredits,
+    caseProgress:initialState.caseProgress,
     async updateSubmission(id, status, feedback, expectedUpdatedAt) {
       try { return await saveAdmin('review', { id,status,feedback,expectedUpdatedAt }); }
       catch { return { error:'Could not save the review. Your changes have been kept.' }; }

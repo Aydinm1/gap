@@ -35,6 +35,7 @@ export type AdminWorkspaceState = {
   weeks: readonly AdminWeek[];
   submissions: readonly SubmissionAttempt[];
   teams?: readonly CohortTeam[];
+  caseProgress?: readonly { assignmentId: string; enrollmentId: string; answered: number; completedAt?: string }[];
   completionCredits?: readonly AssignmentCompletion[];
 };
 
@@ -192,7 +193,7 @@ export function getSubmissionRows({ state, cohortId, weekId, assignmentId, now, 
       person,
       submission,
       completionCredit,
-      state: deriveAssignmentState({ ...assignment, completionCredit }, submission, now),
+      state: deriveAssignmentState({ ...assignment, completionCredit, caseProgress: state.caseProgress?.find(p=>p.assignmentId===assignment.id&&p.enrollmentId===enrollment.id) }, submission, now),
     };
   }).toSorted((left, right) => {
     const priority = { submitted: 0, revision_requested: 1, overdue: 2, due_soon: 3, upcoming: 4, completed: 5 } as const;

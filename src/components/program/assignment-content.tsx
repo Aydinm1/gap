@@ -1,3 +1,5 @@
+import { readCaseExercise } from '@/lib/cases/data';
+import { CaseExerciseFlow } from './case-exercise';
 import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { Card } from '@/components/ui/card';
@@ -12,6 +14,10 @@ import { GuidedPreview } from '@/components/admin/guided-preview';
 export async function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHref, preview = false, browse = false }: {
   assignment: AssignmentDetail; weekNumber: number; enrollmentId: string; weekHref: string; preview?: boolean; browse?: boolean;
 }) {
+  if(assignment.workflow==='cases') {
+    const exercise=await readCaseExercise(assignment.id,preview||browse);
+    return <main className="pb-20"><PageContainer className="py-9"><div className="mx-auto max-w-4xl"><Link href={weekHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← Week {weekNumber}</Link><h1 className="mt-5 text-3xl font-bold">{assignment.title}</h1><p className="mt-3 text-sm text-ink-soft">Individual · Eight-case challenge · Due {assignment.dueLabel}</p><CaseExerciseFlow key={assignment.id} assignmentId={assignment.id} initial={exercise} preview={preview||browse}/></div></PageContainer></main>;
+  }
   if (assignment.workflow==='guided') {
     const loaded=await readGuidedProject(assignment.id);
     const project=browse?{workflow:loaded.workflow,config:loaded.config}:preview?loaded:{...loaded,teams:undefined,recommendation:loaded.state?loaded.recommendation:null};

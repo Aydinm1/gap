@@ -15,7 +15,7 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
   }))).filter(row => row !== null);
   const cohort = cohorts.sort(compareCohorts).at(-1);
   const enrollment = enrollments.data.find(row => row.cohort_id === cohort?.id);
-  if (!cohort || !enrollment) return { cohort: undefined, enrollment: undefined, team: undefined, weeks: [], resources: [], assignments: [], submissions: [], catalog: [], documents: [], completionCredits: [] };
+  if (!cohort || !enrollment) return { cohort: undefined, enrollment: undefined, team: undefined, weeks: [], resources: [], assignments: [], submissions: [], catalog: [], documents: [], completionCredits: [], caseProgress: [] };
   const teamResult = await db.rpc('my_team', {p_enrollment:enrollment.id});
   if (teamResult.error) throw new Error('Your team could not be loaded. Please retry.');
   const team = teamResult.data as {id:string;name:string;members:{enrollmentId:string;personId:string;name:string}[]} | null;
@@ -34,5 +34,6 @@ export async function readMemberRows(db: SupabaseClient<Database>, personId: str
   const assignmentIds = assignments.data.map(a => a.id);
   const documents = assignmentIds.length ? await readPages((from, to) => db.from('assignment_documents').select('*').in('assignment_id', assignmentIds).eq('is_current', true).eq('state', 'ready').order('id').range(from, to)) : { data: [] };
   const completionCredits = assignmentIds.length ? await readPages((from,to)=>db.from('assignment_completions').select('id,assignment_id,granted_at').eq('enrollment_id',enrollment.id).in('assignment_id',assignmentIds).is('revoked_at',null).order('id').range(from,to)) : {data:[]};
-  return { cohort, enrollment, team:team??undefined, weeks: weeks.data, resources: resources.data, assignments: assignments.data, submissions: [...submissions.data,...teamSubmissions.data], catalog: catalog.data ?? [], documents: documents.data, completionCredits:completionCredits.data };
+  const caseProgress=await readPages((from,to)=>db.rpc('case_progress',{p_enrollment:enrollment.id}).order('assignment_id').range(from,to));
+  return { caseProgress:caseProgress.data, cohort, enrollment, team:team??undefined, weeks: weeks.data, resources: resources.data, assignments: assignments.data, submissions: [...submissions.data,...teamSubmissions.data], catalog: catalog.data ?? [], documents: documents.data, completionCredits:completionCredits.data };
 }

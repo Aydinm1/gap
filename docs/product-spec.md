@@ -406,6 +406,13 @@ redisplay unchanged, or close early. Deliberate reopening renews date/code/windo
 retains marks. A searchable phone roster supports Mark present and confirmed Undo,
 including historical corrections with actor/time/history. States are Present/Not recorded.
 
+Admins can choose Present check-in for a standalone full-window code/QR presentation,
+requesting browser fullscreen when supported. It shows the selected week, large unchanged
+code, QR, closing time and sign-in/confirmation instructions, without navigation or roster
+data. Exit presentation or Escape returns to the same attendance screen without changing
+the session or attendance. A denied/unsupported fullscreen request keeps the full-window
+modal usable. An expired session replaces the code/QR with Check-in closed.
+
 Open prompts supplement Continue and appear on the matching week. Members explicitly
 confirm at `/attendance/[sessionId]`; scans/GET never mark attendance. Logged-out scans
 see generic sign-in. Fragment codes are captured in tab storage and removed from the
@@ -465,3 +472,18 @@ See [ADR 0019](decisions/0019-private-assignment-grading-references.md).
   Supabase requests.
 - Student dashboard and week pages work well on mobile; admin pages remain usable with
   responsive cards or horizontal table scrolling.
+
+## Individual eight-case challenge
+
+An Individual assignment may use the Eight-case challenge workflow. Admins initialize
+and edit eight scenarios/reference approaches while the week is a draft; the supplied
+challenge is a template, not automatic Week 2 configuration. Members select a mathematical,
+process or decision decomposition and write a framework and first investigation/why.
+Save & reveal shows their response and a reference approach, explicitly one possible
+answer. Next unlocks the following case. Answers remain editable until Finish challenge,
+which freezes them and automatically completes the assignment after all eight cases.
+Only finishing counts as completion; no score, document upload or review obligation is
+created. Saved work and completed responses remain available across visits. Admins see
+completion progress separately from review counts. Viewer practice does not expose real
+responses or hidden reference approaches. Existing Standard and Team workflows remain
+unchanged. See [ADR 0023](decisions/0023-individual-case-exercises.md).
