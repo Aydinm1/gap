@@ -26,6 +26,7 @@ export function SubmissionEditor({
   expected,
   onFileSaved,
   preview = false,
+  documentsOnly = false,
 }: {
   actionLabel: string;
   assignmentId: string;
@@ -36,6 +37,7 @@ export function SubmissionEditor({
   expected?: { id: string; updatedAt?: string };
   onFileSaved?: () => void;
   preview?: boolean;
+  documentsOnly?: boolean;
 }) {
   const router = useRouter();
   const task = useRef<ReturnType<typeof uploadTask> | undefined>(undefined);
@@ -115,6 +117,7 @@ export function SubmissionEditor({
     if (preview) return;
     setError(undefined);
     if (method === 'text') {
+      if (documentsOnly) return setError('Submit a document or document link for this assignment.');
       const result = normalizeSubmissionText(text);
       if ('error' in result) return setError(result.error);
       return finish({ type: 'text', submittedText: result.value });
@@ -142,7 +145,7 @@ export function SubmissionEditor({
         "mt-6 grid gap-3",
         layout === "wide" ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-1",
       )}>
-        {(["text", "file", "link"] as const).map((choice) => (
+        {(["text", "file", "link"] as const).filter(choice=>!documentsOnly||choice!=='text').map((choice) => (
           <button
             key={choice}
             type="button"
@@ -168,7 +171,7 @@ export function SubmissionEditor({
         ))}
       </div>
 
-      {method === 'text' ? <div className="mt-6">
+      {method === 'text' && !documentsOnly ? <div className="mt-6">
         <label className="block text-sm font-bold text-ink" htmlFor={`${inputId}-text`}>Your response</label>
         <textarea id={`${inputId}-text`} rows={10} disabled={saving} value={text}
           onChange={(event) => { patchDraft({ text: event.target.value }); setError(undefined); }}

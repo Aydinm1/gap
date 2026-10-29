@@ -50,6 +50,7 @@ export default async function SubmissionReviewPage({ params, searchParams }: Sub
             enrollmentId={detail.enrollmentId}
             initialAttempts={attempts}
             completionCredit={assignment.completionCredit}
+            documentsOnly={assignment.workflow==='guided'}
           />
         </div>
       </PageContainer>

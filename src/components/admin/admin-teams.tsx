@@ -148,7 +148,7 @@ function TeamsPanel({ onDirty, dirty }: { onDirty: (dirty: boolean) => void; dir
       setSelected(event.target.value); setMessage('');
     }}>{!teams.length ? <option value="">No teams yet</option> : teams.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.name}{candidate.isTest ? ' · Test' : ''}</option>)}</select></label>
     {team ? <><p className="mt-3 text-sm text-ink-soft">{team.enrollmentIds.length} {team.enrollmentIds.length === 1 ? 'member' : 'members'} · {team.isTest ? 'Test team · excluded from official totals' : 'Official team'}</p>
-      <p className="mt-1 text-xs text-ink-soft">{team.locked ? 'Membership locked after submission' : 'Membership editable until first submission'}</p></> : <p className="mt-3 text-sm text-ink-soft">Add a team to begin assigning participants.</p>}
+      <p className="mt-1 text-xs text-ink-soft">{team.locked ? 'Membership locked after research or submission' : 'Membership editable until first research save or submission'}</p></> : <p className="mt-3 text-sm text-ink-soft">Add a team to begin assigning participants.</p>}
   </div>;
 
   function create() {

@@ -5,6 +5,16 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added a local Guided project workflow for Team assignments: shared original/working
+  research, server-side recommendation reveal, admin-approved alternatives and a gated
+  final document. Independent setup and direction approvals stay outside grading counts;
+  existing Standard assignments are preserved. Nine local guided checks, desktop/phone
+  flows and team/program/upload/completion/Viewer/assignment regressions pass, alongside
+  82 unit/docs tests, lint/types/generated types and Webpack build. Real recommendations
+  remain explicitly admin-configured; authenticated hosted acceptance stays separate.
+  Authorized hosted migrations `202610290001`/`202610290002` are now verified; all
+  existing assignments remain Standard and no real recommendations were created.
+
 - Added local admin Mark complete/Undo completion for legacy Individual assignments
   without submissions. Separate audited credit clears missing-work warnings and counts
   toward progress without inventing attempts or sharing another participant's work.

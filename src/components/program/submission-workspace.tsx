@@ -33,6 +33,7 @@ export function SubmissionWorkspace({
   initialAttempts,
   reviewPath,
   completionCredit,
+  documentsOnly = false,
 }: {
   assignmentId: string;
   enrollmentId: string;
@@ -43,6 +44,7 @@ export function SubmissionWorkspace({
   initialAttempts: readonly SubmissionAttempt[];
   reviewPath: string;
   completionCredit?: {id:string;grantedAt:string};
+  documentsOnly?: boolean;
 }) {
   const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
@@ -99,7 +101,8 @@ export function SubmissionWorkspace({
                 assignmentId={assignmentId}
                 layout="wide"
                 preview={readOnly}
-                description="Write a response, upload a document, or share a link the review team can open."
+                documentsOnly={documentsOnly}
+                description={documentsOnly?'Upload one group document or share a document link the review team can open.':'Write a response, upload a document, or share a link the review team can open.'}
                 onFileSaved={() => { setSubmitting(false); setAnnouncement('Submission received.'); }}
                 onCancel={() => { setSubmitting(false); requestAnimationFrame(() => actionRef.current?.focus()); }}
                 onSubmit={submit}

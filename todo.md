@@ -10,6 +10,21 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
 
+- [x] Implement reusable Guided project Team assignments: shared original/working
+  research, private reveal, team recommendations, alternative approval and gated final
+  documents (2026-10-28). Nine guided entries pass without skips, including desktop/phone
+  setup persistence, retained-input/retry, approval, upload/review/feedback/replacement,
+  preview/Explore zero submission/upload writes, privacy, concurrency and exact cleanup.
+  Eight team, 12 program/session, 12 Storage, seven completion, eight Viewer and six
+  multi-assignment entries pass without skips. 82 unit/docs, lint, typecheck, generated
+  types, Webpack production build and diff checks pass. Fixture sessions are not real
+  Google acceptance; real participants and assignments remain untouched.
+- [x] Apply authorized hosted guided-project migrations `202610290001`/`202610290002`
+  (2026-10-28); two receipts, five private RLS tables, restricted grants and four guards
+  verified. Guided data is empty and all existing assignments remain Standard.
+- [ ] Configure real Week 2 recommendations explicitly and verify authenticated hosted
+  acceptance. No real assignment content is automatically changed by the release.
+
 - [x] Add auditable manual completion/undo for legacy missing Individual assignments;
   credit updates progress and missing/complete filters without fabricated attempts or
   shared files/feedback (2026-10-28). Seven completion, 12 program, 12 Storage and eight

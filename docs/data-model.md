@@ -302,6 +302,26 @@ per-assignment/enrollment uniqueness still govern submissions and upload operati
 
 ### `submissions`
 
+Guided projects add `assignments.workflow` (`standard` by default, or `guided`, requiring
+Team mode). Private `guided_configs` holds formatted common instructions and a version;
+`guided_recommendations` holds assignment/team company, title, guidance and version;
+`guided_states` holds original/working research, actor/DB timestamps, version, selected
+direction and frozen flag. `guided_requests` retains proposal revisions, status and
+decision/note/actor/time even when superseded. Actor/request-keyed `guided_receipts`
+bind exact mutation payloads to stable outcomes. No backfill or synthetic submissions.
+
+All five tables enable RLS and deny direct browser/service access. User-scoped
+`read_guided_project` projects common instructions through content authorization; live
+admins receive setup/history, while enrolled teammates get only their own state and
+receive recommendations only after research. Viewer/common content responses omit team
+data. `mutate_guided_project` checks live authority, cohort/team scope and expected
+versions inside the submission gate. Team membership locks on first research.
+Workflow changes require a draft week and no research/submission/upload history.
+Publication checks populated official-team setup. The target resolver gates preparation
+and link/text saves; a submission-insert trigger rejects pending directions and textbox
+payloads, catches prepared file finalization, and atomically freezes the workflow.
+Standard assignments and existing work remain unchanged. See ADR 0022.
+
 Team-ownership extension (local): `submission_targets` uniquely identifies an assignment
 and either an enrollment or a cohort team. Existing attempts are backfilled without
 changing IDs/content. Attempts have a required `target_id`, nullable individual

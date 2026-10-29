@@ -15,6 +15,35 @@ hosted setup, second-lead provisioning, and extended Monday checks stay open in 
 
 ## Routine releases
 
+Guided project setup (local implementation): save a draft assignment in Team mode, open
+Assignment workflow, choose Guided project and save its supplied common instructions.
+Enter each team's real company/direction/scope in Team directions, then publish the week.
+Do not invent recommendations or silently modify existing assignments. Research saves
+lock membership and preserve original responses; recommendations lock once research
+exists. Missing first-time recommendations may still be supplied. Admin review queue has
+a separate Project direction requests section. This is distinct from final grading.
+Run `npm run test:guided` against local Supabase; set `GAP_TEST_APP_URL` to a stable local
+production server for desktop/phone checks. Skipped browser checks are not acceptance.
+Authorized hosted follow-up (2026-10-28): migrations `202610290001` and `202610290002`
+applied after an exact two-migration dry run, without seeds, role or Vault changes.
+Both receipts, five private RLS tables, denied direct reads/anonymous RPC execution and
+four workflow guards verified. All guided tables are empty; existing assignments remain
+Standard. Real Week 2 configuration and authenticated hosted acceptance remain manual.
+
+Local guided verification (2026-10-28): nine focused entries pass with zero skips,
+including 1280px/390px editor save/reload, research reveal, recoverable network failure,
+alternative approval, final PDF upload/download/review, feedback and file-to-link history.
+Read-only sample-team preview and guided Viewer practice produce no submission/upload
+writes; the existing authorized Last active recorder is explicitly excluded from that
+assertion. Direct RPC/HTTP permissions, private table grants, original retention,
+concurrent saves/direction races, pending-upload gates and late-team setup pass. Exact
+fictional cohorts/accounts/objects are cleaned up; no hosted changes or real directions.
+Eight team, 12 program/session, 12 Storage, seven completion, eight Viewer and six
+multi-assignment entries pass, all including their enabled browser checks. 82 unit/docs,
+lint/typecheck, generated types, Webpack build and diff checks pass. Member screenshots
+were inspected. Initial accessible-name test failures and JSON operator grouping were
+corrected and rerun; skipped early browser runs were not counted as acceptance.
+
 Manual completion (local implementation): apply `202610280001` locally, never reset.
 Admin → Review queue → choose Week 1 and its specific Individual assignment → Not
 submitted → Mark complete for each participant who should receive credit. Confirm the

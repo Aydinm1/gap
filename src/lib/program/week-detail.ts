@@ -13,6 +13,7 @@ import {
 } from "./state.ts";
 
 export type AssignmentDetail = {
+    workflow?: 'standard' | 'guided';
     completionCredit?: { id: string; grantedAt: string };
     id: string;
     title: string;
@@ -80,6 +81,7 @@ export function buildWeekDetail({
 
   return {
       id: assignment.id,
+      workflow: assignment.workflow,
       completionCredit: assignment.completionCredit,
       submissionMode: assignment.submissionMode,
       team: assignment.team,

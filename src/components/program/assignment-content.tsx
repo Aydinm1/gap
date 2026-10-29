@@ -5,10 +5,19 @@ import { AssignmentBrief } from './assignment-brief';
 import { SubmissionWorkspace } from './submission-workspace';
 import type { AssignmentDetail } from '@/lib/program/week-detail';
 import { PracticeSubmission } from './practice-submission';
+import { readGuidedProject } from '@/lib/guided/data';
+import { GuidedProjectFlow } from './guided-project';
+import { GuidedPreview } from '@/components/admin/guided-preview';
 
-export function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHref, preview = false, browse = false }: {
+export async function AssignmentContent({ assignment, weekNumber, enrollmentId, weekHref, preview = false, browse = false }: {
   assignment: AssignmentDetail; weekNumber: number; enrollmentId: string; weekHref: string; preview?: boolean; browse?: boolean;
 }) {
+  if (assignment.workflow==='guided') {
+    const loaded=await readGuidedProject(assignment.id);
+    const project=browse?{workflow:loaded.workflow,config:loaded.config}:preview?loaded:{...loaded,teams:undefined,recommendation:loaded.state?loaded.recommendation:null};
+    const editor=<Card className="p-5 sm:p-7">{browse?<PracticeSubmission assignmentId={assignment.id} documentsOnly/>:<SubmissionWorkspace assignmentId={assignment.id} enrollmentId={enrollmentId} unsubmittedState={assignment.unsubmittedState} initialAttempts={assignment.attempts} readOnly={preview} documentsOnly reviewPath={`/week/${weekNumber}/submission?assignment=${assignment.id}`}/>}</Card>;
+    return <main className="pb-20"><PageContainer className="py-9"><div className="mx-auto max-w-3xl"><Link href={weekHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← Week {weekNumber}</Link><header className="mt-6"><p className="text-sm font-semibold text-brand-deep">Week {weekNumber} · Guided team project</p><h1 className="mt-3 text-3xl font-bold">{assignment.title}</h1><p className="mt-3 text-sm text-ink-soft">Due {assignment.dueLabel}</p>{assignment.team?<p className="mt-3 text-sm text-ink-soft">{assignment.team.name} · One shared team submission</p>:null}</header>{preview?<GuidedPreview assignmentId={assignment.id} project={project}>{editor}</GuidedPreview>:<GuidedProjectFlow assignmentId={assignment.id} initial={project} preview={browse}>{editor}</GuidedProjectFlow>}</div></PageContainer></main>;
+  }
   return <main className="pb-20 sm:pb-24"><PageContainer className="py-9 sm:py-11">
     <div className="mx-auto max-w-3xl">
       <Link href={weekHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action">← Week {String(weekNumber).padStart(2,'0')}</Link>

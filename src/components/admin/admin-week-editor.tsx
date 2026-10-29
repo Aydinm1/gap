@@ -15,10 +15,12 @@ import { AssignmentBriefUpload } from "./assignment-brief-upload";
 import { AssignmentInstructionsEditor } from './assignment-instructions-editor';
 import { GradingReferenceEditor } from './grading-reference';
 import type { GradingReference } from '@/lib/grading/types';
+import type { GuidedProject } from '@/lib/guided/types';
+import { GuidedEditor } from './guided-editor';
 
 const input = "mt-2 min-h-11 w-full rounded-lg border border-border-strong bg-surface px-3.5 text-base text-ink";
 
-export function AdminWeekEditor({ weekId, references = [] }: { weekId: string; references?: GradingReference[] }) {
+export function AdminWeekEditor({ weekId, references = [], guided = {} }: { weekId: string; references?: GradingReference[]; guided?: Record<string,GuidedProject> }) {
   const workspace = useAdminWorkspace();
   const router = useRouter();
   const source = workspace.weeks.find((week) => week.id === weekId && week.cohortId === workspace.selectedCohortId);
@@ -93,6 +95,7 @@ export function AdminWeekEditor({ weekId, references = [] }: { weekId: string; r
               <div className="grid gap-4 sm:grid-cols-[1fr_auto]"><label className="text-sm font-bold">Deadline (Pacific time)<input className={input} type="datetime-local" value={deadlines[assignment.id] ?? ""} onChange={(event) => { setDeadlines((current) => ({ ...current, [assignment.id]: event.target.value })); setZones((current) => ({ ...current, [assignment.id]: undefined })); setMessage(""); }} /></label><label className="text-sm font-bold">DST choice<select className={input} value={zones[assignment.id] ?? ""} onChange={(event) => setZones((current) => ({ ...current, [assignment.id]: event.target.value ? event.target.value as "PDT" | "PST" : undefined }))}><option value="">Automatic</option><option value="PDT">PDT</option><option value="PST">PST</option></select></label></div>
               {persisted ? <AssignmentBriefUpload key={persisted.id} assignment={persisted} /> : <p className="text-sm text-ink-soft">Save the assignment draft first, then attach its PDF.</p>}
               <GradingReferenceEditor assignmentId={assignment.id} initial={references.find(r => r.assignmentId === assignment.id)} persisted={Boolean(persisted)} onDirty={referenceChanged} />
+              {persisted&&guided[assignment.id]?<GuidedEditor assignmentId={assignment.id} initial={guided[assignment.id]} teamMode={persisted.submissionMode==='team'} onDirty={referenceChanged}/>:<p className="text-sm text-ink-soft">Save the assignment first to configure its workflow.</p>}
             </div>
           </Card>;
         })}

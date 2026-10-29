@@ -90,6 +90,186 @@ export type Database = {
         }
         Relationships: []
       }
+      guided_configs: {
+        Row: {
+          assignment_id: string
+          direction_intro: string
+          final_brief: string
+          overview: string
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          direction_intro: string
+          final_brief: string
+          overview: string
+          version?: number
+        }
+        Update: {
+          assignment_id?: string
+          direction_intro?: string
+          final_brief?: string
+          overview?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      guided_receipts: {
+        Row: {
+          actor_id: string
+          payload: Json
+          request_id: string
+          result: Json
+        }
+        Insert: {
+          actor_id: string
+          payload: Json
+          request_id: string
+          result: Json
+        }
+        Update: {
+          actor_id?: string
+          payload?: Json
+          request_id?: string
+          result?: Json
+        }
+        Relationships: []
+      }
+      guided_recommendations: {
+        Row: {
+          assignment_id: string
+          company: string
+          guidance: string
+          team_id: string
+          title: string
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          company: string
+          guidance: string
+          team_id: string
+          title: string
+          version?: number
+        }
+        Update: {
+          assignment_id?: string
+          company?: string
+          guidance?: string
+          team_id?: string
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guided_recommendations_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "guided_configs"
+            referencedColumns: ["assignment_id"]
+          },
+        ]
+      }
+      guided_requests: {
+        Row: {
+          assignment_id: string
+          decided_at: string | null
+          decided_by: string | null
+          decision: string | null
+          decision_note: string
+          id: string
+          proposal: Json
+          requested_at: string
+          requested_by: string
+          status: string
+          team_id: string
+        }
+        Insert: {
+          assignment_id: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          decision_note?: string
+          id?: string
+          proposal: Json
+          requested_at?: string
+          requested_by: string
+          status?: string
+          team_id: string
+        }
+        Update: {
+          assignment_id?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          decision_note?: string
+          id?: string
+          proposal?: Json
+          requested_at?: string
+          requested_by?: string
+          status?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guided_requests_assignment_id_team_id_fkey"
+            columns: ["assignment_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "guided_states"
+            referencedColumns: ["assignment_id", "team_id"]
+          },
+        ]
+      }
+      guided_states: {
+        Row: {
+          assignment_id: string
+          direction: string | null
+          frozen: boolean
+          original_research: Json
+          research: Json
+          researched_at: string
+          researched_by: string
+          team_id: string
+          updated_at: string
+          updated_by: string
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          direction?: string | null
+          frozen?: boolean
+          original_research: Json
+          research: Json
+          researched_at?: string
+          researched_by: string
+          team_id: string
+          updated_at?: string
+          updated_by: string
+          version?: number
+        }
+        Update: {
+          assignment_id?: string
+          direction?: string | null
+          frozen?: boolean
+          original_research?: Json
+          research?: Json
+          researched_at?: string
+          researched_by?: string
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guided_states_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "guided_configs"
+            referencedColumns: ["assignment_id"]
+          },
+        ]
+      }
       monday_application_links: {
         Row: {
           account_id: string
@@ -290,6 +470,14 @@ export type Database = {
         }
         Returns: Json
       }
+      guided_fields_valid: {
+        Args: { p_fields: string[]; p_limit: number; p_value: Json }
+        Returns: boolean
+      }
+      guided_ready: {
+        Args: { p_assignment: string; p_team: string }
+        Returns: boolean
+      }
       is_admin: { Args: never; Returns: boolean }
       is_viewer: { Args: never; Returns: boolean }
       manage_team_impl: {
@@ -314,6 +502,16 @@ export type Database = {
         }
       }
       resolve_submission_target_before_credit: {
+        Args: { p_assignment: string }
+        Returns: Database["public"]["Tables"]["submission_targets"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "submission_targets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      resolve_submission_target_before_guided: {
         Args: { p_assignment: string }
         Returns: Database["public"]["Tables"]["submission_targets"]["Row"]
         SetofOptions: {
@@ -549,6 +747,7 @@ export type Database = {
           title: string
           updated_at: string
           week_id: string
+          workflow: string
         }
         Insert: {
           created_at?: string
@@ -562,6 +761,7 @@ export type Database = {
           title: string
           updated_at?: string
           week_id: string
+          workflow?: string
         }
         Update: {
           created_at?: string
@@ -575,6 +775,7 @@ export type Database = {
           title?: string
           updated_at?: string
           week_id?: string
+          workflow?: string
         }
         Relationships: [
           {
@@ -1274,7 +1475,20 @@ export type Database = {
         }
         Returns: Json
       }
+      mutate_guided_project: {
+        Args: {
+          p_action: string
+          p_assignment: string
+          p_data: Json
+          p_request: string
+        }
+        Returns: Json
+      }
       my_team: { Args: { p_enrollment: string }; Returns: Json }
+      read_guided_project: {
+        Args: { p_assignment: string; p_team?: string }
+        Returns: Json
+      }
       record_activity: { Args: never; Returns: undefined }
       review_submission: {
         Args: { p_data: Json }

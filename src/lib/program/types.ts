@@ -114,6 +114,7 @@ export type SubmissionAttempt = {
 };
 
 export type Assignment = {
+  workflow?: 'standard' | 'guided';
   /** Member-scoped manual credit; never a fabricated submission. */
   completionCredit?: { id: string; grantedAt: string };
   id: string;

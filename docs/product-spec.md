@@ -208,6 +208,37 @@ with a grant wins or fails transactionally, and uploads cannot commit after a gr
 
 ### Admin-assigned teams
 
+#### Guided project assignments
+
+Team assignments optionally use a reusable Guided project workflow. Only the final
+document counts as a submission/completion obligation. Admins save the assignment as
+Team, enable the guide while its week is a draft, and independently configure formatted
+overview/direction/final instructions plus each team's company, direction title and
+scope/sources. The default instructions follow the approved 10-K consulting exercise;
+no company-specific direction is generated. Publication requires recommendations for
+all populated official teams. New or unconfigured teams see a preparation notice.
+
+Members share three steps: two risks/citations and an initial consulting question;
+selection of the revealed recommended direction or an alternative approval request;
+then one final document/file link using existing shared review/history. The first
+research save retains an immutable original and locks team membership; working research
+remains editable until the first final submission. Recommendations never reach members
+before research is saved. Revealed recommendations cannot be edited, but missing setup
+may be filled later. Alternative proposals include risk/citation, direction, question
+and feasible evidence plan. Admins approve or request changes (note required); revised
+approved proposals require fresh approval. Teams can return to the recommendation.
+Pending/change-requested teams may prepare, but cannot submit or finalize an upload.
+The first final attempt freezes research and direction; ordinary document revisions
+remain available. Textbox submissions are unavailable for this workflow.
+
+Project direction requests appear separately from graded submissions, filtered by
+cohort/week/assignment and official/test scope. Admins inspect original/current research
+and decision history. Final review shows the confirmed direction. Admin member preview
+offers a read-only sample-team selector; Explore exposes common instructions and generic
+practice only, never real team research, directions or approvals.
+
+See [ADR 0022](decisions/0022-guided-team-projects.md).
+
 Admins create cohort teams and assign enrolled participants in Members → Teams. Members
 cannot choose, join, leave, create or edit teams. Each cohort enrollment belongs to at
 most one team; official/test teams cannot mix. Teams are reusable across assignments.

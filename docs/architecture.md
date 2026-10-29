@@ -121,6 +121,18 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 
 ## Data access and mutations
 
+Guided project code lives in `src/lib/guided/`. Shared assignment contracts contain only
+the safe workflow discriminator. Protected assignment pages request separate, user-scoped
+RPC projections; ordinary module loaders never include private recommendations, research
+or approvals. Common formatted instructions use the existing safe renderer. Small client
+forms preserve unsaved input and stable retry IDs, with independent admin workflow/team
+saves. No new public API or privileged application client is introduced.
+Admin overview loads separate project-direction request props, not submission rows;
+review receives only its assignment/team context. Explore explicitly strips team data
+even when an admin is browsing; sample-team state is limited to live-admin preview.
+Final submission/upload operations retain their existing interfaces and transactional
+version checks, with additional database eligibility/freeze guards.
+
 Manual completion uses an admin Server Action with runtime UUID/action validation and
 the user-scoped completion RPC. Completion credit is a separate read model, not an
 attempt. Admin queues join active credit by assignment/enrollment; member reads scope

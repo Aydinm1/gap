@@ -60,11 +60,13 @@ export function SubmissionReviewWorkspace({
   enrollmentId,
   initialAttempts,
   completionCredit,
+  documentsOnly=false,
 }: {
   assignmentId: string;
   enrollmentId: string;
   initialAttempts: readonly SubmissionAttempt[];
   completionCredit?: {id:string;grantedAt:string};
+  documentsOnly?: boolean;
 }) {
   const [attempts] = useMemberAttempts(initialAttempts);
   const actionRef = useRef<HTMLButtonElement>(null);
@@ -143,6 +145,7 @@ export function SubmissionReviewWorkspace({
       {replacing ? (
         <section className="mt-8 rounded-card border border-border bg-surface p-6 shadow-card sm:p-8 lg:p-10" aria-label={`${actionLabel} form`}>
           <SubmissionEditor
+            documentsOnly={documentsOnly}
             actionLabel={actionLabel}
             assignmentId={assignmentId}
             description="Choose one submission method. Your previous attempt remains in history."
