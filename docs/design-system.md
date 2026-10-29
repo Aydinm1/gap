@@ -9,8 +9,10 @@
 Guided assignments use the existing narrow assignment page, formatted overview and a
 compact three-step navigator (Research / Direction / Final document). One current step
 is visible; the overview is collapsible. Team research uses labeled textareas and explicit
-save/reveal language, not graded-submission language. Direction approval and missing-setup
-notices remain inline. Admin setup is a disclosure inside the assignment editor with
+save/reveal language, not graded-submission language. Research helper copy says each save updates the team's
+current answers and editing remains available until the final assignment is submitted;
+the internal original snapshot is not presented as a restriction on editing. Direction
+approval and missing-setup notices remain inline. Admin setup is a disclosure inside the assignment editor with
 independent saves and readiness per team. Approval requests use a separate restrained
 panel below the review queue, not additional summary metrics. Phone layouts wrap actions
 and preserve 44px controls. Preview is clearly read-only and offers an explicit sample team.

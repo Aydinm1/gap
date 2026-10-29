@@ -10,6 +10,12 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
 
+- [x] Clarify guided research copy and verify each save updates all current team answers
+  until final submission; retain the separate internal history snapshot. Focused local
+  DB checks, 82 unit/docs tests, lint, typecheck, Webpack build and diff checks pass.
+  Browser checks were not rerun for this copy-only update; hosted signed-in acceptance
+  remains a real-user check.
+
 - [x] Implement reusable Guided project Team assignments: shared original/working
   research, private reveal, team recommendations, alternative approval and gated final
   documents (2026-10-28). Nine guided entries pass without skips, including desktop/phone

@@ -5,6 +5,10 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Clarified guided research saves: each save updates current team answers, which remain
+  editable until the final submission. Expanded regression coverage to check all three
+  updated answers are shared; the separate admin history snapshot remains unchanged.
+
 - Added a local Guided project workflow for Team assignments: shared original/working
   research, server-side recommendation reveal, admin-approved alternatives and a gated
   final document. Independent setup and direction approvals stay outside grading counts;

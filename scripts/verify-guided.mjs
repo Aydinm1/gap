@@ -60,8 +60,9 @@ test('guided project lifecycle, privacy and final submission gates',async t=>{
    assert.equal((await read(member)).state.version,1);assert.equal((await read(mate)).recommendation.title,'Private Team One Direction');
    assert.equal(await sql(`select locked from public.cohort_teams where id=${q(team)}`),'t');
    assert.ok((await mutate(mate,'research',{version:0,research})).error);
-   ok(await mutate(mate,'research',{version:1,research:{...research,question:'Revised question'}}));
-   const admin=await read(lead),s=admin.teams.find(t=>t.id===team).state;assert.equal(s.original_research.question,research.question);assert.equal(s.research.question,'Revised question');
+   const revised={risk1:'Updated first risk and page 7',risk2:'Updated second risk and page 8',question:'Revised question'};
+   ok(await mutate(mate,'research',{version:1,research:revised}));
+   const admin=await read(lead),s=admin.teams.find(t=>t.id===team).state;assert.deepEqual(s.original_research,research);assert.deepEqual(s.research,revised);assert.deepEqual((await read(member)).state.research,revised);
    assert.equal((await read(other)).recommendation,null);
    assert.ok((await mutate(lead,'recommendation',{version:1,teamId:team,company:'Changed',title:'Changed',guidance:'Changed'})).error);
    for(const user of [viewer,inactive,wrong,unassigned])assert.ok((await mutate(user,'research',data)).error);
