@@ -64,7 +64,7 @@ export function AdminWorkspace({ children, user, initialState }: { children: Rea
     if (!confirmNavigation()) return;
     setUnsavedChanges(false);
     setStoredCohortId(id);
-    const destination = pathname.startsWith("/admin/weeks/") ? "/admin/weeks" : pathname.startsWith("/admin/submissions/") ? "/admin" : pathname;
+    const destination = pathname.startsWith("/admin/weeks/") ? "/admin/weeks" : pathname.startsWith("/admin/submissions/") || pathname.startsWith('/admin/cases/') ? "/admin" : pathname;
     router.push(`${destination}?cohort=${encodeURIComponent(id)}`);
   }, [confirmNavigation, pathname, router]);
 

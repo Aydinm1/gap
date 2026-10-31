@@ -202,6 +202,12 @@ descriptive filenames.
   on a horizontally scrollable second row.
 - **Primary action:** solid brand green with white text and deep-green hover.
 - **Secondary action:** white/neutral surface with charcoal border and text.
+- **Interaction feedback:** enabled buttons, links, disclosures, selects and choice/file
+  inputs use a pointer cursor; disabled controls use not-allowed. Text actions use the
+  shared `action-link` treatment: darker action green and underline on fine-pointer hover,
+  keyboard focus and press. Keep visible keyboard outlines, 44px targets and existing
+  button/card background feedback. Color transitions are brief and respect reduced motion;
+  no scaling, bouncing or layout shifts. Hover is enhancement, never required on touch.
 - **Cards:** white or near-white, subtle border, modest radius, minimal shadow.
 - **Status badges:** short text labels with icon/color as redundant cues; never color
   alone.
@@ -325,6 +331,15 @@ forward arrow for available work, and lock for upcoming modules. Retain text lab
 - Respect reduced-motion preferences and use motion only to clarify state.
 
 ## Eight-case challenge presentation
+
+Admin case progress replaces grading filters with a compact status toolbar and searchable
+participant rows: name/email, status, saved count or finished timestamp, and View answers.
+Completed participants appear first, followed by in-progress and not-started participants.
+Use the same row layout stacked on phones; no plain unstructured roster or grading buttons.
+Response detail shows participant identity/status, a wrapping case navigator, scenario,
+and Participant response / Reference approach side-by-side on desktop and stacked on phones.
+Reference text is one possible approach; answers are escaped plain text. Keep the read-only
+label, previous/next actions and context-preserving back link. No scoring or review decision.
 
 Use the existing member assignment typography, neutral cards and green primary action.
 A compact wrapping case navigator and accessible progress indicator show saved cases.

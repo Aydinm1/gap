@@ -69,6 +69,40 @@ select {
   -webkit-tap-highlight-color: transparent;
 }
 
+@layer base {
+  a[href]:not([aria-disabled="true"]),
+  button:not(:disabled):not([aria-disabled="true"]),
+  summary,
+  select:not(:disabled),
+  input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled),
+  label:has(input:is([type="checkbox"], [type="radio"]):enabled) {
+    cursor: pointer;
+  }
+
+  :is(button, select, input):disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+/* Text actions need feedback without a new filled button or layout movement. */
+.action-link {
+  text-underline-offset: 0.2em;
+  transition: color 150ms ease;
+}
+
+.action-link:not(:disabled):not([aria-disabled="true"]):is(:focus-visible, :active) {
+  color: var(--color-action-hover);
+  text-decoration-line: underline;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .action-link:not(:disabled):not([aria-disabled="true"]):hover {
+    color: var(--color-action-hover);
+    text-decoration-line: underline;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -5,6 +5,13 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Added admin case-progress filters with accurate Complete/In progress/Not started counts,
+  searchable participant rows and read-only per-case responses/reference comparison.
+  Exercises remain separate from graded submissions; no scores or completion changes.
+
+- Added consistent pointer cursors for enabled controls and clearer hover/focus/press
+  feedback on review-queue text actions, without motion or changes to review behavior.
+
 - Reorganized admin week editing into Overview, Assignments and Materials, with a focused
   assignment selector and Details, Instructions, Activity setup and Grading reference
   sections. Guided briefs/team directions and challenge cases are edited individually.

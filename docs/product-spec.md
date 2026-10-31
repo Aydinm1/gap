@@ -496,5 +496,10 @@ which freezes them and automatically completes the assignment after all eight ca
 Only finishing counts as completion; no score, document upload or review obligation is
 created. Saved work and completed responses remain available across visits. Admins see
 completion progress separately from review counts. Viewer practice does not expose real
-responses or hidden reference approaches. Existing Standard and Team workflows remain
+responses or hidden reference approaches. Selecting a case assignment in admin shows
+All participants / Complete / In progress / Not started with accurate counts and name/email
+search, separate from graded-submission filters. Complete requires Finish, not merely
+eight saved answers. Admins can open each participant's read-only responses, one case at
+a time, beside the reference approach; no grade, feedback or completion mutation is added.
+Official/test scope and search/filter context persist when returning. Existing Standard and Team workflows remain
 unchanged. See [ADR 0023](decisions/0023-individual-case-exercises.md).

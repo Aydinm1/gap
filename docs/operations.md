@@ -1,7 +1,7 @@
 # GAP Operations Guide
 
 **Status:** Active
-**Last updated:** 2026-10-28
+**Last updated:** 2026-10-31
 **Source of truth for:** Local setup, environment variables, external configuration, and deployment
 
 This file defines the intended operating procedure. Steps marked **Pending** have not yet
@@ -15,8 +15,16 @@ hosted setup, second-lead provisioning, and extended Monday checks stay open in 
 
 ## Routine releases
 
+Case response inspection is read-only: select a case assignment in Review queue, filter
+Complete / In progress / Not started, then View answers. Finish challenge, not eight saved
+answers alone, determines Complete. Existing document-submission totals exclude exercises.
+Admin response reads use the existing RPC; no migration or completion backfill is needed.
+Run `npm run test:cases` with `GAP_TEST_APP_URL` pointing to a local production-mode server
+to verify desktop/phone filtering, answer comparison, permission boundaries and unchanged
+case state using disposable fixtures. Never run fixture writes against hosted Supabase.
+
 Guided project setup (local implementation): save a draft assignment in Team mode, open
-Assignment workflow, choose Guided project and save its supplied common instructions.
+Assignments → select the assignment → Activity setup, choose Guided project and save its supplied common instructions.
 Enter each team's real company/direction/scope in Team directions, then publish the week.
 Do not invent recommendations or silently modify existing assignments. Research saves
 lock membership and preserve original responses; recommendations lock once research

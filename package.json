@@ -18,6 +18,7 @@
     "test": "node --experimental-strip-types --test",
     "test:enrollment": "node --test scripts/verify-enrollment.mjs",
     "test:program": "node --test scripts/verify-program.mjs",
+    "test:interaction": "node --test scripts/verify-interaction-styles.mjs",
     "test:db-types": "node scripts/check-db-types.mjs",
     "db:start": "node --env-file=.env.local scripts/start-supabase.mjs",
     "db:seed:demo": "docker exec -i supabase_db_gap psql -v ON_ERROR_STOP=1 --single-transaction -U postgres -d postgres < supabase/seed.sql",

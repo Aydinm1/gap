@@ -22,7 +22,7 @@ export function WeekContent({ detail, programHref = '/', preview = false, browse
   return (
     <main className="pb-20 sm:pb-24">
       <PageContainer className="py-9 sm:py-11">
-        <Link href={programHref} className="inline-flex min-h-11 items-center text-sm font-bold text-action hover:text-action-hover">
+        <Link href={programHref} className="action-link inline-flex min-h-11 items-center text-sm font-bold text-action">
           <span className="mr-2" aria-hidden="true">←</span> Program
         </Link>
 
@@ -30,7 +30,7 @@ export function WeekContent({ detail, programHref = '/', preview = false, browse
           <p className="text-sm font-bold uppercase tracking-[0.16em] text-brand-deep">Week {detail.week.weekNumber.toString().padStart(2, "0")}</p>
           <h1 className="mt-3 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">{detail.week.title}</h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-ink-soft sm:text-lg">{detail.week.description}</p>
-          <a href="#materials" className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-action">View materials ↓</a>
+          <a href="#materials" className="action-link mt-3 inline-flex min-h-11 items-center text-sm font-bold text-action">View materials ↓</a>
         </header>
 
         <AttendancePrompts sessions={attendance} />

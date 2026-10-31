@@ -1,7 +1,7 @@
 # GAP Data Model and Authorization
 
 **Status:** Active
-**Last updated:** 2026-10-28
+**Last updated:** 2026-10-31
 **Source of truth for:** Database schema, relationships, statuses, RLS, and Storage contracts
 
 ## Manual assignment completion
@@ -616,3 +616,7 @@ existing submission/upload/manual-credit/guided history prevents workflow conver
 Document/manual-credit inserts for exercises are denied. Aggregate completion exposes
 no answers/references and drives progress independently of grading submissions. See
 [ADR 0023](decisions/0023-individual-case-exercises.md).
+
+The admin response-inspection page reuses `read_case_exercise` with its admin-only
+`p_enrollment` selector and cohort validation. No new table, mutation, grading state or
+completion backfill is introduced; case completion remains `case_runs.completed_at`.

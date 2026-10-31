@@ -32,3 +32,7 @@ submission, replacement, history and grading retain their existing contracts.
 Case content cannot be silently changed under saved answers. Future versioned exercises,
 reopening finished runs, scores and automated answer evaluation need separate designs.
 Protected practice previews are local-only and never invoke case mutation/upload actions.
+
+Admin inspection uses a dedicated read-only participant/case page and case-progress filters,
+reusing the existing authorized enrollment projection. It does not add grading decisions
+or put exercise completions into document-submission counts.

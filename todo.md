@@ -10,6 +10,23 @@ requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
 
+- [x] Replace case exercises' grading-filter/unstyled roster with proper progress filters
+  and a protected read-only per-participant/per-case response view. Verify finished versus
+  saved progress, official/test scope, preserved navigation, privacy and no case writes.
+  Seven case, six assignment and five week/activity entries pass without skips, including
+  desktop/390px comparison, finished versus eight-saved answers, filtering/search/back,
+  test scope, unauthorized/revoked-admin/forged-route denial and unchanged case fingerprints.
+  Screenshots inspected; exact fixture cleanup verified. 93 unit/docs checks, lint,
+  typecheck, generated types, Webpack build and diff checks pass. A duplicate generated
+  routes type was moved aside before the standalone typecheck passed. Fixture sessions
+  are not hosted/real Google acceptance. No schema changes, commit or deployment.
+
+- [x] Improve clickable affordances: pointer cursors on enabled controls and restrained
+  hover/focus/press feedback on review actions, preserving disabled and touch behavior.
+  91 unit/docs checks, lint, typecheck, Webpack build and diff checks pass. Three built-CSS
+  browser entries verify desktop hover/focus, unchanged target geometry, disabled controls,
+  reduced motion and phone touch without hover. No program-data writes or release.
+
 - [x] Section the admin week editor: Overview/Assignments/Materials, one selected
   assignment with Details/Instructions/Activity setup/Grading reference, focused guided
   briefs/team directions and one case editor. Preserve drafts/uploads, independent saves,

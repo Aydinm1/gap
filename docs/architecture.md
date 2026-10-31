@@ -81,6 +81,7 @@ updates without shared protected caching or realtime.
 | `/dev/info` | Development only | Retired public-information page reference |
 | `/admin` | Admin | Overview and submission matrix |
 | `/admin/submissions/[id]` | Admin | Submission review and history |
+| `/admin/cases/[assignmentId]/[enrollmentId]` | Admin | Read-only participant case responses/reference comparison |
 | `/admin/weeks` | Admin | Week listing and publication state |
 | `/admin/weeks/[id]` | Admin | Week, assignment, and resource editing |
 | `/admin/members` | Admin | Approved-roster management |
@@ -411,3 +412,10 @@ Preview is local-only; no case mutation or upload action is sent. Member dashboa
 loaders fetch enrollment-scoped paginated completion projections, not private answers.
 Admin progress uses a separate projection; grading queues exclude exercise obligations.
 No service-key content reads or shared caches are introduced.
+
+Admin case progress uses the existing enrollment-scoped aggregate projection, not document
+submission counts; `caseStatus` and `q` drive its own filters. Response detail repeats live
+admin authorization, validates identifiers and assignment/week/enrollment cohort scope, then
+calls the existing user-scoped `read_case_exercise` RPC with the selected enrollment.
+Answers are fetched only on detail navigation, never added to the roster/workspace DTO.
+The page is read-only; cohort switching leaves the old participant route for the overview.

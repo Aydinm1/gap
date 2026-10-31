@@ -103,6 +103,57 @@ test('eight-case exercise lifecycle and boundaries',async t=>{
     console.log('Case exercise screenshots: '+screens);
    }finally{await browser.close();}
   });
+
+  await t.test('admin case inspection filters progress, protects answers and never grades or mutates runs',{skip:!app},async()=>{
+   await sql(`update public.cohort_enrollments set participation_status='enrolled' where id=${q(other.enrollment)};update public.people set full_name='Completed Case Participant' where id=${q(member.person)};update public.approved_members set full_name='Completed Case Participant' where person_id=${q(member.person)};`);
+   for(let n=1;n<=8;n++){let s=await read(other);ok(await mutate(other,'save',answer(s.run?.version??0,n)));if(n<8){s=await read(other);ok(await mutate(other,'next',{version:s.run.version,caseNumber:n}));}}
+   const tester=await fixture();await sql(`update public.cohort_enrollments set is_test=true where id=${q(tester.enrollment)}`);ok(await mutate(tester,'save',answer(0,1)));
+   const fingerprint=()=>sql(`select md5(jsonb_build_object('runs',(select jsonb_agg(to_jsonb(r) order by r.id) from private.case_runs r where assignment_id in(${q(aid)},${q(browserAid)})),'answers',(select jsonb_agg(to_jsonb(a) order by a.run_id,a.case_number) from private.case_answers a join private.case_runs r on r.id=a.run_id where r.assignment_id in(${q(aid)},${q(browserAid)})),'receipts',(select count(*) from private.case_receipts where actor_id in(${users.map(u=>q(u.id)).join(',')})),'submissions',(select count(*) from public.submissions where assignment_id in(${q(aid)},${q(browserAid)})))::text)`);
+   const before=await fingerprint(),{chromium}=await import('playwright-core'),browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true}),screens=await mkdtemp(join(tmpdir(),'gap-case-inspection-'));
+   try{
+    for(const width of [1280,390]){
+     const ctx=await browser.newContext({viewport:{width,height:900}});await ctx.addCookies(await cookies(lead));const p=await ctx.newPage();p.setDefaultTimeout(15000);
+     const errors=[];p.on('pageerror',error=>errors.push(error.message));
+     await p.goto(`${app}/admin?cohort=${cohort}&week=${week}&assignment=${aid}`);
+     const roster=p.getByRole('region',{name:'Case exercise progress',exact:true}),filters=roster.getByLabel('Filter case progress');
+     await filters.getByRole('button',{name:'All participants 3',exact:true}).waitFor();
+     assert.equal(await roster.getByRole('button',{name:/Awaiting review|Revisions requested|Mark complete/}).count(),0);
+     await filters.getByRole('button',{name:'Complete 1',exact:true}).click();await p.waitForURL(u=>u.searchParams.get('caseStatus')==='complete');assert.equal(await roster.getByRole('link',{name:/^View answers/}).count(),1);
+     await roster.getByRole('searchbox',{name:'Search participants',exact:true}).fill('Completed');await p.waitForURL(u=>u.searchParams.get('q')==='Completed');
+     await roster.getByRole('link',{name:/^View answers/}).first().click();
+     await p.getByRole('heading',{name:'Completed Case Participant',level:1,exact:true}).waitFor();
+     await p.getByText('Edited after all eight references',{exact:true}).waitFor();await p.getByText('PRIVATE REFERENCE 1',{exact:true}).waitFor();
+     assert.equal(await p.getByRole('button',{name:/Save review|Mark complete|Finish challenge/}).count(),0);
+     await p.getByRole('navigation',{name:'Cases',exact:true}).getByRole('button',{name:'Case 2 · Saved',exact:true}).click();
+     await p.getByText('PRIVATE REFERENCE 2',{exact:true}).waitFor();await p.getByText('Fictional process framework',{exact:true}).waitFor();
+     assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:join(screens,`response-${width}.png`),fullPage:true});
+     await p.reload();await p.getByText('Edited after all eight references',{exact:true}).waitFor();
+     await p.getByRole('link',{name:'← Case progress',exact:true}).click();await p.waitForURL(u=>u.pathname==='/admin');
+     assert.equal(new URL(p.url()).searchParams.get('caseStatus'),'complete');assert.equal(new URL(p.url()).searchParams.get('q'),'Completed');
+     await filters.getByRole('button',{name:'Complete 1',exact:true}).waitFor();await roster.getByRole('searchbox',{name:'Search participants',exact:true}).fill('');await p.waitForURL(u=>!u.searchParams.has('q'));
+     await filters.getByRole('button',{name:'In progress 1',exact:true}).click();await roster.getByText('8 of 8 cases saved',{exact:true}).waitFor();
+     await filters.getByRole('button',{name:'Not started 1',exact:true}).click();await p.waitForURL(u=>u.searchParams.get('caseStatus')==='not_started');await roster.getByText('0 of 8 cases saved',{exact:true}).waitFor();await roster.getByRole('link',{name:/^View answers/}).click();await p.getByText('No saved response for this case.',{exact:true}).waitFor();
+     await p.getByRole('link',{name:'← Case progress',exact:true}).click();await filters.getByRole('button',{name:'All participants 3',exact:true}).click();await p.waitForURL(u=>u.searchParams.get('caseStatus')==='all');
+     await p.getByRole('combobox',{name:'Participation view',exact:true}).selectOption('test');await filters.getByRole('button',{name:'All participants 1',exact:true}).waitFor();await filters.getByRole('button',{name:'In progress 1',exact:true}).waitFor();
+     await roster.getByRole('link',{name:/^View answers/}).click();await p.getByText('Test participant',{exact:true}).waitFor();await p.getByRole('link',{name:'← Case progress',exact:true}).click();await p.waitForURL(u=>u.pathname==='/admin');assert.equal(new URL(p.url()).searchParams.get('audience'),'test');
+     assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:join(screens,`progress-${width}.png`),fullPage:true});assert.deepEqual(errors,[]);await ctx.close();
+    }
+    const http=await browser.newContext(),path=`/admin/cases/${aid}/${member.enrollment}?cohort=${cohort}`;
+    for(const u of [null,member,viewer,inactive,wrong]){
+     const jar=u?await cookies(u):[],r=await http.request.get(app+path,{headers:{cookie:jar.map(c=>c.name+'='+c.value).join('; ')}}),body=await r.text();
+     assert.match(body,/Continue with Google|GAP access required|NEXT_REDIRECT;replace;\/(?:login|access-denied)/);assert.ok(!body.includes('Edited after all eight references')&&!body.includes('PRIVATE REFERENCE 1'));
+    }
+    const jar=await cookies(lead),headers={cookie:jar.map(c=>c.name+'='+c.value).join('; ')};
+    for(const route of [`/admin/cases/${aid}/${randomUUID()}`,`/admin/cases/${aid}/${member.enrollment}?cohort=${randomUUID()}`,`/admin/cases/not-an-id/${member.enrollment}`]){
+     const body=await(await http.request.get(app+route,{headers})).text();assert.match(body,/This page could not be found/);assert.ok(!body.includes('Edited after all eight references'));
+    }
+    await sql(`update public.approved_members set role='member' where person_id=${q(lead.person)}`);
+    try{const body=await(await http.request.get(app+path,{headers})).text();assert.match(body,/GAP access required|NEXT_REDIRECT;replace;\/access-denied/);assert.ok(!body.includes('Edited after all eight references'));assert.ok((await lead.client.rpc('read_case_exercise',{p_assignment:aid,p_enrollment:member.enrollment})).error);}
+    finally{await sql(`update public.approved_members set role='admin' where person_id=${q(lead.person)}`);}
+    await http.close();assert.equal(await fingerprint(),before,'Inspection must not change answers, finish times, receipts or submissions');
+    console.log('Case inspection screenshots: '+screens);
+   }finally{await browser.close();}
+  });
  }finally{
   await sql(`delete from private.case_receipts where actor_id in(${users.map(u=>q(u.id)).join(',')||'null'});delete from private.case_answers where run_id in(select id from private.case_runs where assignment_id in(${q(aid)},${q(browserAid)}));delete from private.case_runs where assignment_id in(${q(aid)},${q(browserAid)});delete from private.case_configs where assignment_id in(${q(aid)},${q(browserAid)});delete from public.assignments where week_id=${q(week)};delete from public.program_weeks where id=${q(week)};delete from public.cohort_enrollments where cohort_id=${q(cohort)};delete from public.program_cohorts where id=${q(cohort)}`);
   for(const u of users){await sql(`delete from public.profiles where id=${q(u.id)};delete from public.approved_members where person_id=${q(u.person)};delete from public.people where id=${q(u.person)}`);ok(await root.auth.admin.deleteUser(u.id));}
