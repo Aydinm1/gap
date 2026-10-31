@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { openAssignmentEditor } from './week-editor.mjs';
 
 export async function verifyProgramBrowser({appUrl, fixture, jarFor, admin, ok, browserCohorts, action}) {
   const {chromium}=await import('playwright-core');
@@ -60,10 +61,13 @@ export async function verifyProgramBrowser({appUrl, fixture, jarFor, admin, ok, 
       await page.goto(`${appUrl}/admin/weeks/${week}?cohort=${cohort}`);
       await page.getByLabel('Title',{exact:true}).fill(`Browser week ${width}`);
       await page.getByLabel(/^Description/).fill('Private draft instructions');
+      await page.getByRole('navigation',{name:'Week sections',exact:true}).getByRole('button',{name:/^Assignments/}).click();
       await page.getByRole('button',{name:'Add assignment',exact:true}).click();
-      await page.getByLabel('Title',{exact:true}).nth(1).fill('Browser assignment');
-      await page.getByLabel('Instructions',{exact:true}).fill('Provide evidence.');
+      const assignment = await page.getByRole('combobox',{name:'Select assignment',exact:true,includeHidden:true}).inputValue();
+      await page.getByRole('textbox',{name:'Title',exact:true}).fill('Browser assignment');
       await page.getByLabel('Deadline (Pacific time)',{exact:true}).fill('2099-05-01T12:00');
+      await openAssignmentEditor(page,assignment,'Instructions');
+      await page.getByRole('textbox',{name:'Instructions',exact:true}).fill('Provide evidence.');
       // Discard warning must allow staying on the populated editor.
       page.once('dialog',dialog=>dialog.dismiss());
       await page.getByRole('link',{name:'← All weeks',exact:true}).click();
@@ -75,6 +79,7 @@ export async function verifyProgramBrowser({appUrl, fixture, jarFor, admin, ok, 
       await memberPage.goto(`${appUrl}/`);
       assert.ok(!(await memberPage.content()).includes('Private draft instructions'));
       // Fail a real save request; preserve draft fields for a retry.
+      await page.getByRole('navigation',{name:'Week sections',exact:true}).getByRole('button',{name:'Overview',exact:true}).click();
       await page.getByLabel(/^Description/).fill('Published browser instructions');
       await page.route('**/admin/weeks/*',route=>route.request().headers()['next-action'] ? route.abort('failed') : route.continue());
       await page.getByRole('button',{name:'Save & publish',exact:true}).click();

@@ -1,3 +1,4 @@
+import { openAssignmentEditor } from './lib/week-editor.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFile } from 'node:child_process';
@@ -170,10 +171,10 @@ test('private grading references use disposable local records', async t => {
       try{for(const width of [1280,390]){
         const ctx=await browser.newContext({viewport:{width,height:900},acceptDownloads:true});await ctx.addCookies(await cookieJar(lead));const page=await ctx.newPage();page.setDefaultTimeout(20000);
         await page.goto(app+`/admin/weeks/${week}?cohort=${cohort}`);
-        const editor=page.locator(`#grading-${assignment}`);await editor.locator('summary').first().click();
+        const editor=page.locator(`#grading-${assignment}`);await openAssignmentEditor(page,assignment,'Grading reference');
         await editor.getByLabel('Rubric',{exact:true}).fill(`## Private criteria ${width}\n- **Evidence** required`);
         await editor.getByLabel('Example response',{exact:true}).fill('## Model answer\nUse a credible source.');
-        await page.getByLabel('Title',{exact:true}).first().fill('Unsaved public title');
+        await page.getByRole('navigation',{name:'Week sections',exact:true}).getByRole('button',{name:'Overview',exact:true}).click();await page.getByLabel('Title',{exact:true}).first().fill('Unsaved public title');await openAssignmentEditor(page,assignment,'Grading reference');
         if(width===1280){
           let fail=true;
           await page.route('**/*',route=>{if(fail&&route.request().headers()['next-action']===actionId('saveGradingReference')){fail=false;return route.abort('failed');}return route.continue();});
@@ -204,7 +205,7 @@ test('private grading references use disposable local records', async t => {
           await editor.getByRole('button',{name:'Retry upload / save',exact:true}).click();
         }else await editor.getByRole('button',{name:/^(Replace|Upload) example PDF$/}).click();
         await editor.getByText('Example PDF attached.',{exact:true}).waitFor();
-        page.once('dialog',d=>d.accept());await page.reload();await editor.locator('summary').first().click();
+        page.once('dialog',d=>d.accept());await page.reload();await openAssignmentEditor(page,assignment,'Grading reference');
         assert.match(await editor.getByLabel('Rubric',{exact:true}).inputValue(),new RegExp(`Private criteria ${width}`));
         await editor.getByRole('link',{name:`Download Model ${width}.pdf`,exact:true}).waitFor();
         const latest=ok(await member.client.from('submissions').select('*').eq('assignment_id',assignment).eq('is_current',true).single());

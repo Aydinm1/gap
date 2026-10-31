@@ -36,12 +36,12 @@ export function AssignmentInstructionsEditor({ value, format = 'plain', onChange
     onChange({ instructions: value.slice(0, start) + insert + value.slice(end), instructionsFormat: 'markdown' });
     setError('');
   }
-  return <div>
+  return <div className="min-w-0">
     <div className="flex flex-wrap items-center justify-between gap-3"><label htmlFor={id} className="text-sm font-bold">{label}</label>
       {showFormat ? <label className="flex items-center gap-2 text-xs font-semibold text-ink-soft">Format<select aria-label={label === 'Instructions' ? 'Instruction format' : `${label} format`} className="min-h-11 rounded-md border border-border bg-surface px-2 text-sm" value={format} onChange={e => onChange({ instructionsFormat: e.target.value as BriefFormat })}><option value="plain">Plain text</option><option value="markdown">Formatted</option></select></label> : null}</div>
     <div role="group" aria-label={label === 'Instructions' ? 'Instruction formatting' : `${label} formatting`} className="mt-2 flex flex-wrap gap-2">{(['heading','bold','bullets','numbers','link'] as const).map(kind => <button key={kind} type="button" className={button} onClick={() => apply(kind)}>{({heading:'Heading',bold:'Bold',bullets:'Bulleted list',numbers:'Numbered list',link:'Link'})[kind]}</button>)}</div>
     <textarea ref={textarea} id={id} rows={10} value={value} onChange={e => onChange({instructions:e.target.value})} aria-describedby={`${id}-help`} className="mt-3 block w-full rounded-lg border border-border-strong bg-surface p-3.5 text-base leading-7" />
-    <p id={`${id}-help`} className="mt-2 text-xs leading-5 text-ink-soft">Select text, then use the toolbar. Formatting uses ## headings, **bold**, lists and [links](https://...). No HTML, images or embeds. Up to {MAX_BRIEF_CHARACTERS.toLocaleString('en-US')} characters.</p>
+    <p id={`${id}-help`} className="mt-2 text-xs leading-5 text-ink-soft">Up to {MAX_BRIEF_CHARACTERS.toLocaleString('en-US')} characters. No HTML, images or embeds.</p>
     {error ? <p role="alert" className="mt-2 text-sm text-danger-text">{error}</p> : null}
     <details className="mt-4 rounded-lg border border-border bg-surface-subtle p-4"><summary className="cursor-pointer text-sm font-bold">Preview {label.toLowerCase()}</summary><div className="mt-5"><AssignmentBrief instructions={value} format={format} /></div></details>
   </div>;

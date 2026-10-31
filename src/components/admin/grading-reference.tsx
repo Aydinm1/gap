@@ -59,7 +59,7 @@ function ExamplePdf({ reference, onDirty }: { reference: GradingReference; onDir
   }
   return <section aria-label="Private example PDF" className="rounded-lg border border-border p-4">
     <h4 className="font-bold">Example PDF — Admins only</h4>
-    <p className="mt-2 text-sm leading-6 text-ink-soft">Optional model answer, PDF up to 20 MB. Uploads save immediately, separately from reference text. This is not the member-facing assignment PDF.</p>
+    <p className="mt-2 text-sm leading-6 text-ink-soft">PDF up to 20 MB. Uploads save immediately, separately from reference text.</p>
     {document ? <div className="mt-3 flex flex-wrap gap-3"><a className="inline-flex min-h-11 items-center break-all text-sm font-bold text-action underline" href={`/api/grading-examples/${document.id}/download`}>Download {document.name}</a><Button variant="quiet" size="compact" disabled={busy || Boolean(file)} onClick={remove}>Remove example PDF</Button></div> : null}
     <label className="mt-4 block text-sm font-bold">Choose example PDF<input key={document?.id ?? 'empty'} type="file" accept="application/pdf,.pdf" disabled={busy || hasTask} className="mt-2 block w-full text-sm" onChange={e => { setFile(e.target.files?.[0]); setMessage(''); }} /></label>
     {file ? <p className="mt-2 break-all text-sm text-ink-soft">Selected: {file.name}</p> : null}
@@ -70,8 +70,8 @@ function ExamplePdf({ reference, onDirty }: { reference: GradingReference; onDir
   </section>;
 }
 
-export function GradingReferenceEditor({ assignmentId, initial, persisted, onDirty }: {
-  assignmentId: string; initial?: GradingReference; persisted: boolean; onDirty: (id: string, dirty: boolean) => void;
+export function GradingReferenceEditor({ assignmentId, initial, persisted, onDirty, expanded = false }: {
+  assignmentId: string; initial?: GradingReference; persisted: boolean; onDirty: (id: string, dirty: boolean) => void; expanded?: boolean;
 }) {
   const [source, setSource] = useState(initial ?? emptyReference(assignmentId));
   const [rubric, setRubric] = useState(source.rubric), [example, setExample] = useState(source.example);
@@ -94,10 +94,9 @@ export function GradingReferenceEditor({ assignmentId, initial, persisted, onDir
     } catch { setMessage('Could not save grading reference. Your text is retained; please retry.'); }
     finally { setSaving(false); }
   }
-  return <details ref={details} id={`grading-${assignmentId}`} className="rounded-lg border border-border bg-surface-subtle p-5">
+  return <details ref={details} open={expanded || undefined} id={`grading-${assignmentId}`} className="rounded-lg border border-border bg-surface-subtle p-5">
     <summary className="cursor-pointer font-bold">Grading reference <span className="ml-2 text-xs font-semibold text-ink-soft">Admins only</span></summary>
     {!persisted ? <p className="mt-4 text-sm text-ink-soft">Save the assignment draft first, then add its grading reference.</p> : <div className="mt-5 space-y-6">
-      <p className="text-sm leading-6 text-ink-soft">Private guidance shared with other admins. Members and Viewers cannot see this. No scores or grades are recorded.</p>
       <fieldset disabled={saving} className="min-w-0 space-y-6">
         <AssignmentInstructionsEditor label="Rubric" showFormat={false} value={rubric} format="markdown" onChange={v => { if (v.instructions !== undefined) setRubric(v.instructions); setMessage(''); }} />
         <AssignmentInstructionsEditor label="Example response" showFormat={false} value={example} format="markdown" onChange={v => { if (v.instructions !== undefined) setExample(v.instructions); setMessage(''); }} />

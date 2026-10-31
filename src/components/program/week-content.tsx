@@ -56,14 +56,13 @@ export function WeekContent({ detail, programHref = '/', preview = false, browse
             ) : (
               <>
                 <h2 id="assignment-heading" className="text-2xl font-bold tracking-[-0.025em]">Assignment</h2>
-                <div className="mt-5"><StateMessage title="No assignment this week">Focus on the workshop and resources. There is nothing to submit.</StateMessage></div>
+                <div className="mt-5"><StateMessage title="No assignment this week" /></div>
               </>
             )}
           </section>
 
           <section id="materials" aria-labelledby="materials-heading">
             <h2 id="materials-heading" className="text-2xl font-bold tracking-[-0.025em]">Materials</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-soft">Use the workshop presentation and references to complete this week’s assignment.</p>
 
             {detail.week.slidesUrl || detail.week.resources.length ? (
               <Card className="mt-5 overflow-hidden">
@@ -73,7 +72,6 @@ export function WeekContent({ detail, programHref = '/', preview = false, browse
                       <a href={detail.week.slidesUrl} target="_blank" rel="noreferrer" className="flex min-h-20 items-center justify-between gap-5 px-6 py-4 transition-colors hover:bg-surface-subtle sm:px-8">
                         <span>
                           <span className="block font-bold text-ink">Workshop presentation</span>
-                          <span className="mt-1 block text-sm leading-6 text-ink-soft">Revisit the slides from this week’s session.</span>
                         </span>
                         <span className="flex shrink-0 items-center gap-3">
                           <span className="hidden text-xs font-bold text-ink-faint sm:inline">Slides</span>
@@ -99,7 +97,7 @@ export function WeekContent({ detail, programHref = '/', preview = false, browse
                 </ol>
               </Card>
             ) : (
-              <div className="mt-5"><StateMessage title="No materials this week">Everything needed to complete this week is included in the assignment instructions.</StateMessage></div>
+              <div className="mt-5"><StateMessage title="No materials this week" /></div>
             )}
           </section>
         </div>

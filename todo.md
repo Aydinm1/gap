@@ -1,7 +1,7 @@
 # GAP MVP Implementation TODO
 
 **Status:** Active
-**Last updated:** 2026-10-28
+**Last updated:** 2026-10-31
 
 Legend: `[ ]` pending · `[~]` active · `[x]` complete
 
@@ -9,6 +9,28 @@ This file tracks approved work. Product and technical rules live in `docs/`; com
 requires implementation, validation, documentation, and changelog agreement.
 
 ## Current checkpoint — 2026-10-20
+
+- [x] Section the admin week editor: Overview/Assignments/Materials, one selected
+  assignment with Details/Instructions/Activity setup/Grading reference, focused guided
+  briefs/team directions and one case editor. Preserve drafts/uploads, independent saves,
+  publication and review edit links. 90 unit/docs tests plus assignment (6), guided (9),
+  cases (6), grading (7), briefs (5), attendance (9), program/session (12) and teams (8)
+  entries pass without skips. Desktop/390px checks cover section/assignment switches,
+  retained text/files, individual case editing, independent saves, recovery, reload,
+  private downloads, review edit links and keyboard controls; screenshots inspected.
+  Lint, typecheck, generated types, Webpack build and diff checks pass. Fixture-only
+  writes/cleanup; not real Google or hosted acceptance. No schema changes or release.
+
+- [x] Audit member/admin microcopy: remove redundant subtitles and bookkeeping notes,
+  keep actionable guidance and safety warnings. 88 unit/docs checks and local attendance
+  (9), guided-project (9) and case (6) suites pass without skips, including desktop/phone
+  workflows. Review queue/attendance screenshots inspected; lint, typecheck, Webpack build and diff
+  checks pass. Copy-only cleanup; no schema, authorization, grading or release changes.
+
+- [x] Remove redundant attendance-presentation sign-in/footer copy while preserving
+  closing date/time, code/QR, fullscreen and keyboard controls. 85 unit/docs tests,
+  lint, typecheck, Webpack build and diff checks pass. Browser checks were not rerun
+  for this copy-only change; not committed or deployed.
 
 - [x] Add standalone attendance QR/code presentation with browser fullscreen/fallback,
   keyboard exit/focus return and responsive layout. Nine attendance entries pass without

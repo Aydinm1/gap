@@ -147,7 +147,7 @@ function TeamsPanel({ onDirty, dirty }: { onDirty: (dirty: boolean) => void; dir
       }
       setSelected(event.target.value); setMessage('');
     }}>{!teams.length ? <option value="">No teams yet</option> : teams.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.name}{candidate.isTest ? ' · Test' : ''}</option>)}</select></label>
-    {team ? <><p className="mt-3 text-sm text-ink-soft">{team.enrollmentIds.length} {team.enrollmentIds.length === 1 ? 'member' : 'members'} · {team.isTest ? 'Test team · excluded from official totals' : 'Official team'}</p>
+    {team ? <><p className="mt-3 text-sm text-ink-soft">{team.enrollmentIds.length} {team.enrollmentIds.length === 1 ? 'member' : 'members'} · {team.isTest ? 'Test team' : 'Official team'}</p>
       <p className="mt-1 text-xs text-ink-soft">{team.locked ? 'Membership locked after research or submission' : 'Membership editable until first research save or submission'}</p></> : <p className="mt-3 text-sm text-ink-soft">Add a team to begin assigning participants.</p>}
   </div>;
 
@@ -173,12 +173,12 @@ function TeamsPanel({ onDirty, dirty }: { onDirty: (dirty: boolean) => void; dir
   }
 
   return <section aria-label="Teams" className="mt-12 border-t border-border pt-8">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Teams</h2><p className="mt-2 text-sm text-ink-soft">{unassigned.length} official participants unassigned. Teams are managed by admins.</p></div>
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Teams</h2><p className="mt-2 text-sm text-ink-soft">{unassigned.length} unassigned participants.</p></div>
       <Button variant="secondary" disabled={busy || editingBusy || !state.selectedCohortId} onClick={() => { setCreating(value => !value); setCreateError(''); }}>Add team</Button>
     </div>
     {unassigned.length ? <details className="mt-3 text-sm"><summary className="min-h-11 cursor-pointer content-center font-semibold">Unassigned participants</summary><ul className="mt-2 space-y-1">{unassigned.map(enrollment => <li key={enrollment.id}>{state.people.find(person => person.id === enrollment.personId)?.fullName}</li>)}</ul></details> : null}
     {creating ? <form aria-label="Add team" className="mt-4 rounded-card border border-border bg-surface p-5" onSubmit={event => { event.preventDefault(); create(); }}>
-      <p className="font-semibold">Create {suggestedName}</p><p className="mt-1 text-sm text-ink-soft">You can rename it later in Team actions.</p>
+      <p className="font-semibold">Create {suggestedName}</p>
       <label className="mt-3 flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" className="size-4 accent-action" checked={isTest} disabled={busy} onChange={event => setIsTest(event.target.checked)} />Test team</label>
       <div className="mt-3 flex flex-wrap gap-2"><Button type="submit" disabled={busy || editingBusy}>{busy ? 'Creating…' : 'Create team'}</Button><Button variant="quiet" disabled={busy} onClick={() => { setCreating(false); setCreateError(''); }}>Cancel</Button></div>
       {createError ? <p role="alert" className="mt-3 text-sm text-danger-text">{createError}</p> : null}

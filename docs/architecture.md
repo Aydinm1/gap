@@ -8,7 +8,7 @@ successful receipts through retries. No background jobs or Monday writes are inv
 See [ADR 0008](decisions/0008-monday-member-import.md).
 
 **Status:** Active
-**Last updated:** 2026-10-28
+**Last updated:** 2026-10-31
 **Source of truth for:** Routes, application boundaries, auth/data flow, and mutation patterns
 
 ## Stack and principles
@@ -123,6 +123,15 @@ Preview navigation retains its cohort query; normal member reads remain enrollme
 7. Database and Storage RLS enforce the same policy independently.
 
 ## Data access and mutations
+
+The admin week editor uses local section and selected-assignment state; inactive panels
+remain mounted behind native `hidden` wrappers, retaining independent editor state and
+upload tasks while removing controls from layout/keyboard navigation. Section switches
+perform no mutations or route navigation. `#grading-<assignment>` and
+`#guided-<assignment>` reveal the corresponding assignment/section. PDF selection/busy
+state participates in the existing unsaved-navigation guard. Existing authorized loaders,
+action contracts, week save payload and independent activity/reference saves are unchanged.
+This visual organization introduces no schema or migration changes.
 
 Guided project code lives in `src/lib/guided/`. Shared assignment contracts contain only
 the safe workflow discriminator. Protected assignment pages request separate, user-scoped

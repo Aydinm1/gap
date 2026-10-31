@@ -1,3 +1,4 @@
+import { openAssignmentEditor } from './lib/week-editor.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {execFile} from 'node:child_process';
@@ -87,13 +88,13 @@ test('multiple assignments preserve independent history and require all approval
    try{for(const width of [1280,390]){
     const adminCtx=await browser.newContext({viewport:{width,height:900}});await adminCtx.addCookies([...(await jar(lead))].map(([name,value])=>({name,value,url:process.env.GAP_TEST_APP_URL})));const editor=await adminCtx.newPage();editor.setDefaultTimeout(15000);
     await editor.goto(`${process.env.GAP_TEST_APP_URL}/admin/weeks/${week}?cohort=${cohort}`);
-    await editor.getByRole('button',{name:'Add assignment',exact:true}).click();
-    const card=editor.getByRole('heading',{name:'Assignment 3',exact:true}).locator('../..');
-    await card.getByLabel('Title',{exact:true}).fill('Temporary third');await card.getByLabel('Instructions',{exact:true}).fill('Temporary instructions');
+    await openAssignmentEditor(editor,first);await editor.getByRole('button',{name:'Add assignment',exact:true}).click();
+    const third=await editor.getByRole('combobox',{name:'Select assignment',exact:true,includeHidden:true}).inputValue();const card=editor.locator(`[data-assignment-editor="${third}"]`);
+    await card.getByLabel('Title',{exact:true}).fill('Temporary third');await openAssignmentEditor(editor,third,'Instructions');await card.getByLabel('Instructions',{exact:true}).fill('Temporary instructions');
     await editor.getByRole('button',{name:'Save changes',exact:true}).click();await editor.getByText('Week published.',{exact:true}).waitFor();
     await editor.reload();assert.equal((await rows()).length,3);
     editor.once('dialog',dialog=>dialog.accept());
-    await editor.getByRole('heading',{name:'Assignment 3',exact:true}).locator('../..').getByRole('button',{name:'Remove assignment',exact:true}).click();
+    await openAssignmentEditor(editor,third);await card.getByRole('button',{name:'Remove assignment',exact:true}).click();
     await editor.getByRole('button',{name:'Save changes',exact:true}).click();await editor.getByText('Week published.',{exact:true}).waitFor();
     assert.deepEqual((await rows()).map(a=>a.id),[first,second]);
     await editor.goto(`${process.env.GAP_TEST_APP_URL}/admin?cohort=${cohort}&assignment=${second}`);
@@ -122,14 +123,19 @@ test('multiple assignments preserve independent history and require all approval
    try{for(const width of [1280,390]){
     const adminCtx=await browser.newContext({viewport:{width,height:900}});await adminCtx.addCookies([...(await jar(lead))].map(([name,value])=>({name,value,url:app})));const page=await adminCtx.newPage();page.setDefaultTimeout(15000);
     await page.goto(`${app}/admin/weeks/${week}?cohort=${cohort}`);
-    const card=page.getByRole('heading',{name:'Assignment 1',exact:true}).locator('../..'),input=card.getByLabel('Instructions',{exact:true});
+    await openAssignmentEditor(page,first);const card=page.locator(`[data-assignment-editor="${first}"]`),input=card.getByLabel('Instructions',{exact:true});
     const summary=`Research Notion and prepare four evidence-backed SWOT findings (${width}).`;
     await card.getByLabel('Summary (optional)',{exact:true}).fill(summary);
-    await input.fill(source);await input.evaluate(el=>el.setSelectionRange(0,9));await card.getByRole('button',{name:'Heading',exact:true}).click();
+    await openAssignmentEditor(page,first,'Instructions');await input.fill(source);await input.evaluate(el=>el.setSelectionRange(0,9));await card.getByRole('button',{name:'Heading',exact:true}).click();
     const withHeading=await input.inputValue();assert.match(withHeading,/^## Your task\n/);const index=withHeading.indexOf('Notion');await input.evaluate((el,i)=>el.setSelectionRange(i,i+6),index);await card.getByRole('button',{name:'Bold',exact:true}).click();assert.match(await input.inputValue(),/^## Your task\nResearch \*\*Notion\*\*/);
     assert.equal(await card.getByLabel('Instruction format',{exact:true}).inputValue(),'markdown');
     await card.getByText('Preview instructions',{exact:true}).click();await card.getByRole('heading',{name:'Your task',exact:true}).waitFor();assert.equal(await card.locator('strong').filter({hasText:'Notion'}).count(),1);
-    await page.getByRole('button',{name:'Save changes',exact:true}).click();await page.getByText('Week published.',{exact:true}).waitFor();await page.reload();assert.match(await card.getByLabel('Instructions',{exact:true}).inputValue(),/\*\*Notion\*\*/);
+    const retained=await input.inputValue();await openAssignmentEditor(page,second,'Details');await openAssignmentEditor(page,first,'Instructions');assert.equal(await input.inputValue(),retained);
+    await page.getByRole('navigation',{name:'Week sections',exact:true}).getByRole('button',{name:'Overview',exact:true}).click();assert.equal(await input.isVisible(),false);await openAssignmentEditor(page,first,'Instructions');assert.equal(await input.inputValue(),retained);
+    await card.getByLabel('Choose PDF',{exact:true}).setInputFiles({name:'Retained draft.pdf',mimeType:'application/pdf',buffer:pdf});await openAssignmentEditor(page,second);await openAssignmentEditor(page,first,'Instructions');await card.getByText('Selected: Retained draft.pdf',{exact:true}).waitFor();await card.getByRole('button',{name:'Cancel upload',exact:true}).click();
+    const nav=page.getByRole('navigation',{name:'Assignment sections',exact:true});await nav.getByRole('button',{name:'Details',exact:true}).focus();await page.keyboard.press('Enter');assert.equal(await nav.getByRole('button',{name:'Details',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await card.getByLabel('Summary (optional)',{exact:true}).inputValue(),summary);await openAssignmentEditor(page,first,'Instructions');
+    await page.screenshot({path:join(screenshots,`editor-${width}.png`),fullPage:true});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),JSON.stringify(await page.evaluate(()=>({width:innerWidth,offenders:[...document.querySelectorAll('main *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).slice(0,12).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right}))})))+screenshots);
+    await page.getByRole('button',{name:'Save changes',exact:true}).click();await page.getByText('Week published.',{exact:true}).waitFor();await page.reload();await openAssignmentEditor(page,first,'Instructions');assert.match(await card.getByLabel('Instructions',{exact:true}).inputValue(),/\*\*Notion\*\*/);
     const counts=await sql(`select jsonb_build_array((select count(*) from public.submissions where assignment_id=${q(first)}),(select count(*) from public.cohort_enrollments where cohort_id=${q(cohort)}),(select count(*) from private.upload_intents where assignment_id=${q(first)}))`);
     await page.goto(`${app}/admin/preview/week/1?cohort=${cohort}`);await page.getByRole('link',{name:'View assignment: First brief',exact:true}).click();await page.waitForURL(url=>url.pathname.endsWith(`/assignments/${first}`));assert.equal(new URL(page.url()).searchParams.get('cohort'),cohort);
     await page.getByRole('heading',{name:'Your task',exact:true}).waitFor();await page.getByRole('button',{name:'Preview submission',exact:true}).click();await page.getByRole('button',{name:/^Write response/}).click();await page.getByLabel('Your response',{exact:true}).fill('Preview only');assert.ok(await page.getByRole('button',{name:'Submit assignment',exact:true}).isDisabled());

@@ -5,6 +5,20 @@ Keep a Changelog without assigning versions until the first release.
 
 ## Unreleased
 
+- Reorganized admin week editing into Overview, Assignments and Materials, with a focused
+  assignment selector and Details, Instructions, Activity setup and Grading reference
+  sections. Guided briefs/team directions and challenge cases are edited individually.
+  Section switches retain text, selected PDFs and transfers; existing independent saves,
+  review edit links and publication behavior remain intact. No database changes.
+
+- Reduced explanatory UI clutter across admin review, attendance, Members, Teams,
+  workflow editors, previews and member learning/submission screens. Removed redundant
+  count/retention notes and subtitles; kept status, scope, learning content, actionable
+  errors, limits and safety warnings. Empty review queues now use a single clear heading.
+
+- Simplified attendance presentation by removing sign-in instructions and footer text,
+  retaining the closing date/time, QR/code labels and existing fullscreen/exit behavior.
+
 - Added Present check-in to admin Attendance: a standalone large QR/code presentation,
   optional browser fullscreen, Escape/exit and full-window fallback. Existing session,
   code, closing time and recorded attendance remain unchanged.

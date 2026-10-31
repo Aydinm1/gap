@@ -1,3 +1,4 @@
+import { openAssignmentEditor } from './lib/week-editor.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFile } from 'node:child_process';
@@ -128,7 +129,7 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
           const locked=await ctx.request.get(`${process.env.GAP_TEST_APP_URL}/admin/preview/week/2?cohort=${cohort}`);assert.match(await locked.text(),/This page could not be found/);
           const missing=await ctx.request.get(`${process.env.GAP_TEST_APP_URL}/admin/preview?cohort=${randomUUID()}`);assert.match(await missing.text(),/This page could not be found/);
           await page.goto(`${process.env.GAP_TEST_APP_URL}/admin/weeks/${week}?cohort=${cohort}`);
-          await page.waitForFunction(() => { const input=document.querySelector('input[type="file"]');return input && Object.keys(input).some(key=>key.startsWith('__reactProps$')); });
+          await openAssignmentEditor(page,assignment,'Instructions');await page.waitForFunction(() => { const input=document.querySelector('input[type="file"]');return input && Object.keys(input).some(key=>key.startsWith('__reactProps$')); });
           await page.getByLabel('Choose PDF',{exact:true}).setInputFiles({name:'invalid.pdf',mimeType:'application/pdf',buffer:Buffer.from('not a PDF')});
           await page.getByText('Selected: invalid.pdf',{exact:true}).waitFor();
           await page.getByRole('button',{name:'Replace PDF',exact:true}).click();
@@ -140,7 +141,7 @@ test('assignment briefs and cohort dates use isolated local records',async t=>{
           await page.getByRole('button',{name:'Replace PDF',exact:true}).click();
           await page.getByText('Assignment PDF attached.',{exact:true}).waitFor();
           await page.reload();
-          const link=page.getByRole('link',{name:`Download Assignment ${width}.pdf`,exact:true});await link.waitFor();
+          await openAssignmentEditor(page,assignment,'Instructions');const link=page.getByRole('link',{name:`Download Assignment ${width}.pdf`,exact:true});await link.waitFor();
           const href=await link.getAttribute('href');
           const download=await ctx.request.get(new URL(href,process.env.GAP_TEST_APP_URL).toString());assert.equal(download.status(),200);assert.deepEqual(await download.body(),pdf);
           const anonymousDownload=await fetch(new URL(href,process.env.GAP_TEST_APP_URL),{redirect:'manual'});assert.equal(anonymousDownload.status,401);

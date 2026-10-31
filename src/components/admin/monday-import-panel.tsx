@@ -27,7 +27,7 @@ export function MondayImportPanel() {
   }
   const choices = [...new Map(batch?.rows.filter(r => r.cohortKey).map(r => [r.cohortKey,r.cohortLabel])).entries()];
   return <Card className="mt-6 p-5 sm:p-6">
-    <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold">Monday enrollment</h2><p className="mt-1 text-sm text-ink-soft">Preview checked members, match cohorts, then confirm. Monday stays unchanged.</p></div>
+    <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold">Monday enrollment</h2><p className="mt-1 text-sm text-ink-soft">Match cohorts, then confirm enrollment.</p></div>
       <Button variant="secondary" disabled={busy} onClick={() => run('preview')}>{batch ? 'Reload preview' : 'Sync from Monday'}</Button></div>
     {busy ? <p role="status" className="mt-4 text-sm">Processing…</p> : null}
     {error ? <p role="alert" className="mt-4 text-sm text-danger-text">{error}</p> : null}

@@ -1,7 +1,7 @@
 # GAP Product Specification
 
 **Status:** Active
-**Last updated:** 2026-10-28
+**Last updated:** 2026-10-31
 **Source of truth for:** Product scope, workflows, states, and acceptance criteria
 
 ## Product goal
@@ -71,10 +71,11 @@ cohort-outcome summaries on the review page; outcome management remains in Membe
 Received counts include one current attempt per enrolled person × assignment, regardless
 of review status, not retained historical attempts. All submissions excludes missing work;
 Not submitted is a separate filter for outstanding obligations. Official counts exclude
-test enrollments; test views show only test submissions and an explicit exclusion note.
+test enrollments; test views show only test submissions, identified by the selected Test scope.
 Week, assignment when selected,
 status, name/email search and audience persist through review/back/next navigation.
-No work awaiting review does not mean week completion. Search and status controls sit
+No work awaiting review does not mean week completion; this is a calculation rule, not
+persistent explanatory UI copy. Empty queues say “No submissions awaiting review.” Search and status controls sit
 inside the queue toolbar; participant and week selectors belong in the panel header.
 
 ### Test participation
@@ -319,6 +320,16 @@ assignment, including when several belong to the same week.
 
 ## Admin workflows
 
+Week editing is sectioned into Overview, Assignments and Materials. Select one assignment
+to edit Details, Instructions/PDF, Activity setup or its private Grading reference.
+Guided common briefs/team directions and individual cases are configured one at a time.
+Changing sections or assignments retains unsaved input; it does not save or discard work.
+Week content/publication saves, activity/team-direction saves, grading-reference text saves
+and immediate PDF uploads retain their separate behavior. Leaving the editor warns about
+unsaved work/selected PDFs. Existing cohorts, assignment order, workflow eligibility,
+history and authorization are unchanged. Activities belong to each assignment's cohort/week,
+not to a hardcoded week number; cross-quarter copying remains a separate feature.
+
 - View total active members and current-assignment counts for submitted, outstanding,
   and awaiting review.
 - Filter a submission matrix by week and open a member's current submission.
@@ -408,7 +419,7 @@ including historical corrections with actor/time/history. States are Present/Not
 
 Admins can choose Present check-in for a standalone full-window code/QR presentation,
 requesting browser fullscreen when supported. It shows the selected week, large unchanged
-code, QR, closing time and sign-in/confirmation instructions, without navigation or roster
+code, QR and closing date/time, without extra sign-in/footer copy, navigation or roster
 data. Exit presentation or Escape returns to the same attendance screen without changing
 the session or attendance. A denied/unsupported fullscreen request keeps the full-window
 modal usable. An expired session replaces the code/QR with Check-in closed.

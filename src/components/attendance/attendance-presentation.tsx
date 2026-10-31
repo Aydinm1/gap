@@ -45,7 +45,7 @@ export function AttendancePresentation({ session, weekNumber, title, now }: {
 
   return <>
     <Button variant="secondary" className="mt-5" disabled={!open} onClick={present}>Present check-in</Button>
-    <dialog ref={dialog} aria-labelledby="attendance-presentation-title" aria-describedby="attendance-presentation-instructions"
+    <dialog ref={dialog} aria-labelledby="attendance-presentation-title" aria-describedby={open ? undefined : 'attendance-presentation-instructions'}
       onCancel={event => { event.preventDefault(); exit(); }}
       onKeyDown={event => {
         // Exit is the presentation's only interactive control; keep Tab inside it.
@@ -70,11 +70,9 @@ export function AttendancePresentation({ session, weekNumber, title, now }: {
               <p className="text-base font-semibold text-ink-soft sm:text-xl">Or enter this code in GAP</p>
               <p aria-label={`Code ${session.code.split('').join(' ')}`} className="my-5 whitespace-nowrap font-mono text-[clamp(2.75rem,7.5vw,8rem)] font-bold leading-tight tracking-[0.08em] text-action">{session.code}</p>
               <p className="text-base font-semibold sm:text-lg">Closes {attendanceTime(session.closes_at)}</p>
-              <p id="attendance-presentation-instructions" className="mx-auto mt-6 max-w-md text-base leading-relaxed text-ink-soft sm:text-xl">Sign in with your approved UC Davis account, then tap <strong className="text-ink">Mark me present</strong>.</p>
             </div>
           </div>
-          <footer className="pb-2 text-center text-sm text-ink-soft">Keep this screen open while everyone checks in. Press Escape to return.</footer>
-        </> : <section role="status" className="m-auto py-12 text-center"><h3 className="text-3xl font-bold sm:text-5xl">Check-in closed</h3><p id="attendance-presentation-instructions" className="mt-5 text-lg text-ink-soft">Return to Attendance to reopen check-in. Recorded attendance is kept.</p></section>}
+        </> : <section role="status" className="m-auto py-12 text-center"><h3 className="text-3xl font-bold sm:text-5xl">Check-in closed</h3><p id="attendance-presentation-instructions" className="mt-5 text-lg text-ink-soft">Return to Attendance to reopen check-in.</p></section>}
       </div>
     </dialog>
   </>;

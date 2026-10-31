@@ -1,3 +1,4 @@
+import { openAssignmentEditor } from './lib/week-editor.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {execFile} from 'node:child_process';
@@ -135,7 +136,7 @@ test('admin-assigned teams share one private submission without altering individ
    try{for(const width of [1280,390]){
     const browserAssignment=randomUUID();await sql(`insert into public.assignments(id,week_id,title,instructions,due_at,sort_order,submission_mode) values(${q(browserAssignment)},${q(week)},'Browser shared work ${width}','Research instructions',now(),5,'individual')`);
     const setup=await browser.newContext({viewport:{width,height:900}});await setup.addCookies(await cookies(lead));const sp=await setup.newPage();await sp.goto(`${app}/admin/weeks/${week}?cohort=${cohort}`);
-    await sp.locator(`input[value="Browser shared work ${width}"]`).locator('..').locator('..').getByRole('combobox',{name:'Submission type',exact:false}).selectOption('team');await sp.getByRole('button',{name:'Save changes',exact:true}).click();await sp.getByText('Week published.',{exact:true}).waitFor();await setup.close();
+    await openAssignmentEditor(sp,browserAssignment);await sp.locator(`input[value="Browser shared work ${width}"]`).locator('..').locator('..').getByRole('combobox',{name:'Submission type',exact:false}).selectOption('team');await sp.getByRole('button',{name:'Save changes',exact:true}).click();await sp.getByText('Week published.',{exact:true}).waitFor();await setup.close();
     const sender=await browser.newContext({viewport:{width,height:900}});await sender.addCookies(await cookies(a));const send=await sender.newPage();
     await send.goto(`${app}/week/1/assignments/${browserAssignment}`);await send.getByRole('button',{name:'Submit assignment',exact:true}).click();await send.getByRole('button',{name:'Write response',exact:false}).click();await send.getByRole('textbox',{name:'Your response',exact:true}).fill(`Shared browser response ${width}`);
     const staleContext=await browser.newContext({viewport:{width,height:900}});await staleContext.addCookies(await cookies(b));const stalePage=await staleContext.newPage();await stalePage.goto(`${app}/week/1/assignments/${browserAssignment}`);await stalePage.getByRole('button',{name:'Submit assignment',exact:true}).click();await stalePage.getByRole('button',{name:'Write response',exact:false}).click();await stalePage.getByRole('textbox',{name:'Your response',exact:true}).fill('Keep this teammate draft');

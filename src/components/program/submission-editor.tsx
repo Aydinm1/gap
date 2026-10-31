@@ -140,7 +140,7 @@ export function SubmissionEditor({
     <div>
       <h3 ref={heading} tabIndex={-1} className="text-lg font-bold text-ink outline-none">{actionLabel}</h3>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
-      {preview ? <p className="mt-3 rounded-lg border border-border bg-surface-subtle p-3 text-sm font-bold text-ink" role="note">Preview only — nothing will be submitted. Selected files stay on this device.</p> : null}
+      {preview ? <p className="mt-3 rounded-lg border border-border bg-surface-subtle p-3 text-sm font-bold text-ink" role="note">Preview only — nothing will be submitted.</p> : null}
       <div className={cn(
         "mt-6 grid gap-3",
         layout === "wide" ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-1",
@@ -180,7 +180,7 @@ export function SubmissionEditor({
           className="mt-2 block w-full min-w-0 resize-y rounded-lg border border-border-strong bg-surface p-3.5 text-base leading-7"
           placeholder="Type or paste your response here." />
         <p id={`${inputId}-count`} className={cn('mt-2 text-xs', characterCount > MAX_RESPONSE_CHARACTERS ? 'text-danger-text' : 'text-ink-soft')}>{characterCount.toLocaleString('en-US')} / 20,000 characters</p>
-        <p id={`${inputId}-text-help`} className="mt-2 text-xs leading-5 text-ink-soft">Plain text; paragraphs and line breaks are preserved. Drafts are not saved after a reload.</p>
+        <p id={`${inputId}-text-help`} className="mt-2 text-xs leading-5 text-ink-soft">Drafts are not saved after a reload.</p>
       </div> : null}
 
       {method === "file" ? (
@@ -195,7 +195,7 @@ export function SubmissionEditor({
             onChange={(event) => { patchDraft({ file: event.target.files?.[0] }); setError(undefined); }}
           />
           {file ? <p className="mt-2 break-words text-sm text-ink-soft">{file.name} · {formatFileSize(file.size)}</p> : null}
-          <p className="mt-2 text-xs leading-5 text-ink-soft">Files are private to you and GAP reviewers. After reloading, select your file again to start a new upload.</p>
+          <p className="mt-2 text-xs leading-5 text-ink-soft">After reloading, select your file again.</p>
         </div>
       ) : null}
 

@@ -1,18 +1,43 @@
 # GAP Design System
 
 **Status:** Active
-**Last updated:** 2026-10-28
+**Last updated:** 2026-10-31
 **Source of truth for:** Brand use, visual tokens, UI patterns, responsive behavior, and accessibility
 
 ## Direction
 
+### Interface copy
+
+The admin week editor uses Overview / Assignments / Materials navigation rather than
+stacking every form. Assignments use a compact ordered selector (sidebar on desktop,
+labeled native select on phones) and one visible assignment, with Details / Instructions /
+Activity setup / Grading reference sections. Guided setup shows one common brief or one
+team direction at a time; readiness appears in the team selector. Challenge setup shows
+Overview / Cases / Closing reflection and one selected case. All navigation is local,
+keyboard-accessible and preserves draft input, selected files and in-progress transfers.
+Keep week publication/save controls visible; activity, direction, reference and PDF saves
+remain independent and labeled at their own controls. Existing grading/workflow hash links
+reveal the matching assignment section. No new explanatory copy or activity library page.
+
+Keep interface copy action-focused. Remove subtitles that repeat a page heading,
+bookkeeping explanations (count denominators, retained records, separation of queues)
+and repeated descriptions of obvious controls. Status labels and selected Official/Test
+scope carry their meaning without a paragraph beneath them. Empty states may be a
+single clear heading; add a next step only when it helps the user recover or proceed.
+
+Keep authored learning content, deadlines, file/field limits, actionable errors,
+publication/access blockers, explicit preview/no-save labels, team-sharing context,
+approval/locking requirements and warnings about unsaved work or irreversible changes.
+Explain consequences at the relevant decision, not persistently across the screen.
+Do not hide essential instructions in tooltips or add a help control for every removed note.
+
 Guided assignments use the existing narrow assignment page, formatted overview and a
 compact three-step navigator (Research / Direction / Final document). One current step
 is visible; the overview is collapsible. Team research uses labeled textareas and explicit
-save/reveal language, not graded-submission language. Research helper copy says each save updates the team's
-current answers and editing remains available until the final assignment is submitted;
+save/reveal language, not graded-submission language. Research helper copy identifies
+shared answers and the editing cutoff at final submission;
 the internal original snapshot is not presented as a restriction on editing. Direction
-approval and missing-setup notices remain inline. Admin setup is a disclosure inside the assignment editor with
+approval and missing-setup notices remain inline. Admin setup is a focused activity section inside the assignment editor with
 independent saves and readiness per team. Approval requests use a separate restrained
 panel below the review queue, not additional summary metrics. Phone layouts wrap actions
 and preserve 44px controls. Preview is clearly read-only and offers an explicit sample team.
@@ -56,7 +81,7 @@ inline alerts and a timestamped receipt. Member screens never reveal the expecte
 
 Present check-in uses a viewport-filling accessible modal above the admin shell, with
 optional browser fullscreen. Use a large uncropped QR on white, high-contrast six-character
-code, workshop title, closing time and short explicit check-in directions. Pair QR/code
+code, workshop title and closing date/time; omit sign-in instructions and footer copy. Pair QR/code
 on wide screens and stack on phones; allow scrolling at short heights/zoom. Keep an exit
 button visible in the header, trap focus natively and restore focus to the launch button
 on exit/Escape. No roster, correction controls, new session or automatic attendance writes.
@@ -134,9 +159,10 @@ descriptive filenames.
 
 ## Core UI patterns
 
-- **Multiple assignments:** the week editor has an “Assignments” section and one
-  repeated assignment card per item, with its own title, instructions, Pacific deadline
-  and PDF panel. Keep a visible Add assignment action and the common week save bar.
+- **Multiple assignments:** the week editor has an “Assignments” section with an ordered
+  selector and one visible assignment editor. Details, instructions/PDF, activity setup
+  and grading references have separate sections. Keep a visible Add assignment action
+  and the common week save bar.
   Members see compact assignment cards, followed by shared materials. Each card has
   title, deadline, optional summary, status icon/text and View assignment. Module rows
   show earned completion counts (approved work or explicit admin credit), such as “1 of 3 assignments complete.”

@@ -1,12 +1,12 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { prepareBrief, finalizeBrief, cancelBrief } from '@/lib/assignment-briefs/actions';
 import type { Assignment } from '@/lib/program/types';
 
-export function AssignmentBriefUpload({ assignment }: { assignment: Assignment }) {
+export function AssignmentBriefUpload({ assignment, onDirty }: { assignment: Assignment; onDirty?: (id: string, dirty: boolean) => void }) {
   const router = useRouter();
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
@@ -19,6 +19,7 @@ export function AssignmentBriefUpload({ assignment }: { assignment: Assignment }
   const transfer = useRef<import('tus-js-client').Upload | undefined>(undefined);
   const locked = useRef(false);
   const saved = /^[0-9a-f-]{36}$/i.test(assignment.id);
+  useEffect(() => { onDirty?.('brief-' + assignment.id, Boolean(file) || busy); return () => onDirty?.('brief-' + assignment.id, false); }, [assignment.id, file, busy, onDirty]);
 
   async function upload() {
     if (!file || locked.current) return;
